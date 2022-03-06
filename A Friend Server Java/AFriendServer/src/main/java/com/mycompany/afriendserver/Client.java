@@ -62,7 +62,7 @@ public class Client {
             }
             catch (Exception se)
             {
-                //Console.WriteLine(se.ToString());
+                se.printStackTrace();
                 Program.shutdown(id);
             }
             finally
