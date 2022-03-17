@@ -45,7 +45,7 @@ public class Program {
                     + "password=" + System.getenv("DBpassword") + ";"
                     + "loginTimeout=10;";
 
-            System.setProperty("javax.net.ssl.keyStore", "F:/Python Learning/web_cert/server.p12");
+            System.setProperty("javax.net.ssl.keyStore", "F:/Python Learning/web_cert2022/server.p12");
             System.setProperty("javax.net.ssl.keyStorePassword", "RoRo");
             try ( Connection sqlr = DriverManager.getConnection(connectionUrl)) {
                 sql = sqlr;
