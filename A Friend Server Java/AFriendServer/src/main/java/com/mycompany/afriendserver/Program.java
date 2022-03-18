@@ -34,20 +34,22 @@ public class Program {
     static ConcurrentHashMap<String, Client> sessions = new ConcurrentHashMap<String, Client>();
 
     static Connection sql;
+    static String cnurl;
+
+    // object that can random long number
+    static java.util.Random rand = new java.util.Random();
 
     public static void main(String[] args) {
-        // TODO code application logic here
         try {
-            String connectionUrl
-                    = "jdbc:sqlserver://" + System.getenv("DBServer") + ";"
+            String connectionUrl = "jdbc:sqlserver://" + System.getenv("DBServer") + ";"
                     + "database=" + System.getenv("DBicatalog") + ";"
                     + "user=" + System.getenv("DBusername") + ";"
                     + "password=" + System.getenv("DBpassword") + ";"
                     + "loginTimeout=10;";
-
+            cnurl = connectionUrl;
             System.setProperty("javax.net.ssl.keyStore", "F:/Python Learning/web_cert2022/server.p12");
             System.setProperty("javax.net.ssl.keyStorePassword", "RoRo");
-            try ( Connection sqlr = DriverManager.getConnection(connectionUrl)) {
+            try (Connection sqlr = DriverManager.getConnection(connectionUrl)) {
                 sql = sqlr;
                 ExecuteServer();
             } catch (Exception e) {
@@ -60,25 +62,28 @@ public class Program {
 
     private static void ExecuteServer() throws IOException {
         SSLServerSocketFactory ssf = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-        SSLServerSocket ss = (SSLServerSocket) ssf.createServerSocket(11112);
-        SSLSocket client = (SSLSocket) ss.accept();
-        out.println("Accepted Client!");
-        DataOutputStream DOS = new DataOutputStream(client.getOutputStream());
-        DataInputStream DIS = new DataInputStream(client.getInputStream());
-        while (true) {
-            String receivedMessage = DIS.readUTF();
-            out.println("Client said: " + receivedMessage);
-            if (receivedMessage.equals("close")) {
-                DOS.writeUTF("bye");
-                break;
-            } else {
-                DOS.writeUTF("U said: " + receivedMessage);
+        try (SSLServerSocket ss = (SSLServerSocket) ssf.createServerSocket(11112)) {
+            // translate below line of code from C#
+            // Console.WriteLine("Server at: {0}", IPAddress.Any);
+            out.println("Server at: " + ss.getInetAddress());
+            try {
+                while (true) {
+                    SSLSocket client = (SSLSocket) ss.accept();
+                    try {
+                        // translate below line of code from C#
+                        // ThreadPool.QueueUserWorkItem(Receive_from_socket_not_logged_in, client);
+                        executor.execute(new Receive_from_socket_not_logged_in(client));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    client = null;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+        } catch (Exception e){
+            e.printStackTrace();
         }
-        DOS.close();
-        DIS.close();
-        client.close();
-        ss.close();
     }
 
     static void shutdown(String id) {
@@ -104,13 +109,34 @@ public class Program {
         while (str_id.toCharArray()[0] == '0' && str_id.length() > 1) {
             str_id = str_id.substring(1);
         }
-        try ( PreparedStatement cmd = sql.prepareStatement("update top (1) account set state= ? where id= ?");) {
+        try (PreparedStatement cmd = sql.prepareStatement("update top (1) account set state= ? where id= ?");) {
             cmd.setLong(2, Long.parseLong(str_id));
             cmd.setByte(1, state);
             cmd.executeUpdate();
-            //"update top (1) account set state=@state where id=@id"
-        } catch (Exception e){
+            // "update top (1) account set state=@state where id=@id"
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void handleException(String data, String se) {
+        try
+            {
+                if (se.contains("open and available Connection"))
+                {
+                    sql = DriverManager.getConnection(cnurl);
+                }
+                else if (se.contains("Execution Timeout Expired"))
+                {
+                    sql = DriverManager.getConnection(cnurl);
+                }
+                else if (se.contains("was forcibly closed"))
+                {
+                    shutdown(data);
+                }
+            }catch(Exception e)
+            {
+                e.printStackTrace();
+            }
     }
 }
