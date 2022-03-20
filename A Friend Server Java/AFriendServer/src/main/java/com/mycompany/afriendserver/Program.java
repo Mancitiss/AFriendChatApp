@@ -1,14 +1,11 @@
 package com.mycompany.afriendserver;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import static java.lang.System.out;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,7 +13,6 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
-import org.apache.commons.dbutils.DbUtils;
 
 /**
  *
@@ -27,8 +23,8 @@ public class Program {
     /**
      * @param args the command line arguments
      */
-    private static String avatar_path = "F:\\App\\AFriendServer\\avatar";
-    private static String img_path = "F:\\App\\AFriendServer\\message";
+    public static String avatar_path = "F:\\App\\AFriendServer\\avatar";
+    public static String img_path = "F:\\App\\AFriendServer\\message";
     static ExecutorService executor = Executors.newCachedThreadPool();
 
     static ConcurrentHashMap<String, Client> sessions = new ConcurrentHashMap<String, Client>();
@@ -81,7 +77,7 @@ public class Program {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -103,40 +99,67 @@ public class Program {
         } catch (Exception e) {
 
         }
-        byte state = sessions.get(id).status;
-        Client temp = sessions.remove(id);
-        String str_id = id;
-        while (str_id.toCharArray()[0] == '0' && str_id.length() > 1) {
-            str_id = str_id.substring(1);
+        try {
+            byte state = sessions.get(id).status;
+            sessions.remove(id);
+            String str_id = id;
+            while (str_id.toCharArray()[0] == '0' && str_id.length() > 1) {
+                str_id = str_id.substring(1);
+            }
+            try (PreparedStatement cmd = sql.prepareStatement("update top (1) account set state= ? where id= ?");) {
+                cmd.setLong(2, Long.parseLong(str_id));
+                cmd.setByte(1, state);
+                cmd.executeUpdate();
+                // "update top (1) account set state=@state where id=@id"
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        try (PreparedStatement cmd = sql.prepareStatement("update top (1) account set state= ? where id= ?");) {
-            cmd.setLong(2, Long.parseLong(str_id));
-            cmd.setByte(1, state);
-            cmd.executeUpdate();
-            // "update top (1) account set state=@state where id=@id"
+    }
+
+    public static void handleException(String data, String se) {
+        try {
+            if (se.contains("open and available Connection")) {
+                sql = DriverManager.getConnection(cnurl);
+            } else if (se.contains("Execution Timeout Expired")) {
+                sql = DriverManager.getConnection(cnurl);
+            } else if (se.contains("was forcibly closed")) {
+                shutdown(data);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void handleException(String data, String se) {
-        try
-            {
-                if (se.contains("open and available Connection"))
-                {
-                    sql = DriverManager.getConnection(cnurl);
-                }
-                else if (se.contains("Execution Timeout Expired"))
-                {
-                    sql = DriverManager.getConnection(cnurl);
-                }
-                else if (se.contains("was forcibly closed"))
-                {
-                    shutdown(data);
-                }
-            }catch(Exception e)
-            {
-                e.printStackTrace();
+    static boolean check_existed_username(String username) {
+        try (PreparedStatement cmd = sql.prepareStatement("select 1 from account where username= ?");) {
+            cmd.setString(1, username);
+            ResultSet rs = cmd.executeQuery();
+            if (rs.next()) {
+                return true;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    static boolean check_existed_id(long id) {
+        // also return true if id <= 0
+        if (id <= 0) {
+            return true;
+        }
+        try (PreparedStatement cmd = sql.prepareStatement("select 1 from account where id= ?");) {
+            cmd.setLong(1, id);
+            ResultSet rs = cmd.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
