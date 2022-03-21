@@ -108,14 +108,63 @@ public class Receive_message implements Runnable {
                                     // JSON serialize messages
                                     Gson gson = new Gson();
                                     String json = gson.toJson(messages);
-                                    // continue here
+                                    // send to id
+                                    Program.sessions.get(ID).Queue_command(("6475" + receiver_id +Tools.data_with_unicode_byte(json) ).getBytes(StandardCharsets.UTF_16));
+                                    // old messages sent
+                                    System.out.println("Old messages sent");
+                                    if (Program.sessions.containsKey(ID)){
+                                        if (Program.sessions.get(ID).loaded > 1){
+                                            Program.sessions.get(ID).loaded -= 1;
+                                        } else if (Program.sessions.get(ID).loaded == 1){
+                                            Program.sessions.get(ID).Queue_command("2411".getBytes(StandardCharsets.UTF_16));
+                                            Program.sessions.get(ID).loaded -= 1;
+                                        }
+                                    }
                                 }
-                            } else {
-
+                            } else if (num > 1){
+                                int i = 0;
+                                ArrayList<MessageObject> messages = new ArrayList<MessageObject>();
+                                while(num > 0 && i < 20){
+                                    try(PreparedStatement ps = Program.sql.prepareStatement("select top 1 * from message where id1=@id1 and id2=@id2 and messagenumber=@messagenumber")){
+                                        ps.setString(1, p[0]);
+                                        ps.setString(2, p[1]);
+                                        ps.setLong(3, num);
+                                        try(java.sql.ResultSet rs = ps.executeQuery()){
+                                            if (rs.next()){
+                                                if (rs.getByte("type") == 0 || rs.getByte("type") == 3){
+                                                    messages.add(new MessageObject(rs.getString("id1"), rs.getString("id2"), rs.getLong("messagenumber"), new java.util.Date((rs.getTimestamp("timesent").getTime())), rs.getBoolean("sender"), rs.getString("message"), rs.getByte("type")));
+                                                } else if (rs.getByte("type") == 1 && (new File(Program.img_path + p[0] + "_" + p[1] + num + ".png")).exists()){
+                                                    messages.add(new MessageObject(rs.getString("id1"), rs.getString("id2"), rs.getLong("messagenumber"), new java.util.Date((rs.getTimestamp("timesent").getTime())), rs.getBoolean("sender"), Tools.ImageToBASE64(Program.img_path + p[0] + "_" + p[1] + "_" + num + ".png"), rs.getByte("type")));
+                                                }
+                                            }
+                                        }
+                                        num -= 1;
+                                        i += 1;
+                                    }
+                                }
+                                // JSON serialize messages
+                                Gson gson = new Gson();
+                                String json = gson.toJson(messages);
+                                // send to id
+                                Program.sessions.get(ID).Queue_command(("6475" + receiver_id +Tools.data_with_unicode_byte(json) ).getBytes(StandardCharsets.UTF_16));
+                                System.out.println("Old messages sent");
                             }
                         }
                         break;
-
+                        case "1901":{
+                            data = Tools.receive_Unicode_Automatically(s);
+                            String receiver_id = data.substring(0, 19);
+                            data = data.substring(19);
+                            String[] p = Tools.compareIDs(ID, receiver_id);
+                            String sqlmessage = data;
+                            try{
+                                
+                            } catch (Exception e){
+                                e.printStackTrace();
+                                Program.handleException(ID, e.getMessage());
+                            }
+                        } 
+                        break;
                     }
                 } else {
                     Program.shutdown(ID);
