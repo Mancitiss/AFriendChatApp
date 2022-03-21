@@ -1,6 +1,8 @@
 package com.mycompany.afriendserver;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import static java.lang.System.out;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,6 +15,7 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
+import com.google.gson.Gson;
 
 /**
  *
@@ -27,13 +30,15 @@ public class Program {
     public static String img_path = "F:\\App\\AFriendServer\\message";
     static ExecutorService executor = Executors.newCachedThreadPool();
 
+    public static Gson gson = new Gson();
+
     static ConcurrentHashMap<String, Client> sessions = new ConcurrentHashMap<String, Client>();
 
     static Connection sql;
     static String cnurl;
 
     // object that can random long number
-    static java.util.Random rand = new java.util.Random();
+    static java.util.SplittableRandom rand = new java.util.SplittableRandom();
 
     public static void main(String[] args) {
         try {
@@ -119,14 +124,14 @@ public class Program {
         }
     }
 
-    public static void handleException(String data, String se) {
+    public static void handleException(String ID, String se) {
         try {
             if (se.contains("open and available Connection")) {
                 sql = DriverManager.getConnection(cnurl);
             } else if (se.contains("Execution Timeout Expired")) {
                 sql = DriverManager.getConnection(cnurl);
             } else if (se.contains("was forcibly closed")) {
-                shutdown(data);
+                shutdown(ID);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -161,5 +166,22 @@ public class Program {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static boolean sendToID(String iD, MessageObject msgobj) {
+        boolean success = false;
+        if (sessions.containsKey(iD)){
+            try{
+                sessions.get(iD).Queue_command(("1901" + Tools.data_with_unicode_byte(gson.toJson(msgobj))).getBytes(StandardCharsets.UTF_16));
+                success = true;
+            } catch (Exception e){
+                if (e.getMessage().contains("was forcibly closed")){
+                    shutdown(iD);
+                }
+                else e.printStackTrace();
+                success = false;
+            }
+        }
+        return success;
     }
 }
