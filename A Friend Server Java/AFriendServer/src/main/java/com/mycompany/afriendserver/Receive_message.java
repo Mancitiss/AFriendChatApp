@@ -279,7 +279,8 @@ public class Receive_message implements Runnable {
                                                     String img_message = data;
                                                     File temp = new File(Program.img_path + p[0] + "_" + p[1] + "_"
                                                             + rs.getLong("messagenumber") + ".png");
-                                                    try(BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(temp))) {
+                                                    try (BufferedOutputStream fos = new BufferedOutputStream(
+                                                            new FileOutputStream(temp))) {
                                                         fos.write(java.util.Base64.getDecoder().decode(img_message));
                                                     }
                                                     MessageObject msgobj = new MessageObject(
@@ -310,6 +311,72 @@ public class Receive_message implements Runnable {
                                 Program.handleException(ID, e.getMessage());
                             }
                         }
+                            break;
+                        case "1903": {
+                            String receiver_id = Tools.receive_unicode(s, 38);
+                            String p[] = Tools.compareIDs(ID, receiver_id);
+                            String file = Tools.receive_Unicode_Automatically(s);
+                            String length = Tools.receive_ASCII_Automatically(s);
+                            boolean success = false;
+                            try {
+                                Timestamp now = new Timestamp(System.currentTimeMillis());
+                                try (PreparedStatement ps = Program.sql
+                                        .prepareStatement("insert into message values (?, ?, ?, ?, ?, ?, 3)")) {
+                                    ps.setString(1, p[0]);
+                                    ps.setString(2, p[1]);
+                                    ps.setLong(3, -Program.rand.nextInt(1000000000));
+                                    ps.setTimestamp(4, now);
+                                    ps.setBoolean(5, true);
+                                    ps.setString(6, file);
+                                    if (ps.executeUpdate() >= 1) {
+                                        success = true;
+                                    }
+                                }
+                                if (success) {
+                                    try (PreparedStatement ps2 = Program.sql.prepareStatement(
+                                            "select top 1 * from message where id1 = @id1 and id2 = @id2 and timesent = @timesent and sender = @sender and message = @message and type = 3")) {
+                                        ps2.setString(1, p[0]);
+                                        ps2.setString(2, p[1]);
+                                        ps2.setTimestamp(3, now);
+                                        ps2.setBoolean(4, ID.equals(p[1]));
+                                        ps2.setString(5, file);
+                                        try (ResultSet rs = ps2.executeQuery()) {
+                                            if (rs.next()) {
+                                                try {
+                                                    Program.files.put(p[0] + "_" + p[1] + "_" + rs.getString("messagenuber") + ".", new FileToWrite(Long.parseLong(length)));
+                                                    Program.sessions.get(ID).Queue_command(
+                                                        Tools.combine(
+                                                            ("1903"+receiver_id).getBytes(StandardCharsets.UTF_16), 
+                                                            Tools.data_with_ASCII_byte(rs.getString("messagenumber")).getBytes(StandardCharsets.US_ASCII),
+                                                            Tools.data_with_unicode_byte(rs.getString("message")).getBytes(StandardCharsets.UTF_16),
+                                                            Tools.data_with_ASCII_byte
+                                                            (Long.toString(Program.files.get(p[0] + "_" + p[1] + "_" + rs.getString("messagenuber") + ".").size)).getBytes(StandardCharsets.US_ASCII)
+                                                        ));
+                                                    MessageObject msgobj = new MessageObject(
+                                                            Tools.padleft(rs.getString("id1"), 19, '0'),
+                                                            Tools.padleft(rs.getString("id2"), 19, '0'),
+                                                            rs.getLong("messagenumber"), rs.getTimestamp("timesent"),
+                                                            rs.getBoolean("sender"), rs.getString("message"),
+                                                            rs.getByte("type"));
+                                                    if (!ID.equals(receiver_id)) Program.sendToID(ID, msgobj);
+                                                    if (!Program.sendToID(receiver_id, msgobj)) {
+                                                        Program.sessions.get(ID).Queue_command("0404".getBytes(StandardCharsets.UTF_16));
+                                                    } else {
+                                                        Program.sessions.get(ID).Queue_command("2211".getBytes(StandardCharsets.UTF_16));
+                                                    }
+                                                    System.out.println("Sent");
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Program.handleException(ID, e.getMessage());
+                            }
+                        } // ready to receive file from client
                         break;
                     }
                 } else {
