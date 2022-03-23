@@ -378,6 +378,87 @@ public class Receive_message implements Runnable {
                             }
                         } // ready to receive file from client
                         break;
+                        case "1904":
+                        {
+                            // suggest 1 line
+                            String receiver_id = Tools.receive_unicode(s, 38);
+                            String num = Tools.receive_ASCII_Automatically(s);
+                            long messagenumber = Long.parseLong(num);
+                            String offsetstr = Tools.receive_ASCII_Automatically(s);
+                            long offset = Long.parseLong(offsetstr);
+                            String received_byte_str = Tools.receive_ASCII_Automatically(s);
+                            int received_byte = Integer.parseInt(received_byte_str);
+                            byte[] databyte = Tools.receive_byte_array(s, received_byte);
+                            String[] p = Tools.compareIDs(ID, receiver_id);
+                            String filename = p[0] + "_" + p[1] + "_" + num + ".";
+                            Program.sessions.get(ID).files_on_transfer.put(filename, true);
+                            if (Program.sessions.containsKey(ID) && 
+                            Program.sessions.get(ID).files_on_transfer.containsKey(filename) && 
+                            Program.sessions.get(ID).files_on_transfer.get(filename) && 
+                            Program.files.containsKey(filename) && Program.files.get(filename).size > 0){
+                                boolean done = false;
+                                while(!done){
+                                    try{
+                                        if (Program.files.get(filename).fos != null){
+                                            if (Program.files.get(filename).fos.getChannel().isOpen()){
+                                                Program.files.get(filename).fos.getChannel().position(offset);
+                                                Program.files.get(filename).fos.write(databyte, 0, received_byte);
+                                                Program.files.get(filename).size -= received_byte;
+                                                if (Program.files.get(filename).size <= 0){
+                                                    Program.files.get(filename).fos.close();
+                                                    Program.files.get(filename).fos = null;
+                                                    Program.files.remove(filename);
+                                                    Program.sessions.get(ID).files_on_transfer.remove(filename);
+                                                    done = true;
+                                                }
+                                            }
+                                        }
+                                    } catch (Exception e){
+                                        if (e.getMessage().contains("being used by another process")){
+                                            synchronized(this){
+                                                this.wait(100);
+                                            }
+                                        } else {
+                                            e.printStackTrace();
+                                            FileToWrite f = Program.files.remove(filename);
+                                            try{
+                                                f.fis.close();
+                                            } 
+                                            catch (Exception e2){
+                                            }
+                                            f.fis = null;
+                                            try{
+                                                f.fos.close();
+                                            } 
+                                            catch (Exception e2){
+                                            }
+                                            f.fos = null;
+                                            Program.sessions.get(ID).files_on_transfer.remove(filename);
+                                            throw e;
+                                        }
+                                    }
+                                }
+                            }
+                            else if (Program.sessions.get(ID).files_on_transfer.containsKey(filename) && Program.sessions.get(ID).files_on_transfer.get(filename) == false){
+                                FileToWrite temp = Program.files.remove(filename);
+                                if (temp!=null){
+                                    try{
+                                        temp.fis.close();
+                                    } 
+                                    catch (Exception e){
+                                    }
+                                    temp.fis = null;
+                                    try{
+                                        temp.fos.close();
+                                    } 
+                                    catch (Exception e){
+                                    }
+                                    temp.fos = null;
+                                }
+                                Program.sessions.get(ID).files_on_transfer.remove(filename);
+                            }
+                        }
+                        break;
                     }
                 } else {
                     Program.shutdown(ID);

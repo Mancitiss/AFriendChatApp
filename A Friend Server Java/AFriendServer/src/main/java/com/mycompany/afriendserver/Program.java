@@ -33,7 +33,7 @@ public class Program {
     public static Gson gson = new Gson();
 
     static ConcurrentHashMap<String, Client> sessions = new ConcurrentHashMap<String, Client>();
-
+    static ConcurrentHashMap<String, FileToWrite> files = new ConcurrentHashMap<String, FileToWrite>();
     static Connection sql;
     static String cnurl;
 

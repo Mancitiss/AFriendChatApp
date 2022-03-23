@@ -3,10 +3,22 @@ package com.mycompany.afriendserver;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+/**
+ *
+ * @author Mancitiss
+ */
 public class Tools {
+
+    /**
+     *
+     * @param DIS
+     * @param length
+     * @return
+     */
     public static String receive_ASCII(DataInputStream DIS, int length) {
         byte[] buffer = new byte[length];
         try {
@@ -17,6 +29,13 @@ public class Tools {
         // return string from byte array as unicode
         return new String(buffer, StandardCharsets.US_ASCII);
     }
+
+    /**
+     *
+     * @param DIS
+     * @param length
+     * @return
+     */
     public static String receive_unicode(DataInputStream DIS, int length) {
         byte[] buffer = new byte[length];
         try {
@@ -27,6 +46,12 @@ public class Tools {
         // return string from byte array as unicode
         return new String(buffer, StandardCharsets.UTF_16);
     }
+
+    /**
+     *
+     * @param DIS
+     * @return
+     */
     public static String receive_ASCII_Automatically(DataInputStream DIS){
         String result = "";
         try{
@@ -41,6 +66,12 @@ public class Tools {
         }
         return result;
     }
+
+    /**
+     *
+     * @param DIS
+     * @return
+     */
     public static String receive_Unicode_Automatically(DataInputStream DIS){
         String result = "";
         try{
@@ -55,12 +86,26 @@ public class Tools {
         }
         return result;
     }
+
+    /**
+     *
+     * @param s
+     * @param n
+     * @param c
+     * @return
+     */
     public static String padleft(String s, int n, char c){
         while (s.length() < n){
             s = c + s;
         }
         return s;
     }
+
+    /**
+     *
+     * @param data
+     * @return
+     */
     public static String data_with_unicode_byte(String data){
         if (!data.isEmpty()){
             String databyte = Integer.toString(data.length()*2, 10);
@@ -68,6 +113,12 @@ public class Tools {
         }
         return "";
     }
+
+    /**
+     *
+     * @param data
+     * @return
+     */
     public static String data_with_ASCII_byte(String data){
         if (!data.isEmpty()){
             String databyte = Integer.toString(data.length(), 10);
@@ -76,6 +127,12 @@ public class Tools {
         return "";
     }
     //combine n byte arrays
+
+    /**
+     *
+     * @param arrays
+     * @return
+     */
     public static byte[] combine(byte[]... arrays) {
         int length = 0;
         for (byte[] array : arrays) {
@@ -90,6 +147,12 @@ public class Tools {
         return result;
     }
 
+    /**
+     *
+     * @param ID1
+     * @param ID2
+     * @return a sorted array of two IDs from low to high
+     */
     public static String[] compareIDs(String ID1, String ID2){
         if (ID1.compareTo(ID2) <= 0){
             return new String[]{ID1, ID2};
@@ -97,6 +160,12 @@ public class Tools {
             return new String[]{ID2, ID1};
         }
     }
+
+    /**
+     *
+     * @param string
+     * @return string
+     */
     public static String ImageToBASE64(String string) {
         String result = "";
         File imagefile = new File(string);
@@ -115,5 +184,17 @@ public class Tools {
             }
         }
         return result;
+    }
+
+    /**
+     * 
+     * @param DataInputStream, int
+     * @return byte array
+     * @throws IOException
+     */
+    public static byte[] receive_byte_array(DataInputStream DIS, int length) throws IOException{
+        byte[] buffer = new byte[length];
+        DIS.readFully(buffer);
+        return buffer;
     }
 }
