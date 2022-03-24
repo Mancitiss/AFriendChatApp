@@ -343,26 +343,38 @@ public class Receive_message implements Runnable {
                                         try (ResultSet rs = ps2.executeQuery()) {
                                             if (rs.next()) {
                                                 try {
-                                                    Program.files.put(p[0] + "_" + p[1] + "_" + rs.getString("messagenuber") + ".", new FileToWrite(Long.parseLong(length)));
+                                                    Program.files.put(p[0] + "_" + p[1] + "_"
+                                                            + rs.getString("messagenuber") + ".",
+                                                            new FileToWrite(Long.parseLong(length)));
                                                     Program.sessions.get(ID).Queue_command(
-                                                        Tools.combine(
-                                                            ("1903"+receiver_id).getBytes(StandardCharsets.UTF_16), 
-                                                            Tools.data_with_ASCII_byte(rs.getString("messagenumber")).getBytes(StandardCharsets.US_ASCII),
-                                                            Tools.data_with_unicode_byte(rs.getString("message")).getBytes(StandardCharsets.UTF_16),
-                                                            Tools.data_with_ASCII_byte
-                                                            (Long.toString(Program.files.get(p[0] + "_" + p[1] + "_" + rs.getString("messagenuber") + ".").size)).getBytes(StandardCharsets.US_ASCII)
-                                                        ));
+                                                            Tools.combine(
+                                                                    ("1903" + receiver_id)
+                                                                            .getBytes(StandardCharsets.UTF_16),
+                                                                    Tools.data_with_ASCII_byte(
+                                                                            rs.getString("messagenumber"))
+                                                                            .getBytes(StandardCharsets.US_ASCII),
+                                                                    Tools.data_with_unicode_byte(
+                                                                            rs.getString("message"))
+                                                                            .getBytes(StandardCharsets.UTF_16),
+                                                                    Tools.data_with_ASCII_byte(Long.toString(
+                                                                            Program.files.get(p[0] + "_" + p[1] + "_"
+                                                                                    + rs.getString("messagenuber")
+                                                                                    + ".").size))
+                                                                            .getBytes(StandardCharsets.US_ASCII)));
                                                     MessageObject msgobj = new MessageObject(
                                                             Tools.padleft(rs.getString("id1"), 19, '0'),
                                                             Tools.padleft(rs.getString("id2"), 19, '0'),
                                                             rs.getLong("messagenumber"), rs.getTimestamp("timesent"),
                                                             rs.getBoolean("sender"), rs.getString("message"),
                                                             rs.getByte("type"));
-                                                    if (!ID.equals(receiver_id)) Program.sendToID(ID, msgobj);
+                                                    if (!ID.equals(receiver_id))
+                                                        Program.sendToID(ID, msgobj);
                                                     if (!Program.sendToID(receiver_id, msgobj)) {
-                                                        Program.sessions.get(ID).Queue_command("0404".getBytes(StandardCharsets.UTF_16));
+                                                        Program.sessions.get(ID).Queue_command(
+                                                                "0404".getBytes(StandardCharsets.UTF_16));
                                                     } else {
-                                                        Program.sessions.get(ID).Queue_command("2211".getBytes(StandardCharsets.UTF_16));
+                                                        Program.sessions.get(ID).Queue_command(
+                                                                "2211".getBytes(StandardCharsets.UTF_16));
                                                     }
                                                     System.out.println("Sent");
                                                 } catch (Exception e) {
@@ -377,13 +389,12 @@ public class Receive_message implements Runnable {
                                 Program.handleException(ID, e.getMessage());
                             }
                         } // ready to receive file from client
-                        break;
-                        case "1904":
-                        {
+                            break;
+                        case "1904": {
                             // suggest 1 line
                             String receiver_id = Tools.receive_unicode(s, 38);
                             String num = Tools.receive_ASCII_Automatically(s);
-                            //long messagenumber = Long.parseLong(num);
+                            // long messagenumber = Long.parseLong(num);
                             String offsetstr = Tools.receive_ASCII_Automatically(s);
                             long offset = Long.parseLong(offsetstr);
                             String received_byte_str = Tools.receive_ASCII_Automatically(s);
@@ -392,19 +403,19 @@ public class Receive_message implements Runnable {
                             String[] p = Tools.compareIDs(ID, receiver_id);
                             String filename = p[0] + "_" + p[1] + "_" + num + ".";
                             Program.sessions.get(ID).files_on_transfer.put(filename, true);
-                            if (Program.sessions.containsKey(ID) && 
-                            Program.sessions.get(ID).files_on_transfer.containsKey(filename) && 
-                            Program.sessions.get(ID).files_on_transfer.get(filename) && 
-                            Program.files.containsKey(filename) && Program.files.get(filename).size > 0){
+                            if (Program.sessions.containsKey(ID) &&
+                                    Program.sessions.get(ID).files_on_transfer.containsKey(filename) &&
+                                    Program.sessions.get(ID).files_on_transfer.get(filename) &&
+                                    Program.files.containsKey(filename) && Program.files.get(filename).size > 0) {
                                 boolean done = false;
-                                while(!done){
-                                    try{
-                                        if (Program.files.get(filename).fos != null){
-                                            if (Program.files.get(filename).fos.getChannel().isOpen()){
+                                while (!done) {
+                                    try {
+                                        if (Program.files.get(filename).fos != null) {
+                                            if (Program.files.get(filename).fos.getChannel().isOpen()) {
                                                 Program.files.get(filename).fos.getChannel().position(offset);
                                                 Program.files.get(filename).fos.write(databyte, 0, received_byte);
                                                 Program.files.get(filename).size -= received_byte;
-                                                if (Program.files.get(filename).size <= 0){
+                                                if (Program.files.get(filename).size <= 0) {
                                                     Program.files.get(filename).fos.close();
                                                     Program.files.get(filename).fos = null;
                                                     Program.files.remove(filename);
@@ -413,24 +424,22 @@ public class Receive_message implements Runnable {
                                                 }
                                             }
                                         }
-                                    } catch (Exception e){
-                                        if (e.getMessage().contains("being used by another process")){
-                                            synchronized(this){
+                                    } catch (Exception e) {
+                                        if (e.getMessage().contains("being used by another process")) {
+                                            synchronized (this) {
                                                 this.wait(100);
                                             }
                                         } else {
                                             e.printStackTrace();
                                             FileToWrite f = Program.files.remove(filename);
-                                            try{
+                                            try {
                                                 f.fis.close();
-                                            } 
-                                            catch (Exception e2){
+                                            } catch (Exception e2) {
                                             }
                                             f.fis = null;
-                                            try{
+                                            try {
                                                 f.fos.close();
-                                            } 
-                                            catch (Exception e2){
+                                            } catch (Exception e2) {
                                             }
                                             f.fos = null;
                                             Program.sessions.get(ID).files_on_transfer.remove(filename);
@@ -438,32 +447,97 @@ public class Receive_message implements Runnable {
                                         }
                                     }
                                 }
-                            }
-                            else if (Program.sessions.get(ID).files_on_transfer.containsKey(filename) && Program.sessions.get(ID).files_on_transfer.get(filename) == false){
+                            } else if (Program.sessions.get(ID).files_on_transfer.containsKey(filename)
+                                    && Program.sessions.get(ID).files_on_transfer.get(filename) == false) {
                                 FileToWrite temp = Program.files.remove(filename);
-                                if (temp!=null){
-                                    try{
+                                if (temp != null) {
+                                    try {
                                         temp.fis.close();
-                                    } 
-                                    catch (Exception e){
+                                    } catch (Exception e) {
                                     }
                                     temp.fis = null;
-                                    try{
+                                    try {
                                         temp.fos.close();
-                                    } 
-                                    catch (Exception e){
+                                    } catch (Exception e) {
                                     }
                                     temp.fos = null;
                                 }
                                 Program.sessions.get(ID).files_on_transfer.remove(filename);
                             }
                         }
-                        break;
-                        case "1905":
-                        {
+                            break;
+                        case "1905": {
                             String receiver_id = Tools.receive_unicode(s, 38);
                             String num = Tools.receive_ASCII_Automatically(s);
                             Program.executor.execute(new Send_file(ID, receiver_id, num));
+                        }
+                            break;
+                        case "2002": {
+                            String receiver_id = Tools.receive_unicode(s, 38);
+                            String[] p = Tools.compareIDs(ID, receiver_id);
+                            String messagenumber_str = Tools.receive_Unicode_Automatically(s);
+                            long messagenumber = Long.parseLong(messagenumber_str);
+                            try (PreparedStatement ps = Program.sql.prepareStatement(
+                                    "delete top (1) from message where id1=? and id2=? and messagenumber=?")) {
+                                ps.setString(1, p[0]);
+                                ps.setString(2, p[1]);
+                                ps.setLong(3, messagenumber);
+                                ps.executeUpdate();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Program.handleException(ID, e.getMessage());
+                            }
+                            File f = new File(Program.img_path + p[0] + "_" + p[1] + "_" + messagenumber_str + ".png");
+                            if (f.exists()) {
+                                f.delete();
+                            }
+                            try {
+                                String file = Program.img_path + p[0] + "_" + p[1] + "_" + messagenumber_str + ".";
+                                File f1 = new File(file);
+                                if (f1.exists()) {
+                                    // System.out.println("===============================================================");
+                                    String filename = p[0] + "_" + p[1] + "_" + messagenumber_str + ".";
+                                    if (Program.sessions.containsKey(p[0])
+                                            && Program.sessions.get(p[0]).files_on_transfer.containsKey(file)) {
+                                        // set already existed file to false
+                                        Program.sessions.get(p[0]).files_on_transfer.put(file, false);
+                                    }
+                                    // also set for p[1]
+                                    if (Program.sessions.containsKey(p[1])
+                                            && Program.sessions.get(p[1]).files_on_transfer.containsKey(file)) {
+                                        // set already existed file to false
+                                        Program.sessions.get(p[1]).files_on_transfer.put(file, false);
+                                    }
+                                    try {
+                                        FileToWrite temp = Program.files.remove(filename);
+                                        if (temp != null) {
+                                            // close all resources with try catch
+                                            try {
+                                                temp.fis.close();
+                                            } catch (Exception e) {
+                                            }
+                                            temp.fis = null;
+                                            try {
+                                                temp.fos.close();
+                                            } catch (Exception e) {
+                                            }
+                                            temp.fos = null;
+                                        }
+                                    } catch (Exception e) {
+                                    }
+                                    Program.executor.execute(new Delete_file(file));
+                                }
+                            } catch (Exception e) {}
+                            if (Program.sessions.containsKey(receiver_id)){
+                                Program.sessions.get(receiver_id).Queue_command(
+                                    ("2002"+ ID + Tools.data_with_unicode_byte(messagenumber_str)).getBytes(StandardCharsets.UTF_16)
+                                );
+                            }
+                        }
+                        break;
+                        case "2004":
+                        {
+                            Program.shutdown(ID);
                         }
                         break;
                     }
