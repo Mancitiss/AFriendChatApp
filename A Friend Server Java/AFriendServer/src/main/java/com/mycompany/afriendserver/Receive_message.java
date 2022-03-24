@@ -8,8 +8,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Base64;
 
 import com.google.gson.Gson;
+
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 public class Receive_message implements Runnable {
     String ID;
@@ -523,8 +526,7 @@ public class Receive_message implements Runnable {
                                             }
                                             temp.fos = null;
                                         }
-                                    } catch (Exception e) {
-                                    }
+                                    } catch (Exception e) {}
                                     Program.executor.execute(new Delete_file(file));
                                 }
                             } catch (Exception e) {}
@@ -538,6 +540,165 @@ public class Receive_message implements Runnable {
                         case "2004":
                         {
                             Program.shutdown(ID);
+                        }
+                        break;
+                        case "0609":
+                        {
+                            String receiver_id = Tools.receive_unicode(s, 38);
+                            try(PreparedStatement ps = Program.sql.prepareStatement("select top 1 id, name from account where id=? and private=0")){
+                                ps.setLong(1, Long.parseLong(receiver_id));
+                                try(ResultSet rs = ps.executeQuery()){
+                                    if(rs.next()){
+                                        int state = Program.sessions.containsKey(rs.getString("id"))?1:0;
+                                        Program.sessions.get(ID).Queue_command(
+                                            Tools.combine(
+                                                "1609".getBytes(StandardCharsets.UTF_16),
+                                                Tools.data_with_unicode_byte(Tools.padleft(String.valueOf(rs.getLong("id")), 19, '0') + " " + rs.getString("id") + " " + rs.getNString("name") + " " + state).getBytes(StandardCharsets.UTF_16)
+                                            )
+                                        );
+                                    }
+                                    else {
+                                        Program.sessions.get(ID).Queue_command(    
+                                            "2609".getBytes(StandardCharsets.UTF_16)                          
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                        /*
+                        case "0610":
+                        {
+                            String receiver_id = Tools.receive_unicode(s, 38);
+                            try(PreparedStatement ps = Program.sql.prepareStatement("select top 1 id, username, name from account where id=? and private=0")){
+                                ps.setLong(1, Long.parseLong(receiver_id));
+                                try(ResultSet rs = ps.executeQuery()){
+                                    if(rs.next()){
+                                        int state = Program.sessions.containsKey(rs.getString("id"))?1:0;
+                                        Program.sessions.get(ID).Queue_command(
+                                            Tools.combine(
+                                                "1610".getBytes(StandardCharsets.UTF_16),
+                                                Tools.data_with_unicode_byte(Tools.padleft(String.valueOf(rs.getLong("id")), 19, '0') + " " + rs.getNString("username") + " " + rs.getNString("name") + " " + state).getBytes(StandardCharsets.UTF_16)
+                                            )
+                                        );
+                                    }
+                                    else {
+                                        Program.sessions.get(ID).Queue_command(    
+                                            "2609".getBytes(StandardCharsets.UTF_16)                          
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                        */
+                        case "1060":
+                        {
+                            String receiver_id = Tools.receive_unicode(s, 38);
+                            String path = Program.avatar_path + receiver_id + ".png";
+                            File f = new File(path);
+                            if (f.exists()){
+                                Program.sessions.get(ID).Queue_command(
+                                    Tools.combine(
+                                        ("1060"+receiver_id).getBytes(StandardCharsets.UTF_16),
+                                        Tools.ImageToBASE64(path).getBytes(StandardCharsets.US_ASCII)
+                                    )
+                                );
+                            }
+                        }
+                        break;
+                        case "0601":
+                        {
+                            String img_string = Tools.receive_ASCII_Automatically(s);
+                            String tempFile = Program.avatar_path + ID + ".png";
+                            // convert base64 string to image 
+                            try(FileOutputStream fos = new FileOutputStream(tempFile)){
+                                fos.write(Base64.getDecoder().decode(img_string));
+                            }
+                            catch(Exception e){}
+                        }
+                        break;
+                        case "4269":
+                        {
+                            String opw = Tools.receive_Unicode_Automatically(s);
+                            String npw = Tools.receive_Unicode_Automatically(s);
+                            try(PreparedStatement ps = Program.sql.prepareStatement("select top 1 pw from account where id=?")){
+                                ps.setLong(1, Long.parseLong(ID));
+                                try(ResultSet rs = ps.executeQuery()){
+                                    if(rs.next()){
+                                        if(BCrypt.checkpw(opw, rs.getNString("pw"))){
+                                            try(PreparedStatement ps2 = Program.sql.prepareStatement("update top (1) account set pw=? where id=?")){
+                                                ps2.setString(1, npw);
+                                                ps2.setLong(2, Long.parseLong(ID));
+                                                ps2.executeUpdate();
+                                                Program.sessions.get(ID).Queue_command(
+                                                    "4269".getBytes(StandardCharsets.UTF_16)
+                                                );
+                                            }
+                                        }
+                                        else {
+                                            Program.sessions.get(ID).Queue_command(
+                                                "9624".getBytes(StandardCharsets.UTF_16)
+                                            );
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                        case "1508":
+                        {
+                            try(PreparedStatement ps = Program.sql.prepareStatement("update top (1) account set private=1 where id=?")){
+                                ps.setLong(1, Long.parseLong(ID));
+                                ps.executeUpdate();
+                            }
+                        }
+                        break;
+                        case "0508":
+                        {
+                            try(PreparedStatement ps = Program.sql.prepareStatement("update top (1) account set private=0 where id=?")){
+                                ps.setLong(1, Long.parseLong(ID));
+                                ps.executeUpdate();
+                            }
+                        }
+                        break;
+                        case "1012":
+                        {
+                            String newname = Tools.receive_Unicode_Automatically(s);
+                            try(PreparedStatement ps = Program.sql.prepareStatement("update top (1) account set name=? where id=?")){
+                                ps.setString(1, newname);
+                                ps.setLong(2, Long.parseLong(ID));
+                                if (ps.executeUpdate() == 1){
+                                    Program.sessions.get(ID).Queue_command(
+                                        "1012".getBytes(StandardCharsets.UTF_16)
+                                    );
+                                }
+                            }
+                        }
+                        break;
+                        case "5859":
+                        {
+                            String receiver_id = Tools.receive_unicode(s, 38);
+                            String[] p = Tools.compareIDs(ID, receiver_id);
+                            try(PreparedStatement ps = Program.sql.prepareStatement("delete top (1) from friend where id1=? and id2=?")){
+                                ps.setLong(1, Long.parseLong(p[0]));
+                                ps.setLong(2, Long.parseLong(p[1]));
+                                ps.executeUpdate();
+                            }
+                            Program.executor.execute(new Delete_conversation(p[0], p[1]));
+                        }
+                        break;
+                        case "7351":
+                        {
+                            String state_str = Tools.receive_unicode(s, 2);
+                            byte state = Byte.parseByte(state_str);
+                            Program.sessions.get(ID).status = state;
+                        }
+                        break;
+                        default:
+                        {
+                            Program.shutdown(ID);
+                            System.out.println("Received strange signal, shutting down.");
                         }
                         break;
                     }
