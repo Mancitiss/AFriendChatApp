@@ -29,7 +29,7 @@ public class Send_file implements Runnable {
                     long filesize = f.length();
                     Program.sessions.get(ID).Queue_command(
                         Tools.combine(
-                            ("1905" + receiver_id).getBytes(StandardCharsets.UTF_16),
+                            ("1905" + receiver_id).getBytes(StandardCharsets.UTF_16LE),
                             Tools.data_with_ASCII_byte(num).getBytes(StandardCharsets.US_ASCII),
                             Tools.data_with_ASCII_byte(String.valueOf(filesize)).getBytes(StandardCharsets.US_ASCII)
                         )
@@ -58,7 +58,7 @@ public class Send_file implements Runnable {
                             if (total_byte_received == first_byte_expected && Program.sessions.get(ID).files_on_transfer.get(file)){
                                 Program.sessions.get(ID).Queue_command(
                                     Tools.combine(
-                                        ("1904" + receiver_id).getBytes(StandardCharsets.UTF_16),
+                                        ("1904" + receiver_id).getBytes(StandardCharsets.UTF_16LE),
                                         Tools.data_with_ASCII_byte(num).getBytes(StandardCharsets.US_ASCII),
                                         Tools.data_with_ASCII_byte(String.valueOf(offset)).getBytes(StandardCharsets.US_ASCII),
                                         Tools.data_with_ASCII_byte(String.valueOf(received_byte)).getBytes(StandardCharsets.US_ASCII),
@@ -69,7 +69,7 @@ public class Send_file implements Runnable {
                             else {
                                 Program.sessions.get(ID).Queue_command(
                                     Tools.combine(
-                                        ("1904" + receiver_id).getBytes(StandardCharsets.UTF_16),
+                                        ("1904" + receiver_id).getBytes(StandardCharsets.UTF_16LE),
                                         Tools.data_with_ASCII_byte(num).getBytes(StandardCharsets.US_ASCII),
                                         Tools.data_with_ASCII_byte("-1").getBytes(StandardCharsets.US_ASCII)
                                     )
@@ -95,7 +95,7 @@ public class Send_file implements Runnable {
                             if (total_byte_received == first_byte_expected && Program.sessions.get(ID).files_on_transfer.get(file)){
                                 Program.sessions.get(ID).Queue_command(
                                     Tools.combine(
-                                        ("1904" + receiver_id).getBytes(StandardCharsets.UTF_16),
+                                        ("1904" + receiver_id).getBytes(StandardCharsets.UTF_16LE),
                                         Tools.data_with_ASCII_byte(num).getBytes(StandardCharsets.US_ASCII),
                                         Tools.data_with_ASCII_byte(String.valueOf(offset)).getBytes(StandardCharsets.US_ASCII),
                                         Tools.data_with_ASCII_byte(String.valueOf(received_byte)).getBytes(StandardCharsets.US_ASCII),
@@ -106,7 +106,7 @@ public class Send_file implements Runnable {
                             else {
                                 Program.sessions.get(ID).Queue_command(
                                     Tools.combine(
-                                        ("1904" + receiver_id).getBytes(StandardCharsets.UTF_16),
+                                        ("1904" + receiver_id).getBytes(StandardCharsets.UTF_16LE),
                                         Tools.data_with_ASCII_byte(num).getBytes(StandardCharsets.US_ASCII),
                                         Tools.data_with_ASCII_byte("-1").getBytes(StandardCharsets.US_ASCII)
                                     )

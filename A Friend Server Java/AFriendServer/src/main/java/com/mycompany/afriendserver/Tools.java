@@ -18,16 +18,30 @@ public class Tools {
      * @param DIS
      * @param length
      * @return
+     * @throws IOException
      */
-    public static String receive_ASCII(DataInputStream DIS, int length) {
-        byte[] buffer = new byte[length];
-        try {
-            DIS.readFully(buffer);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public static String receive_ASCII(DataInputStream DIS, int byte_expected) throws IOException {
+        byte[] buffer = new byte[byte_expected];
+        int total_byte_received = 0;
+        int received_byte;
+        do {
+            received_byte = DIS.read(buffer, total_byte_received, byte_expected);
+            if (received_byte > 0){
+                total_byte_received += received_byte;
+                byte_expected -= received_byte;
+            }
+            else break;
+        } while (byte_expected > 0 && received_byte > 0);
+        if (byte_expected == 0) {
+            String s = new String(buffer, StandardCharsets.US_ASCII);
+            System.out.println(s);
+            return s;
         }
-        // return string from byte array as unicode
-        return new String(buffer, StandardCharsets.US_ASCII);
+        else {
+            String s = new String(buffer, 0, total_byte_received, StandardCharsets.US_ASCII);
+            System.out.println(s);
+            return "";
+        }
     }
 
     /**
@@ -35,16 +49,32 @@ public class Tools {
      * @param DIS
      * @param length
      * @return
+     * @throws IOException
      */
-    public static String receive_unicode(DataInputStream DIS, int length) {
-        byte[] buffer = new byte[length];
-        try {
-            DIS.readFully(buffer);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public static String receive_unicode(DataInputStream DIS, int byte_expected) throws IOException {
+        byte[] buffer = new byte[byte_expected];
+        //read until get enough length bytes
+        int received_byte;
+        int total_byte_received = 0;
+        do{
+            received_byte = DIS.read(buffer, total_byte_received, byte_expected);
+            if (received_byte > 0){
+                total_byte_received += received_byte;
+                byte_expected -= received_byte;
+            }
+        } while (byte_expected > 0 && received_byte > 0);
+        if (byte_expected == 0){
+            // return string from byte array as unicode
+            System.out.println("received_byte: " + total_byte_received + " " + byte_expected);
+            String s = new String(buffer, StandardCharsets.UTF_16LE);
+            System.out.println(s);
+            return s;
         }
-        // return string from byte array as unicode
-        return new String(buffer, StandardCharsets.UTF_16);
+        else {
+            System.out.println("received_byte (wrong): " + total_byte_received + " " + byte_expected);
+            System.out.println(new String(buffer, StandardCharsets.UTF_16LE));
+            return "";
+        }
     }
 
     /**
@@ -109,7 +139,7 @@ public class Tools {
     public static String data_with_unicode_byte(String data){
         if (!data.isEmpty()){
             String databyte = Integer.toString(data.length()*2, 10);
-            return padleft(Integer.toString(data.length(), 10), 2, '0') + databyte + data;
+            return padleft(Integer.toString(databyte.length(), 10), 2, '0') + databyte + data;
         }
         return "";
     }
@@ -122,7 +152,7 @@ public class Tools {
     public static String data_with_ASCII_byte(String data){
         if (!data.isEmpty()){
             String databyte = Integer.toString(data.length(), 10);
-            return padleft(Integer.toString(data.length(), 10), 2, '0') + databyte + data;
+            return padleft(Integer.toString(databyte.length(), 10), 2, '0') + databyte + data;
         }
         return "";
     }
@@ -192,9 +222,23 @@ public class Tools {
      * @return byte array
      * @throws IOException
      */
-    public static byte[] receive_byte_array(DataInputStream DIS, int length) throws IOException{
-        byte[] buffer = new byte[length];
-        DIS.readFully(buffer);
-        return buffer;
+    public static byte[] receive_byte_array(DataInputStream DIS, int byte_expected) throws IOException{
+        byte[] buffer = new byte[byte_expected];
+        int total_byte_received = 0;
+        int received_byte;
+        do {
+            received_byte = DIS.read(buffer, total_byte_received, byte_expected);
+            if (received_byte > 0){
+                total_byte_received += received_byte;
+                byte_expected -= received_byte;
+            }
+            else break;
+        } while (byte_expected > 0 && received_byte > 0);
+        if (byte_expected == 0){
+            return buffer;
+        }
+        else {
+            return new byte[0];
+        }
     }
 }

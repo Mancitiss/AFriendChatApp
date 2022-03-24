@@ -54,10 +54,10 @@ public class Receive_message implements Runnable {
                             }
                             if (result) {
                                 Program.sessions.get(ID)
-                                        .Queue_command(("0708" + receiver_id + "1").getBytes(StandardCharsets.UTF_16));
+                                        .Queue_command(("0708" + receiver_id + "1").getBytes(StandardCharsets.UTF_16LE));
                             } else {
                                 Program.sessions.get(ID)
-                                        .Queue_command(("0708" + receiver_id + "0").getBytes(StandardCharsets.UTF_16));
+                                        .Queue_command(("0708" + receiver_id + "0").getBytes(StandardCharsets.UTF_16LE));
                             }
                         }
                             break;
@@ -133,7 +133,7 @@ public class Receive_message implements Runnable {
                                     // send to id
                                     Program.sessions.get(ID)
                                             .Queue_command(("6475" + receiver_id + Tools.data_with_unicode_byte(json))
-                                                    .getBytes(StandardCharsets.UTF_16));
+                                                    .getBytes(StandardCharsets.UTF_16LE));
                                     // old messages sent
                                     System.out.println("Old messages sent");
                                     if (Program.sessions.containsKey(ID)) {
@@ -141,7 +141,7 @@ public class Receive_message implements Runnable {
                                             Program.sessions.get(ID).loaded -= 1;
                                         } else if (Program.sessions.get(ID).loaded == 1) {
                                             Program.sessions.get(ID)
-                                                    .Queue_command("2411".getBytes(StandardCharsets.UTF_16));
+                                                    .Queue_command("2411".getBytes(StandardCharsets.UTF_16LE));
                                             Program.sessions.get(ID).loaded -= 1;
                                         }
                                     }
@@ -185,7 +185,7 @@ public class Receive_message implements Runnable {
                                 // send to id
                                 Program.sessions.get(ID)
                                         .Queue_command(("6475" + receiver_id + Tools.data_with_unicode_byte(json))
-                                                .getBytes(StandardCharsets.UTF_16));
+                                                .getBytes(StandardCharsets.UTF_16LE));
                                 System.out.println("Old messages sent");
                             }
                         }
@@ -232,10 +232,10 @@ public class Receive_message implements Runnable {
                                                     Program.sendToID(ID, msgobj);
                                                 if (!Program.sendToID(receiver_id, msgobj)) {
                                                     Program.sessions.get(ID)
-                                                            .Queue_command("0404".getBytes(StandardCharsets.UTF_16));
+                                                            .Queue_command("0404".getBytes(StandardCharsets.UTF_16LE));
                                                 } else {
                                                     Program.sessions.get(ID)
-                                                            .Queue_command("2211".getBytes(StandardCharsets.UTF_16));
+                                                            .Queue_command("2211".getBytes(StandardCharsets.UTF_16LE));
                                                 }
                                                 System.out.println("Sent");
                                             }
@@ -296,10 +296,10 @@ public class Receive_message implements Runnable {
                                                         Program.sendToID(ID, msgobj);
                                                     if (!Program.sendToID(receiver_id, msgobj)) {
                                                         Program.sessions.get(ID).Queue_command(
-                                                                "0404".getBytes(StandardCharsets.UTF_16));
+                                                                "0404".getBytes(StandardCharsets.UTF_16LE));
                                                     } else {
                                                         Program.sessions.get(ID).Queue_command(
-                                                                "2211".getBytes(StandardCharsets.UTF_16));
+                                                                "2211".getBytes(StandardCharsets.UTF_16LE));
                                                     }
                                                     System.out.println("Sent");
                                                 } catch (Exception e) {
@@ -352,13 +352,13 @@ public class Receive_message implements Runnable {
                                                     Program.sessions.get(ID).Queue_command(
                                                             Tools.combine(
                                                                     ("1903" + receiver_id)
-                                                                            .getBytes(StandardCharsets.UTF_16),
+                                                                            .getBytes(StandardCharsets.UTF_16LE),
                                                                     Tools.data_with_ASCII_byte(
                                                                             rs.getString("messagenumber"))
                                                                             .getBytes(StandardCharsets.US_ASCII),
                                                                     Tools.data_with_unicode_byte(
                                                                             rs.getString("message"))
-                                                                            .getBytes(StandardCharsets.UTF_16),
+                                                                            .getBytes(StandardCharsets.UTF_16LE),
                                                                     Tools.data_with_ASCII_byte(Long.toString(
                                                                             Program.files.get(p[0] + "_" + p[1] + "_"
                                                                                     + rs.getString("messagenuber")
@@ -374,10 +374,10 @@ public class Receive_message implements Runnable {
                                                         Program.sendToID(ID, msgobj);
                                                     if (!Program.sendToID(receiver_id, msgobj)) {
                                                         Program.sessions.get(ID).Queue_command(
-                                                                "0404".getBytes(StandardCharsets.UTF_16));
+                                                                "0404".getBytes(StandardCharsets.UTF_16LE));
                                                     } else {
                                                         Program.sessions.get(ID).Queue_command(
-                                                                "2211".getBytes(StandardCharsets.UTF_16));
+                                                                "2211".getBytes(StandardCharsets.UTF_16LE));
                                                     }
                                                     System.out.println("Sent");
                                                 } catch (Exception e) {
@@ -532,7 +532,7 @@ public class Receive_message implements Runnable {
                             } catch (Exception e) {}
                             if (Program.sessions.containsKey(receiver_id)){
                                 Program.sessions.get(receiver_id).Queue_command(
-                                    ("2002"+ ID + Tools.data_with_unicode_byte(messagenumber_str)).getBytes(StandardCharsets.UTF_16)
+                                    ("2002"+ ID + Tools.data_with_unicode_byte(messagenumber_str)).getBytes(StandardCharsets.UTF_16LE)
                                 );
                             }
                         }
@@ -552,14 +552,14 @@ public class Receive_message implements Runnable {
                                         int state = Program.sessions.containsKey(rs.getString("id"))?1:0;
                                         Program.sessions.get(ID).Queue_command(
                                             Tools.combine(
-                                                "1609".getBytes(StandardCharsets.UTF_16),
-                                                Tools.data_with_unicode_byte(Tools.padleft(String.valueOf(rs.getLong("id")), 19, '0') + " " + rs.getString("id") + " " + rs.getNString("name") + " " + state).getBytes(StandardCharsets.UTF_16)
+                                                "1609".getBytes(StandardCharsets.UTF_16LE),
+                                                Tools.data_with_unicode_byte(Tools.padleft(String.valueOf(rs.getLong("id")), 19, '0') + " " + rs.getString("id") + " " + rs.getNString("name") + " " + state).getBytes(StandardCharsets.UTF_16LE)
                                             )
                                         );
                                     }
                                     else {
                                         Program.sessions.get(ID).Queue_command(    
-                                            "2609".getBytes(StandardCharsets.UTF_16)                          
+                                            "2609".getBytes(StandardCharsets.UTF_16LE)                          
                                         );
                                     }
                                 }
@@ -577,14 +577,14 @@ public class Receive_message implements Runnable {
                                         int state = Program.sessions.containsKey(rs.getString("id"))?1:0;
                                         Program.sessions.get(ID).Queue_command(
                                             Tools.combine(
-                                                "1610".getBytes(StandardCharsets.UTF_16),
-                                                Tools.data_with_unicode_byte(Tools.padleft(String.valueOf(rs.getLong("id")), 19, '0') + " " + rs.getNString("username") + " " + rs.getNString("name") + " " + state).getBytes(StandardCharsets.UTF_16)
+                                                "1610".getBytes(StandardCharsets.UTF_16LE),
+                                                Tools.data_with_unicode_byte(Tools.padleft(String.valueOf(rs.getLong("id")), 19, '0') + " " + rs.getNString("username") + " " + rs.getNString("name") + " " + state).getBytes(StandardCharsets.UTF_16LE)
                                             )
                                         );
                                     }
                                     else {
                                         Program.sessions.get(ID).Queue_command(    
-                                            "2609".getBytes(StandardCharsets.UTF_16)                          
+                                            "2609".getBytes(StandardCharsets.UTF_16LE)                          
                                         );
                                     }
                                 }
@@ -600,7 +600,7 @@ public class Receive_message implements Runnable {
                             if (f.exists()){
                                 Program.sessions.get(ID).Queue_command(
                                     Tools.combine(
-                                        ("1060"+receiver_id).getBytes(StandardCharsets.UTF_16),
+                                        ("1060"+receiver_id).getBytes(StandardCharsets.UTF_16LE),
                                         Tools.ImageToBASE64(path).getBytes(StandardCharsets.US_ASCII)
                                     )
                                 );
@@ -632,13 +632,13 @@ public class Receive_message implements Runnable {
                                                 ps2.setLong(2, Long.parseLong(ID));
                                                 ps2.executeUpdate();
                                                 Program.sessions.get(ID).Queue_command(
-                                                    "4269".getBytes(StandardCharsets.UTF_16)
+                                                    "4269".getBytes(StandardCharsets.UTF_16LE)
                                                 );
                                             }
                                         }
                                         else {
                                             Program.sessions.get(ID).Queue_command(
-                                                "9624".getBytes(StandardCharsets.UTF_16)
+                                                "9624".getBytes(StandardCharsets.UTF_16LE)
                                             );
                                         }
                                     }
@@ -670,7 +670,7 @@ public class Receive_message implements Runnable {
                                 ps.setLong(2, Long.parseLong(ID));
                                 if (ps.executeUpdate() == 1){
                                     Program.sessions.get(ID).Queue_command(
-                                        "1012".getBytes(StandardCharsets.UTF_16)
+                                        "1012".getBytes(StandardCharsets.UTF_16LE)
                                     );
                                 }
                             }

@@ -26,8 +26,8 @@ public class Program {
     /**
      * @param args the command line arguments
      */
-    public static String avatar_path = "F:\\App\\AFriendServer\\avatar";
-    public static String img_path = "F:\\App\\AFriendServer\\message";
+    public static String avatar_path = "F:\\App\\AFriendServer\\avatar\\";
+    public static String img_path = "F:\\App\\AFriendServer\\message\\";
     static ExecutorService executor = Executors.newCachedThreadPool();
 
     public static Gson gson = new Gson();
@@ -43,12 +43,12 @@ public class Program {
     public static void main(String[] args) {
         try {
             String connectionUrl = "jdbc:sqlserver://" + System.getenv("DBServer") + ";"
-                    + "database=" + System.getenv("DBicatalog") + ";"
+                    + "databaseName=" + System.getenv("DBicatalog") + ";"
                     + "user=" + System.getenv("DBusername") + ";"
                     + "password=" + System.getenv("DBpassword") + ";"
-                    + "loginTimeout=10;";
+                    + "loginTimeout=10;encrypt=true;trustServerCertificate=true";
             cnurl = connectionUrl;
-            System.setProperty("javax.net.ssl.keyStore", "F:/Python Learning/web_cert2022/server.p12");
+            System.setProperty("javax.net.ssl.keyStore", "F:/Python Learning/web_cert2022/server.pfx");
             System.setProperty("javax.net.ssl.keyStorePassword", "RoRo");
             try (Connection sqlr = DriverManager.getConnection(connectionUrl)) {
                 sql = sqlr;
@@ -63,13 +63,14 @@ public class Program {
 
     private static void ExecuteServer() throws IOException {
         SSLServerSocketFactory ssf = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-        try (SSLServerSocket ss = (SSLServerSocket) ssf.createServerSocket(11112)) {
+        try (SSLServerSocket ss = (SSLServerSocket) ssf.createServerSocket(11111)) {
             // translate below line of code from C#
             // Console.WriteLine("Server at: {0}", IPAddress.Any);
             out.println("Server at: " + ss.getInetAddress());
             try {
                 while (true) {
                     SSLSocket client = (SSLSocket) ss.accept();
+                    System.out.println(1);
                     try {
                         // translate below line of code from C#
                         // ThreadPool.QueueUserWorkItem(Receive_from_socket_not_logged_in, client);
@@ -172,7 +173,7 @@ public class Program {
         boolean success = false;
         if (sessions.containsKey(iD)){
             try{
-                sessions.get(iD).Queue_command(("1901" + Tools.data_with_unicode_byte(gson.toJson(msgobj))).getBytes(StandardCharsets.UTF_16));
+                sessions.get(iD).Queue_command(("1901" + Tools.data_with_unicode_byte(gson.toJson(msgobj))).getBytes(StandardCharsets.UTF_16LE));
                 success = true;
             } catch (Exception e){
                 if (e.getMessage().contains("was forcibly closed")){
