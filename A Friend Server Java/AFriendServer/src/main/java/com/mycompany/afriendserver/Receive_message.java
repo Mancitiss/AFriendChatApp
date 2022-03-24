@@ -39,7 +39,7 @@ public class Receive_message implements Runnable {
                             String[] p = Tools.compareIDs(ID, receiver_id);
                             boolean result = false;
                             try (PreparedStatement ps = Program.sql
-                                    .prepareStatement("select top 1 seen from seen where id1=@id1 and id2=@id2")) {
+                                    .prepareStatement("select top 1 seen from seen where id1=? and id2=?")) {
                                 ps.setString(1, p[0]);
                                 ps.setString(2, p[1]);
                                 try (java.sql.ResultSet rs = ps.executeQuery()) {
@@ -66,7 +66,7 @@ public class Receive_message implements Runnable {
                             String[] p = Tools.compareIDs(ID, receiver_id);
                             String boolstr = Tools.receive_unicode(s, 2);
                             try (PreparedStatement ps = Program.sql.prepareStatement(
-                                    "update top (1) seen set seen=@bool where id1=@id1 and id2=@id2")) {
+                                    "update top (1) seen set seen=? where id1=? and id2=?")) {
                                 if (boolstr.equals("0")) {
                                     ps.setBoolean(1, false);
                                 } else {
@@ -85,7 +85,7 @@ public class Receive_message implements Runnable {
                             long num = Long.parseLong(data);
                             if (num == 0) {
                                 try (PreparedStatement ps = Program.sql.prepareStatement(
-                                        "select top 1 count from friend where id1=@id1 and id2=@id2")) {
+                                        "select top 1 count from friend where id1=? and id2=?")) {
                                     ps.setString(1, p[0]);
                                     ps.setString(2, p[1]);
                                     try (java.sql.ResultSet rs = ps.executeQuery()) {
@@ -97,7 +97,7 @@ public class Receive_message implements Runnable {
                                     ArrayList<MessageObject> messages = new ArrayList<MessageObject>();
                                     while (num > 0 && i < 20) {
                                         try (PreparedStatement ps1 = Program.sql.prepareStatement(
-                                                "select top 1 * from message where id1=@id1 and id2=@id2 and messagenumber=@messagenumber")) {
+                                                "select top 1 * from message where id1=? and id2=? and messagenumber=?")) {
                                             ps1.setString(1, p[0]);
                                             ps1.setString(2, p[1]);
                                             ps1.setLong(3, num);
@@ -151,7 +151,7 @@ public class Receive_message implements Runnable {
                                 ArrayList<MessageObject> messages = new ArrayList<MessageObject>();
                                 while (num > 0 && i < 20) {
                                     try (PreparedStatement ps = Program.sql.prepareStatement(
-                                            "select top 1 * from message where id1=@id1 and id2=@id2 and messagenumber=@messagenumber")) {
+                                            "select top 1 * from message where id1=? and id2=? and messagenumber=?")) {
                                         ps.setString(1, p[0]);
                                         ps.setString(2, p[1]);
                                         ps.setLong(3, num);
@@ -337,7 +337,7 @@ public class Receive_message implements Runnable {
                                 }
                                 if (success) {
                                     try (PreparedStatement ps2 = Program.sql.prepareStatement(
-                                            "select top 1 * from message where id1 = @id1 and id2 = @id2 and timesent = @timesent and sender = @sender and message = @message and type = 3")) {
+                                            "select top 1 * from message where id1 = ? and id2 = ? and timesent = ? and sender = ? and message = ? and type = 3")) {
                                         ps2.setString(1, p[0]);
                                         ps2.setString(2, p[1]);
                                         ps2.setTimestamp(3, now);

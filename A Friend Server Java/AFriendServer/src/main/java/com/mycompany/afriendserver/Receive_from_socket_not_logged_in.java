@@ -74,7 +74,7 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                             }
                             System.out.println("pass pause 2");
                             if (Program.sessions.get(data).client.isConnected()){
-                                if (Program.sessions.get(data).client.getInputStream().available() > 0) {
+                                //if (Program.sessions.get(data).client.getInputStream().available() > 0) {
                                     try{
                                         do_work = true;
                                         // ThreadPool.QueueUserWorkItem(Receive_message, data);
@@ -84,7 +84,7 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                         Program.handleException(data, e.toString());
                                         e.printStackTrace();
                                     }
-                                }
+                                //}
                             } else {
                                 Program.shutdown(data);
                             }
