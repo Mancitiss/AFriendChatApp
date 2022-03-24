@@ -383,7 +383,7 @@ public class Receive_message implements Runnable {
                             // suggest 1 line
                             String receiver_id = Tools.receive_unicode(s, 38);
                             String num = Tools.receive_ASCII_Automatically(s);
-                            long messagenumber = Long.parseLong(num);
+                            //long messagenumber = Long.parseLong(num);
                             String offsetstr = Tools.receive_ASCII_Automatically(s);
                             long offset = Long.parseLong(offsetstr);
                             String received_byte_str = Tools.receive_ASCII_Automatically(s);
@@ -457,6 +457,13 @@ public class Receive_message implements Runnable {
                                 }
                                 Program.sessions.get(ID).files_on_transfer.remove(filename);
                             }
+                        }
+                        break;
+                        case "1905":
+                        {
+                            String receiver_id = Tools.receive_unicode(s, 38);
+                            String num = Tools.receive_ASCII_Automatically(s);
+                            Program.executor.execute(new Send_file(ID, receiver_id, num));
                         }
                         break;
                     }
