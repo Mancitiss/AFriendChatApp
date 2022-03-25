@@ -106,7 +106,7 @@ public class Receive_message implements Runnable {
                                                     if (rs1.getByte("type") == 0 || rs1.getByte("type") == 3) {
                                                         messages.add(new MessageObject(rs1.getString("id1"),
                                                                 rs1.getString("id2"), rs1.getLong("messagenumber"),
-                                                                rs1.getTimestamp("timesent"), rs1.getBoolean("sender"),
+                                                                rs1.getTimestamp("timesent").getTime(), rs1.getBoolean("sender"),
                                                                 rs1.getString("message"), rs1.getByte("type")));
                                                     } else if (rs1.getByte("type") == 1 && (new File(
                                                             Program.img_path + p[0] + "_" + p[1] + num + ".png"))
@@ -115,7 +115,7 @@ public class Receive_message implements Runnable {
                                                                 new MessageObject(rs1.getString("id1"),
                                                                         rs1.getString("id2"),
                                                                         rs1.getLong("messagenumber"),
-                                                                        rs1.getTimestamp("timesent"),
+                                                                        rs1.getTimestamp("timesent").getTime(),
                                                                         rs1.getBoolean("sender"),
                                                                         Tools.ImageToBASE64(Program.img_path + p[0]
                                                                                 + "_" + p[1] + "_" + num + ".png"),
@@ -130,6 +130,9 @@ public class Receive_message implements Runnable {
                                     // JSON serialize messages
                                     Gson gson = new Gson();
                                     String json = gson.toJson(messages);
+                                    System.out.println("=============================================");
+                                    System.out.println(json);
+                                    System.out.println("=============================================");
                                     // send to id
                                     Program.sessions.get(ID)
                                             .Queue_command(("6475" + receiver_id + Tools.data_with_unicode_byte(json))
@@ -160,7 +163,7 @@ public class Receive_message implements Runnable {
                                                 if (rs.getByte("type") == 0 || rs.getByte("type") == 3) {
                                                     messages.add(new MessageObject(rs.getString("id1"),
                                                             rs.getString("id2"), rs.getLong("messagenumber"),
-                                                            rs.getTimestamp("timesent"), rs.getBoolean("sender"),
+                                                            rs.getTimestamp("timesent").getTime(), rs.getBoolean("sender"),
                                                             rs.getString("message"), rs.getByte("type")));
                                                 } else if (rs.getByte("type") == 1 && (new File(
                                                         Program.img_path + p[0] + "_" + p[1] + num + ".png"))
@@ -168,7 +171,7 @@ public class Receive_message implements Runnable {
                                                     messages.add(
                                                             new MessageObject(rs.getString("id1"), rs.getString("id2"),
                                                                     rs.getLong("messagenumber"),
-                                                                    rs.getTimestamp("timesent"),
+                                                                    rs.getTimestamp("timesent").getTime(),
                                                                     rs.getBoolean("sender"),
                                                                     Tools.ImageToBASE64(Program.img_path + p[0] + "_"
                                                                             + p[1] + "_" + num + ".png"),
@@ -225,7 +228,7 @@ public class Receive_message implements Runnable {
                                                 MessageObject msgobj = new MessageObject(
                                                         Tools.padleft(rs.getString("id1"), 19, '0'),
                                                         Tools.padleft(rs.getString("id2"), 19, '0'),
-                                                        rs.getLong("messagenumber"), rs.getTimestamp("timesent"),
+                                                        rs.getLong("messagenumber"), rs.getTimestamp("timesent").getTime(),
                                                         rs.getBoolean("sender"), rs.getString("message"),
                                                         rs.getByte("type"));
                                                 if (!ID.equals(receiver_id))
@@ -289,7 +292,7 @@ public class Receive_message implements Runnable {
                                                     MessageObject msgobj = new MessageObject(
                                                             Tools.padleft(rs.getString("id1"), 19, '0'),
                                                             Tools.padleft(rs.getString("id2"), 19, '0'),
-                                                            rs.getLong("messagenumber"), rs.getTimestamp("timesent"),
+                                                            rs.getLong("messagenumber"), rs.getTimestamp("timesent").getTime(),
                                                             rs.getBoolean("sender"), img_message,
                                                             rs.getByte("type"));
                                                     if (!ID.equals(receiver_id))
@@ -367,7 +370,7 @@ public class Receive_message implements Runnable {
                                                     MessageObject msgobj = new MessageObject(
                                                             Tools.padleft(rs.getString("id1"), 19, '0'),
                                                             Tools.padleft(rs.getString("id2"), 19, '0'),
-                                                            rs.getLong("messagenumber"), rs.getTimestamp("timesent"),
+                                                            rs.getLong("messagenumber"), rs.getTimestamp("timesent").getTime(),
                                                             rs.getBoolean("sender"), rs.getString("message"),
                                                             rs.getByte("type"));
                                                     if (!ID.equals(receiver_id))
