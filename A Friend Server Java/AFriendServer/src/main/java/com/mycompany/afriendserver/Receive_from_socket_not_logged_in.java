@@ -89,8 +89,13 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                 Program.shutdown(data);
                             }
                             if (!do_work) Program.sessions.get(data).is_locked.set(0);
-                        } catch (Exception e){
-                            e.printStackTrace();
+                        } catch (Exception clientquit){
+                            Program.shutdown(data);
+                        }
+                        finally{
+                            try{
+                                Program.sessions.get(data).is_waited.set(0);
+                            } catch (Exception e){}
                         }
                     }
                     System.out.println("quit ping");

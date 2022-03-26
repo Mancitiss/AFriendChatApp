@@ -146,6 +146,7 @@ public class Receive_message implements Runnable {
                                             Program.sessions.get(ID)
                                                     .Queue_command("2411".getBytes(StandardCharsets.UTF_16LE));
                                             Program.sessions.get(ID).loaded -= 1;
+                                            System.out.println("FINISH SENT");
                                         }
                                     }
                                 }
@@ -209,7 +210,7 @@ public class Receive_message implements Runnable {
                                     // get a random negative number between -1000000000 and 0 (inclusive)
                                     ps.setLong(3, -Program.rand.nextInt(1000000000));
                                     ps.setTimestamp(4, now);
-                                    ps.setBoolean(5, true);
+                                    ps.setBoolean(5, ID.equals(p[1]));
                                     ps.setString(6, sqlmessage);
                                     ps.setByte(7, (byte) 0);
                                     if (ps.executeUpdate() >= 1) {
@@ -604,7 +605,7 @@ public class Receive_message implements Runnable {
                                 Program.sessions.get(ID).Queue_command(
                                     Tools.combine(
                                         ("1060"+receiver_id).getBytes(StandardCharsets.UTF_16LE),
-                                        Tools.ImageToBASE64(path).getBytes(StandardCharsets.US_ASCII)
+                                        Tools.data_with_ASCII_byte(Tools.ImageToBASE64(path)).getBytes(StandardCharsets.US_ASCII)
                                     )
                                 );
                             }
