@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,6 +31,7 @@ public class Program {
     public static String avatar_path = "F:\\App\\AFriendServer\\avatar\\";
     public static String img_path = "F:\\App\\AFriendServer\\message\\";
     static ExecutorService executor = Executors.newCachedThreadPool();
+    static Calendar tzCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
     public static Gson gson = new Gson();
 
@@ -70,7 +73,7 @@ public class Program {
             try {
                 while (true) {
                     SSLSocket client = (SSLSocket) ss.accept();
-                    System.out.println(1);
+                    
                     try {
                         // translate below line of code from C#
                         // ThreadPool.QueueUserWorkItem(Receive_from_socket_not_logged_in, client);
@@ -89,7 +92,7 @@ public class Program {
     }
 
     static void shutdown(String id) {
-        System.out.println("{0} has quit" + id);
+        
         try {
             sessions.get(id).stream.close();
         } catch (Exception e) {

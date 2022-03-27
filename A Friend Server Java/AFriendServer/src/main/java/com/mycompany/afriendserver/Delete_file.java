@@ -37,7 +37,7 @@ public class Delete_file implements Runnable {
             }
             catch (Exception e){
                 if (e.getMessage().contains("is being used by")){
-                    System.out.println("File " + file + " is being used by another process");
+                    
                     synchronized(this){
                         try {
                             this.wait(100);

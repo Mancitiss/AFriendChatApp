@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -24,14 +25,17 @@ public class Receive_message implements Runnable {
     @Override
     public void run() {
         try {
-            java.io.DataInputStream s = Program.sessions.get(ID).DIS;
+            java.io.DataInputStream s;
             String data;
             do {
+                s = Program.sessions.get(ID).DIS;
+                
                 data = Tools.receive_unicode(s, 8);
+                
                 if (data != null && !data.isBlank()) {
                     // if (data!=null && data!="1904") Console.WriteLine("Work: " + data);
-                    if (!data.equals("1904"))
-                        System.out.println("Work: " + data);
+                    //if (!data.equals("1904"))
+                        
                     String instruction = data;
                     switch (instruction) {
                         case "0708": {
@@ -130,15 +134,15 @@ public class Receive_message implements Runnable {
                                     // JSON serialize messages
                                     Gson gson = new Gson();
                                     String json = gson.toJson(messages);
-                                    System.out.println("=============================================");
-                                    System.out.println(json);
-                                    System.out.println("=============================================");
+                                    
+                                    
+                                    
                                     // send to id
                                     Program.sessions.get(ID)
                                             .Queue_command(("6475" + receiver_id + Tools.data_with_unicode_byte(json))
                                                     .getBytes(StandardCharsets.UTF_16LE));
                                     // old messages sent
-                                    System.out.println("Old messages sent");
+                                    
                                     if (Program.sessions.containsKey(ID)) {
                                         if (Program.sessions.get(ID).loaded > 1) {
                                             Program.sessions.get(ID).loaded -= 1;
@@ -146,7 +150,7 @@ public class Receive_message implements Runnable {
                                             Program.sessions.get(ID)
                                                     .Queue_command("2411".getBytes(StandardCharsets.UTF_16LE));
                                             Program.sessions.get(ID).loaded -= 1;
-                                            System.out.println("FINISH SENT");
+                                            
                                         }
                                     }
                                 }
@@ -164,7 +168,7 @@ public class Receive_message implements Runnable {
                                                 if (rs.getByte("type") == 0 || rs.getByte("type") == 3) {
                                                     messages.add(new MessageObject(rs.getString("id1"),
                                                             rs.getString("id2"), rs.getLong("messagenumber"),
-                                                            rs.getTimestamp("timesent").getTime(), rs.getBoolean("sender"),
+                                                            rs.getTimestamp("timesent", Program.tzCal).getTime(), rs.getBoolean("sender"),
                                                             rs.getString("message"), rs.getByte("type")));
                                                 } else if (rs.getByte("type") == 1 && (new File(
                                                         Program.img_path + p[0] + "_" + p[1] + num + ".png"))
@@ -172,7 +176,7 @@ public class Receive_message implements Runnable {
                                                     messages.add(
                                                             new MessageObject(rs.getString("id1"), rs.getString("id2"),
                                                                     rs.getLong("messagenumber"),
-                                                                    rs.getTimestamp("timesent").getTime(),
+                                                                    rs.getTimestamp("timesent", Program.tzCal).getTime(),
                                                                     rs.getBoolean("sender"),
                                                                     Tools.ImageToBASE64(Program.img_path + p[0] + "_"
                                                                             + p[1] + "_" + num + ".png"),
@@ -190,7 +194,7 @@ public class Receive_message implements Runnable {
                                 Program.sessions.get(ID)
                                         .Queue_command(("6475" + receiver_id + Tools.data_with_unicode_byte(json))
                                                 .getBytes(StandardCharsets.UTF_16LE));
-                                System.out.println("Old messages sent");
+                                
                             }
                         }
                             break;
@@ -203,18 +207,21 @@ public class Receive_message implements Runnable {
                             try {
                                 boolean success = false;
                                 Timestamp now = new Timestamp(System.currentTimeMillis());
+                                
                                 try (PreparedStatement ps = Program.sql.prepareStatement(
                                         "insert into message (id1, id2, messagenumber, timesent, sender, message, type) values (?, ?, ?, ?, ?, ?, ?)")) {
                                     ps.setString(1, p[0]);
                                     ps.setString(2, p[1]);
                                     // get a random negative number between -1000000000 and 0 (inclusive)
                                     ps.setLong(3, -Program.rand.nextInt(1000000000));
-                                    ps.setTimestamp(4, now);
+                                    ps.setString(4, now.toInstant().toString());
                                     ps.setBoolean(5, ID.equals(p[1]));
                                     ps.setString(6, sqlmessage);
                                     ps.setByte(7, (byte) 0);
+                                    
                                     if (ps.executeUpdate() >= 1) {
                                         success = true;
+                                        
                                     }
                                 }
                                 if (success) {
@@ -222,27 +229,33 @@ public class Receive_message implements Runnable {
                                             "select top 1 * from message where id1=? and id2=? and timesent=? and sender=?")) {
                                         another_ps.setString(1, p[0]);
                                         another_ps.setString(2, p[1]);
-                                        another_ps.setTimestamp(3, now);
+                                        another_ps.setString(3, now.toInstant().toString());
+                                        
                                         another_ps.setBoolean(4, ID.equals(p[1]));
+                                        
                                         try (ResultSet rs = another_ps.executeQuery()) {
                                             if (rs.next()) {
+                                                
                                                 MessageObject msgobj = new MessageObject(
                                                         Tools.padleft(rs.getString("id1"), 19, '0'),
                                                         Tools.padleft(rs.getString("id2"), 19, '0'),
-                                                        rs.getLong("messagenumber"), rs.getTimestamp("timesent").getTime(),
+                                                        rs.getLong("messagenumber"), rs.getTimestamp("timesent", Program.tzCal).getTime(),
                                                         rs.getBoolean("sender"), rs.getString("message"),
                                                         rs.getByte("type"));
                                                 if (!ID.equals(receiver_id))
                                                     Program.sendToID(ID, msgobj);
                                                 if (!Program.sendToID(receiver_id, msgobj)) {
                                                     Program.sessions.get(ID)
-                                                            .Queue_command("0404".getBytes(StandardCharsets.UTF_16LE));
+                                                            .Queue_command(("0404"+receiver_id).getBytes(StandardCharsets.UTF_16LE));
                                                 } else {
                                                     Program.sessions.get(ID)
-                                                            .Queue_command("2211".getBytes(StandardCharsets.UTF_16LE));
+                                                            .Queue_command(("2211"+receiver_id).getBytes(StandardCharsets.UTF_16LE));
                                                 }
-                                                System.out.println("Sent");
+                                                
                                             }
+                                        } catch (SQLException sql){
+                                            
+                                            sql.getNextException().printStackTrace();
                                         }
                                     }
                                 }
@@ -254,7 +267,7 @@ public class Receive_message implements Runnable {
                             break;
                         case "1902": {
                             String receiver_id = Tools.receive_unicode(s, 38);
-                            data = Tools.receive_Unicode_Automatically(s);
+                            data = Tools.receive_ASCII_Automatically(s);
                             String[] p = Tools.compareIDs(ID, receiver_id);
                             try {
                                 boolean success = false;
@@ -265,7 +278,7 @@ public class Receive_message implements Runnable {
                                     ps.setString(2, p[1]);
                                     // get a random negative number between -1000000000 and 0 (inclusive)
                                     ps.setLong(3, -Program.rand.nextInt(1000000000));
-                                    ps.setTimestamp(4, now);
+                                    ps.setString(4, now.toInstant().toString());
                                     ps.setBoolean(5, true);
                                     ps.setString(6, "");
                                     ps.setByte(7, (byte) 1);
@@ -278,7 +291,7 @@ public class Receive_message implements Runnable {
                                             "select top 1 * from message where id1=? and id2=? and timesent=? and sender=?")) {
                                         another_ps.setString(1, p[0]);
                                         another_ps.setString(2, p[1]);
-                                        another_ps.setTimestamp(3, now);
+                                        another_ps.setString(3, now.toInstant().toString());
                                         another_ps.setBoolean(4, ID.equals(p[1]));
                                         try (ResultSet rs = another_ps.executeQuery()) {
                                             if (rs.next()) {
@@ -293,7 +306,7 @@ public class Receive_message implements Runnable {
                                                     MessageObject msgobj = new MessageObject(
                                                             Tools.padleft(rs.getString("id1"), 19, '0'),
                                                             Tools.padleft(rs.getString("id2"), 19, '0'),
-                                                            rs.getLong("messagenumber"), rs.getTimestamp("timesent").getTime(),
+                                                            rs.getLong("messagenumber"), rs.getTimestamp("timesent", Program.tzCal).getTime(),
                                                             rs.getBoolean("sender"), img_message,
                                                             rs.getByte("type"));
                                                     if (!ID.equals(receiver_id))
@@ -305,7 +318,7 @@ public class Receive_message implements Runnable {
                                                         Program.sessions.get(ID).Queue_command(
                                                                 "2211".getBytes(StandardCharsets.UTF_16LE));
                                                     }
-                                                    System.out.println("Sent");
+                                                    
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -332,7 +345,7 @@ public class Receive_message implements Runnable {
                                     ps.setString(1, p[0]);
                                     ps.setString(2, p[1]);
                                     ps.setLong(3, -Program.rand.nextInt(1000000000));
-                                    ps.setTimestamp(4, now);
+                                    ps.setString(4, now.toInstant().toString());
                                     ps.setBoolean(5, true);
                                     ps.setString(6, file);
                                     if (ps.executeUpdate() >= 1) {
@@ -344,7 +357,7 @@ public class Receive_message implements Runnable {
                                             "select top 1 * from message where id1 = ? and id2 = ? and timesent = ? and sender = ? and message = ? and type = 3")) {
                                         ps2.setString(1, p[0]);
                                         ps2.setString(2, p[1]);
-                                        ps2.setTimestamp(3, now);
+                                        ps2.setString(3, now.toInstant().toString());
                                         ps2.setBoolean(4, ID.equals(p[1]));
                                         ps2.setString(5, file);
                                         try (ResultSet rs = ps2.executeQuery()) {
@@ -371,7 +384,7 @@ public class Receive_message implements Runnable {
                                                     MessageObject msgobj = new MessageObject(
                                                             Tools.padleft(rs.getString("id1"), 19, '0'),
                                                             Tools.padleft(rs.getString("id2"), 19, '0'),
-                                                            rs.getLong("messagenumber"), rs.getTimestamp("timesent").getTime(),
+                                                            rs.getLong("messagenumber"), rs.getTimestamp("timesent", Program.tzCal).getTime(),
                                                             rs.getBoolean("sender"), rs.getString("message"),
                                                             rs.getByte("type"));
                                                     if (!ID.equals(receiver_id))
@@ -383,7 +396,7 @@ public class Receive_message implements Runnable {
                                                         Program.sessions.get(ID).Queue_command(
                                                                 "2211".getBytes(StandardCharsets.UTF_16LE));
                                                     }
-                                                    System.out.println("Sent");
+                                                    
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -502,7 +515,7 @@ public class Receive_message implements Runnable {
                                 String file = Program.img_path + p[0] + "_" + p[1] + "_" + messagenumber_str + ".";
                                 File f1 = new File(file);
                                 if (f1.exists()) {
-                                    // System.out.println("===============================================================");
+                                    // 
                                     String filename = p[0] + "_" + p[1] + "_" + messagenumber_str + ".";
                                     if (Program.sessions.containsKey(p[0])
                                             && Program.sessions.get(p[0]).files_on_transfer.containsKey(file)) {
@@ -702,18 +715,18 @@ public class Receive_message implements Runnable {
                         default:
                         {
                             Program.shutdown(ID);
-                            System.out.println("Received strange signal, shutting down.");
+                            
                         }
                         break;
                     }
                 } else {
                     Program.shutdown(ID);
-                    System.out.println("Received strange signal, shutting down (2)");
+                    
                 }
-            } while (s.available() > 0);
+            } while (Program.sessions.get(ID).client.getInputStream().available() > 0);
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Work quitted");
+            
             try {
                 Program.handleException(this.ID, e.getMessage());
             } catch (Exception e1) {
@@ -721,12 +734,14 @@ public class Receive_message implements Runnable {
             }
         } finally {
             try {
+                
                 if (Program.sessions.containsKey(this.ID)) {
                     Program.sessions.get(this.ID).is_locked.set(0);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            System.out.flush();
         }
     }
 }

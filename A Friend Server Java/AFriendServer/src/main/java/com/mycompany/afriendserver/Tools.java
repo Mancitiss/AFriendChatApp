@@ -34,12 +34,12 @@ public class Tools {
         } while (byte_expected > 0 && received_byte > 0);
         if (byte_expected == 0) {
             String s = new String(buffer, StandardCharsets.US_ASCII);
-            System.out.println(s);
+            
             return s;
         }
         else {
             String s = new String(buffer, 0, total_byte_received, StandardCharsets.US_ASCII);
-            System.out.println(s);
+            
             return "";
         }
     }
@@ -65,14 +65,14 @@ public class Tools {
         } while (byte_expected > 0 && received_byte > 0);
         if (byte_expected == 0){
             // return string from byte array as unicode
-            System.out.println("received_byte: " + total_byte_received + " " + byte_expected);
+            
             String s = new String(buffer, StandardCharsets.UTF_16LE);
-            System.out.println(s);
+            
             return s;
         }
         else {
-            System.out.println("received_byte (wrong): " + total_byte_received + " " + byte_expected);
-            System.out.println(new String(buffer, StandardCharsets.UTF_16LE));
+            
+            
             return "";
         }
     }

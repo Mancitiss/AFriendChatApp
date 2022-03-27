@@ -29,12 +29,12 @@ public class Receive_from_socket_not_logged_in implements Runnable {
             // create streams from client
             DIS = new DataInputStream(client.getInputStream());
             DOS = new DataOutputStream(client.getOutputStream());
-            System.out.println(2);
+            //
             String data = Tools.receive_unicode(DIS, 8);
-            System.out.println(3);
+            //
             if (data != null && !data.isEmpty()) {
                 String instruction = data;
-                System.out.println(instruction);
+                
                 if (instruction.equals("0012")) {
                     data = Tools.receive_ASCII(DIS, 19);
                     try{
@@ -46,7 +46,7 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                     try{
                         client.close();
                     } catch (Exception e) {}
-                    System.out.println("All closed, ID = " + data);
+                    
                     boolean pass = false;
                     if (Program.sessions.containsKey(data) && Program.sessions.get(data).is_waited.getAndSet(1) == 1) {
                         pass = true;
@@ -58,9 +58,9 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                             this.wait(1000);
                         }*/
                         Thread.sleep(1000);
-                        System.out.println("pausing 1");
+                        
                     }
-                    System.out.println("pass pause 1");
+                    
                     if (!pass && Program.sessions.containsKey(data)){
                         try{
                             boolean do_work = false;
@@ -70,15 +70,15 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                     this.wait(1000);
                                 }*/
                                 Thread.sleep(1000);
-                                System.out.println("pausing 2");
+                                
                             }
-                            System.out.println("pass pause 2");
+                            
                             if (Program.sessions.get(data).client.isConnected()){
                                 //if (Program.sessions.get(data).client.getInputStream().available() > 0) {
                                     try{
                                         do_work = true;
                                         // ThreadPool.QueueUserWorkItem(Receive_message, data);
-                                        System.out.println("Before executor: " + data);
+                                        
                                         Program.executor.execute(new Receive_message(data));
                                     } catch (Exception e){
                                         Program.handleException(data, e.toString());
@@ -98,16 +98,15 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                             } catch (Exception e){}
                         }
                     }
-                    System.out.println("quit ping");
                 }
                 else if (instruction.equals("0010")) {
-                    System.out.println(4);
+                    //
                     String[] lst_str = new String[2];
                     lst_str[0] = Tools.receive_Unicode_Automatically(DIS);
                     lst_str[1] = Tools.receive_Unicode_Automatically(DIS);
                     // print lst_str
-                    System.out.println(lst_str[0]);
-                    System.out.println(lst_str[1]);
+                    //
+                    //
                     try (PreparedStatement cmd = Program.sql.prepareStatement("select top 1 id, name, pw, avatar, private, state from account where username=?");){
                         cmd.setString(1, lst_str[0]);
                         try (ResultSet rs = cmd.executeQuery()){
@@ -129,15 +128,15 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                     while (priv.length() < 5){
                                         priv = priv + " ";
                                     }
-                                    System.out.println(priv);
+                                    //
                                     DOS.write(("0200" + id + namebytelen + namebyte + name + priv).getBytes(StandardCharsets.UTF_16LE));
-                                    System.out.println("Before dictionaries");
+                                    
                                     try{
                                         if (Program.sessions.containsKey(id)){
                                             try{
                                             Program.sessions.get(id).is_locked.set(1);
                                             Program.sessions.get(id).stream.write("2004".getBytes(StandardCharsets.UTF_16LE));
-                                            System.out.println("User logged in from another device");
+                                            
                                             } 
                                             catch (Exception iknow){
                                             }
@@ -149,7 +148,7 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                         client.loaded = 0;
                                         client.loopnum = 0;
 
-                                        System.out.println("got id");
+                                        
 
                                         long id_int = rs.getLong("id");
                                         try(PreparedStatement friendCommand = Program.sql.prepareStatement("select id1, id2 from friend where id1=? or id2=?")){
@@ -210,7 +209,7 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                         Program.sessions.put(id, client);
                                         client.stream.write(("7351" + Byte.toString(mystate)).getBytes(StandardCharsets.UTF_16LE));
                                         
-                                        System.out.println("User joined");
+                                        //
                                     } 
                                     catch (Exception e){
                                         e.printStackTrace();
@@ -275,9 +274,9 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                     try{
                         String[] lst_str = new String[2];
                         lst_str[0] = Tools.receive_Unicode_Automatically(DIS);;
-                        System.out.println(lst_str[0]);
+                        
                         lst_str[1] = Tools.receive_Unicode_Automatically(DIS);
-                        System.out.println(lst_str[1]);
+                        
                         if (!Program.check_existed_username(lst_str[0])){
                             long randomid = 0;
                             while (randomid <=0 || Program.check_existed_id(randomid)){
@@ -342,6 +341,10 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                 client.close();
             } catch (Exception e1) {
             }
+        }
+        finally{
+            
+            System.out.flush();
         }
     }
 

@@ -1,6 +1,8 @@
 package com.mycompany.afriendserver;
 
 import java.sql.Timestamp;
+import java.time.ZoneId;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -13,10 +15,14 @@ public class test {
     }
     public static void main(String[] args) {
         Timestamp t = new Timestamp(System.currentTimeMillis());
-        MyObject m = new MyObject(t);
+        System.out.println(t);
+        System.out.println(t.getTime());
+        System.out.println(t.toString());
+        System.out.println(t.toInstant());
+        //MyObject m = new MyObject(t);
         // set time format in nanoseconds for gsonbuilder
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
-        String json = gson.toJson(m);
-        System.out.println(json);
+        //Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
+        //String json = gson.toJson(m);
+        //System.out.println(json);
     }
 }
