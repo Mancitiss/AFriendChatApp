@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PushbackInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -38,7 +39,32 @@ public class Tools {
             return s;
         }
         else {
-            String s = new String(buffer, 0, total_byte_received, StandardCharsets.US_ASCII);
+            //String s = new String(buffer, 0, total_byte_received, StandardCharsets.US_ASCII);
+            
+            return "";
+        }
+    }
+
+    // overload receive_ASCII with Pushbackinputstream
+    public static String receive_ASCII(PushbackInputStream DIS, int byte_expected) throws IOException {
+        byte[] buffer = new byte[byte_expected];
+        int total_byte_received = 0;
+        int received_byte;
+        do {
+            received_byte = DIS.read(buffer, total_byte_received, byte_expected);
+            if (received_byte > 0){
+                total_byte_received += received_byte;
+                byte_expected -= received_byte;
+            }
+            else break;
+        } while (byte_expected > 0 && received_byte > 0);
+        if (byte_expected == 0) {
+            String s = new String(buffer, StandardCharsets.US_ASCII);
+            
+            return s;
+        }
+        else {
+            //String s = new String(buffer, 0, total_byte_received, StandardCharsets.US_ASCII);
             
             return "";
         }
@@ -52,6 +78,33 @@ public class Tools {
      * @throws IOException
      */
     public static String receive_unicode(DataInputStream DIS, int byte_expected) throws IOException {
+        byte[] buffer = new byte[byte_expected];
+        //read until get enough length bytes
+        int received_byte;
+        int total_byte_received = 0;
+        do{
+            received_byte = DIS.read(buffer, total_byte_received, byte_expected);
+            if (received_byte > 0){
+                total_byte_received += received_byte;
+                byte_expected -= received_byte;
+            }
+        } while (byte_expected > 0 && received_byte > 0);
+        if (byte_expected == 0){
+            // return string from byte array as unicode
+            
+            String s = new String(buffer, StandardCharsets.UTF_16LE);
+            
+            return s;
+        }
+        else {
+            
+            
+            return "";
+        }
+    }
+
+    // overload receive_unicode with Pushbackinputstream
+    public static String receive_unicode(PushbackInputStream DIS, int byte_expected) throws IOException {
         byte[] buffer = new byte[byte_expected];
         //read until get enough length bytes
         int received_byte;
@@ -97,12 +150,44 @@ public class Tools {
         return result;
     }
 
+    // overload receive_ASCII_Automatically with Pushbackinputstream
+    public static String receive_ASCII_Automatically(PushbackInputStream DIS){
+        String result = "";
+        try{
+            result = receive_ASCII(DIS, 2);
+            int bytesize = Integer.parseInt(result, 10);
+            result = receive_ASCII(DIS, bytesize);
+            bytesize = Integer.parseInt(result, 10);
+            result = receive_ASCII(DIS, bytesize);
+        } catch (Exception e){
+            e.printStackTrace();
+            result = "";
+        }
+        return result;
+    }
+
     /**
      *
      * @param DIS
      * @return
      */
     public static String receive_Unicode_Automatically(DataInputStream DIS){
+        String result = "";
+        try{
+            result = receive_unicode(DIS, 4);
+            int bytesize = Integer.parseInt(result, 10) * 2;
+            result = receive_unicode(DIS, bytesize);
+            bytesize = Integer.parseInt(result, 10);
+            result = receive_unicode(DIS, bytesize);
+        } catch (Exception e){
+            e.printStackTrace();
+            result = "";
+        }
+        return result;
+    }
+
+    // overload receive_Unicode_Automatically with Pushbackinputstream
+    public static String receive_Unicode_Automatically(PushbackInputStream DIS){
         String result = "";
         try{
             result = receive_unicode(DIS, 4);
@@ -223,6 +308,27 @@ public class Tools {
      * @throws IOException
      */
     public static byte[] receive_byte_array(DataInputStream DIS, int byte_expected) throws IOException{
+        byte[] buffer = new byte[byte_expected];
+        int total_byte_received = 0;
+        int received_byte;
+        do {
+            received_byte = DIS.read(buffer, total_byte_received, byte_expected);
+            if (received_byte > 0){
+                total_byte_received += received_byte;
+                byte_expected -= received_byte;
+            }
+            else break;
+        } while (byte_expected > 0 && received_byte > 0);
+        if (byte_expected == 0){
+            return buffer;
+        }
+        else {
+            return new byte[0];
+        }
+    }
+
+    // overload receive_byte_array with Pushbackinputstream
+    public static byte[] receive_byte_array(PushbackInputStream DIS, int byte_expected) throws IOException{
         byte[] buffer = new byte[byte_expected];
         int total_byte_received = 0;
         int received_byte;

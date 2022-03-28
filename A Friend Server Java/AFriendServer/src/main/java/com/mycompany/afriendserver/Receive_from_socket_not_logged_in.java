@@ -36,6 +36,7 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                 String instruction = data;
                 
                 if (instruction.equals("0012")) {
+                    Thread.sleep(100);
                     data = Tools.receive_ASCII(DIS, 19);
                     try{
                         DIS.close();

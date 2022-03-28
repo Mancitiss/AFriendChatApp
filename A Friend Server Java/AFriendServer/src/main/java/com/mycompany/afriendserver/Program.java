@@ -111,6 +111,7 @@ public class Program {
         try {
             byte state = sessions.get(id).status;
             sessions.remove(id);
+            System.out.println(id + " quitted");
             String str_id = id;
             while (str_id.toCharArray()[0] == '0' && str_id.length() > 1) {
                 str_id = str_id.substring(1);
