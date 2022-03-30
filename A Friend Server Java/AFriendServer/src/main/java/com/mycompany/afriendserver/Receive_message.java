@@ -30,11 +30,11 @@ public class Receive_message implements Runnable {
             boolean keepreading = true;
             do {
                 data = Tools.receive_unicode(s, 8);
-                
+
                 if (data != null && !data.isBlank()) {
-                    // if (data!=null && data!="1904") Console.WriteLine("Work: " + data);
-                    //if (!data.equals("1904"))
-                        
+                    if (data!=null && data!="1904") System.out.println("Work: " + data);
+                    // if (!data.equals("1904"))
+
                     String instruction = data;
                     switch (instruction) {
                         case "0708": {
@@ -57,10 +57,12 @@ public class Receive_message implements Runnable {
                             }
                             if (result) {
                                 Program.sessions.get(ID)
-                                        .Queue_command(("0708" + receiver_id + "1").getBytes(StandardCharsets.UTF_16LE));
+                                        .Queue_command(
+                                                ("0708" + receiver_id + "1").getBytes(StandardCharsets.UTF_16LE));
                             } else {
                                 Program.sessions.get(ID)
-                                        .Queue_command(("0708" + receiver_id + "0").getBytes(StandardCharsets.UTF_16LE));
+                                        .Queue_command(
+                                                ("0708" + receiver_id + "0").getBytes(StandardCharsets.UTF_16LE));
                             }
                         }
                             break;
@@ -109,7 +111,8 @@ public class Receive_message implements Runnable {
                                                     if (rs1.getByte("type") == 0 || rs1.getByte("type") == 3) {
                                                         messages.add(new MessageObject(rs1.getString("id1"),
                                                                 rs1.getString("id2"), rs1.getLong("messagenumber"),
-                                                                rs1.getTimestamp("timesent").getTime(), rs1.getBoolean("sender"),
+                                                                rs1.getTimestamp("timesent").getTime(),
+                                                                rs1.getBoolean("sender"),
                                                                 rs1.getString("message"), rs1.getByte("type")));
                                                     } else if (rs1.getByte("type") == 1 && (new File(
                                                             Program.img_path + p[0] + "_" + p[1] + num + ".png"))
@@ -133,15 +136,13 @@ public class Receive_message implements Runnable {
                                     // JSON serialize messages
                                     Gson gson = new Gson();
                                     String json = gson.toJson(messages);
-                                    
-                                    
-                                    
+
                                     // send to id
                                     Program.sessions.get(ID)
                                             .Queue_command(("6475" + receiver_id + Tools.data_with_unicode_byte(json))
                                                     .getBytes(StandardCharsets.UTF_16LE));
                                     // old messages sent
-                                    
+
                                     if (Program.sessions.containsKey(ID)) {
                                         if (Program.sessions.get(ID).loaded > 1) {
                                             Program.sessions.get(ID).loaded -= 1;
@@ -149,7 +150,7 @@ public class Receive_message implements Runnable {
                                             Program.sessions.get(ID)
                                                     .Queue_command("2411".getBytes(StandardCharsets.UTF_16LE));
                                             Program.sessions.get(ID).loaded -= 1;
-                                            
+
                                         }
                                     }
                                 }
@@ -167,7 +168,8 @@ public class Receive_message implements Runnable {
                                                 if (rs.getByte("type") == 0 || rs.getByte("type") == 3) {
                                                     messages.add(new MessageObject(rs.getString("id1"),
                                                             rs.getString("id2"), rs.getLong("messagenumber"),
-                                                            rs.getTimestamp("timesent", Program.tzCal).getTime(), rs.getBoolean("sender"),
+                                                            rs.getTimestamp("timesent", Program.tzCal).getTime(),
+                                                            rs.getBoolean("sender"),
                                                             rs.getString("message"), rs.getByte("type")));
                                                 } else if (rs.getByte("type") == 1 && (new File(
                                                         Program.img_path + p[0] + "_" + p[1] + num + ".png"))
@@ -175,7 +177,8 @@ public class Receive_message implements Runnable {
                                                     messages.add(
                                                             new MessageObject(rs.getString("id1"), rs.getString("id2"),
                                                                     rs.getLong("messagenumber"),
-                                                                    rs.getTimestamp("timesent", Program.tzCal).getTime(),
+                                                                    rs.getTimestamp("timesent", Program.tzCal)
+                                                                            .getTime(),
                                                                     rs.getBoolean("sender"),
                                                                     Tools.ImageToBASE64(Program.img_path + p[0] + "_"
                                                                             + p[1] + "_" + num + ".png"),
@@ -193,7 +196,7 @@ public class Receive_message implements Runnable {
                                 Program.sessions.get(ID)
                                         .Queue_command(("6475" + receiver_id + Tools.data_with_unicode_byte(json))
                                                 .getBytes(StandardCharsets.UTF_16LE));
-                                
+
                             }
                         }
                             break;
@@ -206,7 +209,7 @@ public class Receive_message implements Runnable {
                             try {
                                 boolean success = false;
                                 Timestamp now = new Timestamp(System.currentTimeMillis());
-                                
+
                                 try (PreparedStatement ps = Program.sql.prepareStatement(
                                         "insert into message (id1, id2, messagenumber, timesent, sender, message, type) values (?, ?, ?, ?, ?, ?, ?)")) {
                                     ps.setString(1, p[0]);
@@ -217,10 +220,10 @@ public class Receive_message implements Runnable {
                                     ps.setBoolean(5, ID.equals(p[1]));
                                     ps.setString(6, sqlmessage);
                                     ps.setByte(7, (byte) 0);
-                                    
+
                                     if (ps.executeUpdate() >= 1) {
                                         success = true;
-                                        
+
                                     }
                                 }
                                 if (success) {
@@ -229,31 +232,34 @@ public class Receive_message implements Runnable {
                                         another_ps.setString(1, p[0]);
                                         another_ps.setString(2, p[1]);
                                         another_ps.setString(3, now.toInstant().toString());
-                                        
+
                                         another_ps.setBoolean(4, ID.equals(p[1]));
-                                        
+
                                         try (ResultSet rs = another_ps.executeQuery()) {
                                             if (rs.next()) {
-                                                
+
                                                 MessageObject msgobj = new MessageObject(
                                                         Tools.padleft(rs.getString("id1"), 19, '0'),
                                                         Tools.padleft(rs.getString("id2"), 19, '0'),
-                                                        rs.getLong("messagenumber"), rs.getTimestamp("timesent", Program.tzCal).getTime(),
+                                                        rs.getLong("messagenumber"),
+                                                        rs.getTimestamp("timesent", Program.tzCal).getTime(),
                                                         rs.getBoolean("sender"), rs.getString("message"),
                                                         rs.getByte("type"));
                                                 if (!ID.equals(receiver_id))
                                                     Program.sendToID(ID, msgobj);
                                                 if (!Program.sendToID(receiver_id, msgobj)) {
                                                     Program.sessions.get(ID)
-                                                            .Queue_command(("0404"+receiver_id).getBytes(StandardCharsets.UTF_16LE));
+                                                            .Queue_command(("0404" + receiver_id)
+                                                                    .getBytes(StandardCharsets.UTF_16LE));
                                                 } else {
                                                     Program.sessions.get(ID)
-                                                            .Queue_command(("2211"+receiver_id).getBytes(StandardCharsets.UTF_16LE));
+                                                            .Queue_command(("2211" + receiver_id)
+                                                                    .getBytes(StandardCharsets.UTF_16LE));
                                                 }
-                                                
+
                                             }
-                                        } catch (SQLException sql){
-                                            
+                                        } catch (SQLException sql) {
+
                                             sql.getNextException().printStackTrace();
                                         }
                                     }
@@ -305,19 +311,22 @@ public class Receive_message implements Runnable {
                                                     MessageObject msgobj = new MessageObject(
                                                             Tools.padleft(rs.getString("id1"), 19, '0'),
                                                             Tools.padleft(rs.getString("id2"), 19, '0'),
-                                                            rs.getLong("messagenumber"), rs.getTimestamp("timesent", Program.tzCal).getTime(),
+                                                            rs.getLong("messagenumber"),
+                                                            rs.getTimestamp("timesent", Program.tzCal).getTime(),
                                                             rs.getBoolean("sender"), img_message,
                                                             rs.getByte("type"));
                                                     if (!ID.equals(receiver_id))
                                                         Program.sendToID(ID, msgobj);
                                                     if (!Program.sendToID(receiver_id, msgobj)) {
                                                         Program.sessions.get(ID).Queue_command(
-                                                                ("0404"+receiver_id).getBytes(StandardCharsets.UTF_16LE));
+                                                                ("0404" + receiver_id)
+                                                                        .getBytes(StandardCharsets.UTF_16LE));
                                                     } else {
                                                         Program.sessions.get(ID).Queue_command(
-                                                                ("2211"+receiver_id).getBytes(StandardCharsets.UTF_16LE));
+                                                                ("2211" + receiver_id)
+                                                                        .getBytes(StandardCharsets.UTF_16LE));
                                                     }
-                                                    
+
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -383,19 +392,20 @@ public class Receive_message implements Runnable {
                                                     MessageObject msgobj = new MessageObject(
                                                             Tools.padleft(rs.getString("id1"), 19, '0'),
                                                             Tools.padleft(rs.getString("id2"), 19, '0'),
-                                                            rs.getLong("messagenumber"), rs.getTimestamp("timesent", Program.tzCal).getTime(),
+                                                            rs.getLong("messagenumber"),
+                                                            rs.getTimestamp("timesent", Program.tzCal).getTime(),
                                                             rs.getBoolean("sender"), rs.getString("message"),
                                                             rs.getByte("type"));
                                                     if (!ID.equals(receiver_id))
                                                         Program.sendToID(ID, msgobj);
                                                     if (!Program.sendToID(receiver_id, msgobj)) {
                                                         Program.sessions.get(ID).Queue_command(
-                                                                "0404".getBytes(StandardCharsets.UTF_16LE));
+                                                                ("0404"+receiver_id).getBytes(StandardCharsets.UTF_16LE));
                                                     } else {
                                                         Program.sessions.get(ID).Queue_command(
-                                                                "2211".getBytes(StandardCharsets.UTF_16LE));
+                                                                ("2211"+receiver_id).getBytes(StandardCharsets.UTF_16LE));
                                                     }
-                                                    
+
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -436,23 +446,25 @@ public class Receive_message implements Runnable {
                                             if (Program.files.get(filename).fos.getChannel().isOpen()) {
                                                 Program.files.get(filename).fos.getChannel().position(offset);
                                                 Program.files.get(filename).fos.write(databyte, 0, received_byte);
+                                                done = true;
                                                 Program.files.get(filename).size -= received_byte;
-                                                System.out.println("Writing file" + offsetstr + " " + received_byte_str);
+                                                System.out.println(
+                                                        "Writing file" + offsetstr + " " + received_byte_str);
                                                 if (Program.files.get(filename).size <= 0) {
                                                     Program.files.get(filename).fos.close();
                                                     Program.files.get(filename).fos = null;
                                                     Program.files.remove(filename);
                                                     Program.sessions.get(ID).files_on_transfer.remove(filename);
-                                                    done = true;
                                                 }
                                             }
-                                        }
-                                        else {
+
+                                        } else {
                                             // open filepath
                                             System.out.println("Opening file");
                                             Program.files.get(filename).fos = new FileOutputStream(filepath);
                                             Program.files.get(filename).fos.getChannel().position(offset);
                                             Program.files.get(filename).fos.write(databyte, 0, received_byte);
+                                            done = true;
                                             Program.files.get(filename).size -= received_byte;
                                             System.out.println("Writing file" + offsetstr + " " + received_byte_str);
                                             if (Program.files.get(filename).size <= 0) {
@@ -460,14 +472,11 @@ public class Receive_message implements Runnable {
                                                 Program.files.get(filename).fos = null;
                                                 Program.files.remove(filename);
                                                 Program.sessions.get(ID).files_on_transfer.remove(filename);
-                                                done = true;
                                             }
                                         }
                                     } catch (Exception e) {
                                         if (e.getMessage().contains("being used by another process")) {
-                                            synchronized (this) {
-                                                this.wait(100);
-                                            }
+                                            Thread.sleep(100);
                                         } else {
                                             e.printStackTrace();
                                             FileToWrite f = Program.files.remove(filename);
@@ -508,6 +517,7 @@ public class Receive_message implements Runnable {
                         case "1905": {
                             String receiver_id = Tools.receive_unicode(s, 38);
                             String num = Tools.receive_ASCII_Automatically(s);
+                            System.out.println("Sending file");
                             Program.executor.execute(new Send_file(ID, receiver_id, num));
                         }
                             break;
@@ -534,7 +544,7 @@ public class Receive_message implements Runnable {
                                 String file = Program.img_path + p[0] + "_" + p[1] + "_" + messagenumber_str + ".";
                                 File f1 = new File(file);
                                 if (f1.exists()) {
-                                    // 
+                                    //
                                     String filename = p[0] + "_" + p[1] + "_" + messagenumber_str + ".";
                                     if (Program.sessions.containsKey(p[0])
                                             && Program.sessions.get(p[0]).files_on_transfer.containsKey(file)) {
@@ -562,193 +572,192 @@ public class Receive_message implements Runnable {
                                             }
                                             temp.fos = null;
                                         }
-                                    } catch (Exception e) {}
+                                    } catch (Exception e) {
+                                    }
                                     Program.executor.execute(new Delete_file(file));
                                 }
-                            } catch (Exception e) {}
-                            if (Program.sessions.containsKey(receiver_id)){
+                            } catch (Exception e) {
+                            }
+                            if (Program.sessions.containsKey(receiver_id)) {
                                 Program.sessions.get(receiver_id).Queue_command(
-                                    ("2002"+ ID + Tools.data_with_unicode_byte(messagenumber_str)).getBytes(StandardCharsets.UTF_16LE)
-                                );
+                                        ("2002" + ID + Tools.data_with_unicode_byte(messagenumber_str))
+                                                .getBytes(StandardCharsets.UTF_16LE));
                             }
                         }
-                        break;
-                        case "2004":
-                        {
+                            break;
+                        case "2004": {
                             Program.shutdown(ID);
                         }
-                        break;
-                        case "0609":
-                        {
+                            break;
+                        case "0609": {
                             String receiver_id = Tools.receive_unicode(s, 38);
-                            try(PreparedStatement ps = Program.sql.prepareStatement("select top 1 id, name from account where id=? and private=0")){
+                            try (PreparedStatement ps = Program.sql
+                                    .prepareStatement("select top 1 id, name from account where id=? and private=0")) {
                                 ps.setLong(1, Long.parseLong(receiver_id));
-                                try(ResultSet rs = ps.executeQuery()){
-                                    if(rs.next()){
-                                        int state = Program.sessions.containsKey(rs.getString("id"))?1:0;
+                                try (ResultSet rs = ps.executeQuery()) {
+                                    if (rs.next()) {
+                                        int state = Program.sessions.containsKey(rs.getString("id")) ? 1 : 0;
                                         Program.sessions.get(ID).Queue_command(
-                                            Tools.combine(
-                                                "1609".getBytes(StandardCharsets.UTF_16LE),
-                                                Tools.data_with_unicode_byte(Tools.padleft(String.valueOf(rs.getLong("id")), 19, '0') + " " + rs.getString("id") + " " + rs.getNString("name") + " " + state).getBytes(StandardCharsets.UTF_16LE)
-                                            )
-                                        );
-                                    }
-                                    else {
-                                        Program.sessions.get(ID).Queue_command(    
-                                            "2609".getBytes(StandardCharsets.UTF_16LE)                          
-                                        );
+                                                Tools.combine(
+                                                        "1609".getBytes(StandardCharsets.UTF_16LE),
+                                                        Tools.data_with_unicode_byte(
+                                                                Tools.padleft(String.valueOf(rs.getLong("id")), 19, '0')
+                                                                        + " " + rs.getString("id") + " "
+                                                                        + rs.getNString("name") + " " + state)
+                                                                .getBytes(StandardCharsets.UTF_16LE)));
+                                    } else {
+                                        Program.sessions.get(ID).Queue_command(
+                                                "2609".getBytes(StandardCharsets.UTF_16LE));
                                     }
                                 }
                             }
                         }
-                        break;
+                            break;
                         /*
-                        case "0610":
-                        {
-                            String receiver_id = Tools.receive_unicode(s, 38);
-                            try(PreparedStatement ps = Program.sql.prepareStatement("select top 1 id, username, name from account where id=? and private=0")){
-                                ps.setLong(1, Long.parseLong(receiver_id));
-                                try(ResultSet rs = ps.executeQuery()){
-                                    if(rs.next()){
-                                        int state = Program.sessions.containsKey(rs.getString("id"))?1:0;
-                                        Program.sessions.get(ID).Queue_command(
-                                            Tools.combine(
-                                                "1610".getBytes(StandardCharsets.UTF_16LE),
-                                                Tools.data_with_unicode_byte(Tools.padleft(String.valueOf(rs.getLong("id")), 19, '0') + " " + rs.getNString("username") + " " + rs.getNString("name") + " " + state).getBytes(StandardCharsets.UTF_16LE)
-                                            )
-                                        );
-                                    }
-                                    else {
-                                        Program.sessions.get(ID).Queue_command(    
-                                            "2609".getBytes(StandardCharsets.UTF_16LE)                          
-                                        );
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                        */
-                        case "1060":
-                        {
+                         * case "0610":
+                         * {
+                         * String receiver_id = Tools.receive_unicode(s, 38);
+                         * try(PreparedStatement ps = Program.sql.
+                         * prepareStatement("select top 1 id, username, name from account where id=? and private=0"
+                         * )){
+                         * ps.setLong(1, Long.parseLong(receiver_id));
+                         * try(ResultSet rs = ps.executeQuery()){
+                         * if(rs.next()){
+                         * int state = Program.sessions.containsKey(rs.getString("id"))?1:0;
+                         * Program.sessions.get(ID).Queue_command(
+                         * Tools.combine(
+                         * "1610".getBytes(StandardCharsets.UTF_16LE),
+                         * Tools.data_with_unicode_byte(Tools.padleft(String.valueOf(rs.getLong("id")),
+                         * 19, '0') + " " + rs.getNString("username") + " " + rs.getNString("name") +
+                         * " " + state).getBytes(StandardCharsets.UTF_16LE)
+                         * )
+                         * );
+                         * }
+                         * else {
+                         * Program.sessions.get(ID).Queue_command(
+                         * "2609".getBytes(StandardCharsets.UTF_16LE)
+                         * );
+                         * }
+                         * }
+                         * }
+                         * }
+                         * break;
+                         */
+                        case "1060": {
                             String receiver_id = Tools.receive_unicode(s, 38);
                             String path = Program.avatar_path + receiver_id + ".png";
                             File f = new File(path);
-                            if (f.exists()){
+                            if (f.exists()) {
                                 Program.sessions.get(ID).Queue_command(
-                                    Tools.combine(
-                                        ("1060"+receiver_id).getBytes(StandardCharsets.UTF_16LE),
-                                        Tools.data_with_ASCII_byte(Tools.ImageToBASE64(path)).getBytes(StandardCharsets.US_ASCII)
-                                    )
-                                );
+                                        Tools.combine(
+                                                ("1060" + receiver_id).getBytes(StandardCharsets.UTF_16LE),
+                                                Tools.data_with_ASCII_byte(Tools.ImageToBASE64(path))
+                                                        .getBytes(StandardCharsets.US_ASCII)));
                             }
                         }
-                        break;
-                        case "0601":
-                        {
+                            break;
+                        case "0601": {
                             String img_string = Tools.receive_ASCII_Automatically(s);
                             String tempFile = Program.avatar_path + ID + ".png";
-                            // convert base64 string to image 
-                            try(FileOutputStream fos = new FileOutputStream(tempFile)){
+                            // convert base64 string to image
+                            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
                                 fos.write(Base64.getDecoder().decode(img_string));
+                            } catch (Exception e) {
                             }
-                            catch(Exception e){}
                         }
-                        break;
-                        case "4269":
-                        {
+                            break;
+                        case "4269": {
                             String opw = Tools.receive_Unicode_Automatically(s);
                             String npw = Tools.receive_Unicode_Automatically(s);
-                            try(PreparedStatement ps = Program.sql.prepareStatement("select top 1 pw from account where id=?")){
+                            try (PreparedStatement ps = Program.sql
+                                    .prepareStatement("select top 1 pw from account where id=?")) {
                                 ps.setLong(1, Long.parseLong(ID));
-                                try(ResultSet rs = ps.executeQuery()){
-                                    if(rs.next()){
-                                        if(BCrypt.checkpw(opw, rs.getNString("pw"))){
-                                            try(PreparedStatement ps2 = Program.sql.prepareStatement("update top (1) account set pw=? where id=?")){
+                                try (ResultSet rs = ps.executeQuery()) {
+                                    if (rs.next()) {
+                                        if (BCrypt.checkpw(opw, rs.getNString("pw"))) {
+                                            try (PreparedStatement ps2 = Program.sql
+                                                    .prepareStatement("update top (1) account set pw=? where id=?")) {
                                                 ps2.setString(1, npw);
                                                 ps2.setLong(2, Long.parseLong(ID));
                                                 ps2.executeUpdate();
                                                 Program.sessions.get(ID).Queue_command(
-                                                    "4269".getBytes(StandardCharsets.UTF_16LE)
-                                                );
+                                                        "4269".getBytes(StandardCharsets.UTF_16LE));
                                             }
-                                        }
-                                        else {
+                                        } else {
                                             Program.sessions.get(ID).Queue_command(
-                                                "9624".getBytes(StandardCharsets.UTF_16LE)
-                                            );
+                                                    "9624".getBytes(StandardCharsets.UTF_16LE));
                                         }
                                     }
                                 }
                             }
                         }
-                        break;
-                        case "1508":
-                        {
-                            try(PreparedStatement ps = Program.sql.prepareStatement("update top (1) account set private=1 where id=?")){
+                            break;
+                        case "1508": {
+                            try (PreparedStatement ps = Program.sql
+                                    .prepareStatement("update top (1) account set private=1 where id=?")) {
                                 ps.setLong(1, Long.parseLong(ID));
                                 ps.executeUpdate();
                             }
                         }
-                        break;
-                        case "0508":
-                        {
-                            try(PreparedStatement ps = Program.sql.prepareStatement("update top (1) account set private=0 where id=?")){
+                            break;
+                        case "0508": {
+                            try (PreparedStatement ps = Program.sql
+                                    .prepareStatement("update top (1) account set private=0 where id=?")) {
                                 ps.setLong(1, Long.parseLong(ID));
                                 ps.executeUpdate();
                             }
                         }
-                        break;
-                        case "1012":
-                        {
+                            break;
+                        case "1012": {
                             String newname = Tools.receive_Unicode_Automatically(s);
-                            try(PreparedStatement ps = Program.sql.prepareStatement("update top (1) account set name=? where id=?")){
+                            try (PreparedStatement ps = Program.sql
+                                    .prepareStatement("update top (1) account set name=? where id=?")) {
                                 ps.setString(1, newname);
                                 ps.setLong(2, Long.parseLong(ID));
-                                if (ps.executeUpdate() == 1){
+                                if (ps.executeUpdate() == 1) {
                                     Program.sessions.get(ID).Queue_command(
-                                        "1012".getBytes(StandardCharsets.UTF_16LE)
-                                    );
+                                            "1012".getBytes(StandardCharsets.UTF_16LE));
                                 }
                             }
                         }
-                        break;
-                        case "5859":
-                        {
+                            break;
+                        case "5859": {
                             String receiver_id = Tools.receive_unicode(s, 38);
                             String[] p = Tools.compareIDs(ID, receiver_id);
-                            try(PreparedStatement ps = Program.sql.prepareStatement("delete top (1) from friend where id1=? and id2=?")){
+                            try (PreparedStatement ps = Program.sql
+                                    .prepareStatement("delete top (1) from friend where id1=? and id2=?")) {
                                 ps.setLong(1, Long.parseLong(p[0]));
                                 ps.setLong(2, Long.parseLong(p[1]));
                                 ps.executeUpdate();
                             }
                             Program.executor.execute(new Delete_conversation(p[0], p[1]));
                         }
-                        break;
-                        case "7351":
-                        {
+                            break;
+                        case "7351": {
                             String state_str = Tools.receive_unicode(s, 2);
                             byte state = Byte.parseByte(state_str);
                             Program.sessions.get(ID).status = state;
                         }
-                        break;
-                        default:
-                        {
+                            break;
+                        default: {
                             keepreading = false;
                             Program.shutdown(ID);
                         }
-                        break;
+                            break;
                     }
                 } else {
                     keepreading = false;
                     Program.shutdown(ID);
                 }
                 int b = s.read();
-                if (b == -1) keepreading = false;
-                else s.unread(b);
+                if (b == -1)
+                    keepreading = false;
+                else
+                    s.unread(b);
             } while (keepreading);
         } catch (Exception e) {
             e.printStackTrace();
-            
+
             try {
                 Program.handleException(this.ID, e.getMessage());
             } catch (Exception e1) {
@@ -756,7 +765,7 @@ public class Receive_message implements Runnable {
             }
         } finally {
             try {
-                
+
                 if (Program.sessions.containsKey(this.ID)) {
                     Program.sessions.get(this.ID).is_locked.set(0);
                 }

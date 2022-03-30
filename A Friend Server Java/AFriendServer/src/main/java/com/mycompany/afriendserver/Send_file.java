@@ -18,6 +18,7 @@ public class Send_file implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("Send_file");
         String[] p = Tools.compareIDs(ID, receiver_id);
         String file = Program.img_path + p[0] + "_" + p[1] + "_" + num + ".";
         if (Program.sessions.containsKey(ID) && Program.sessions.get(ID).files_on_transfer.containsKey(file)) return;
@@ -25,8 +26,10 @@ public class Send_file implements Runnable {
         try {
             File f = new File(file);
             if (f.exists()){
+                System.out.println("File exists");
                 try(FileInputStream fis = new FileInputStream(f)){
                     long filesize = f.length();
+                    System.out.println("File size: " + filesize);
                     Program.sessions.get(ID).Queue_command(
                         Tools.combine(
                             ("1905" + receiver_id).getBytes(StandardCharsets.UTF_16LE),
@@ -50,10 +53,8 @@ public class Send_file implements Runnable {
                                 }
                                 else break;
                             } while (byte_expectex > 0 && received_byte > 0);
-                            while (Program.sessions.get(ID).commands.size() > 5 || Program.sessions.get(ID).is_locked.get() == 1) {
-                                synchronized(this){
-                                    this.wait(30);
-                                }
+                            while (Program.sessions.get(ID).commands.size() > 5) {
+                                Thread.sleep(30);
                             }
                             if (total_byte_received == first_byte_expected && Program.sessions.get(ID).files_on_transfer.get(file)){
                                 Program.sessions.get(ID).Queue_command(
