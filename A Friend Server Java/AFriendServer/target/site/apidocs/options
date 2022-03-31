@@ -1,0 +1,24 @@
+-classpath
+'C:/Users/vovuo/.m2/repository/com/google/code/gson/gson/2.9.0/gson-2.9.0.jar;C:/Users/vovuo/.m2/repository/commons-dbutils/commons-dbutils/1.7/commons-dbutils-1.7.jar;C:/Users/vovuo/.m2/repository/org/springframework/boot/spring-boot-starter-security/2.3.12.RELEASE/spring-boot-starter-security-2.3.12.RELEASE.jar;C:/Users/vovuo/.m2/repository/org/springframework/boot/spring-boot-starter/2.3.12.RELEASE/spring-boot-starter-2.3.12.RELEASE.jar;C:/Users/vovuo/.m2/repository/org/springframework/boot/spring-boot/2.3.12.RELEASE/spring-boot-2.3.12.RELEASE.jar;C:/Users/vovuo/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/2.3.12.RELEASE/spring-boot-autoconfigure-2.3.12.RELEASE.jar;C:/Users/vovuo/.m2/repository/org/springframework/boot/spring-boot-starter-logging/2.3.12.RELEASE/spring-boot-starter-logging-2.3.12.RELEASE.jar;C:/Users/vovuo/.m2/repository/ch/qos/logback/logback-classic/1.2.3/logback-classic-1.2.3.jar;C:/Users/vovuo/.m2/repository/ch/qos/logback/logback-core/1.2.3/logback-core-1.2.3.jar;C:/Users/vovuo/.m2/repository/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar;C:/Users/vovuo/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.13.3/log4j-to-slf4j-2.13.3.jar;C:/Users/vovuo/.m2/repository/org/apache/logging/log4j/log4j-api/2.13.3/log4j-api-2.13.3.jar;C:/Users/vovuo/.m2/repository/org/slf4j/jul-to-slf4j/1.7.30/jul-to-slf4j-1.7.30.jar;C:/Users/vovuo/.m2/repository/jakarta/annotation/jakarta.annotation-api/1.3.5/jakarta.annotation-api-1.3.5.jar;C:/Users/vovuo/.m2/repository/org/springframework/spring-core/5.2.15.RELEASE/spring-core-5.2.15.RELEASE.jar;C:/Users/vovuo/.m2/repository/org/springframework/spring-jcl/5.2.15.RELEASE/spring-jcl-5.2.15.RELEASE.jar;C:/Users/vovuo/.m2/repository/org/yaml/snakeyaml/1.26/snakeyaml-1.26.jar;C:/Users/vovuo/.m2/repository/org/springframework/spring-aop/5.2.15.RELEASE/spring-aop-5.2.15.RELEASE.jar;C:/Users/vovuo/.m2/repository/org/springframework/spring-beans/5.2.15.RELEASE/spring-beans-5.2.15.RELEASE.jar;C:/Users/vovuo/.m2/repository/org/springframework/security/spring-security-config/5.3.9.RELEASE/spring-security-config-5.3.9.RELEASE.jar;C:/Users/vovuo/.m2/repository/org/springframework/security/spring-security-core/5.3.9.RELEASE/spring-security-core-5.3.9.RELEASE.jar;C:/Users/vovuo/.m2/repository/org/springframework/spring-context/5.2.13.RELEASE/spring-context-5.2.13.RELEASE.jar;C:/Users/vovuo/.m2/repository/org/springframework/security/spring-security-web/5.3.9.RELEASE/spring-security-web-5.3.9.RELEASE.jar;C:/Users/vovuo/.m2/repository/org/springframework/spring-expression/5.2.13.RELEASE/spring-expression-5.2.13.RELEASE.jar;C:/Users/vovuo/.m2/repository/org/springframework/spring-web/5.2.13.RELEASE/spring-web-5.2.13.RELEASE.jar'
+-encoding
+'UTF-8'
+-protected
+-source
+'17'
+-sourcepath
+'F:/Github/AFriendChatApp/A Friend Server Java/AFriendServer/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2022. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'F:/Github/AFriendChatApp/A Friend Server Java/AFriendServer/target/site/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'AFriendServer 1.0-SNAPSHOT API'
+-use
+-version
+-windowtitle
+'AFriendServer 1.0-SNAPSHOT API'
