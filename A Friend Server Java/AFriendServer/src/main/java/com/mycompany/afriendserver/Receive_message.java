@@ -32,7 +32,7 @@ public class Receive_message implements Runnable {
                 data = Tools.receive_unicode(s, 8);
 
                 if (data != null && !data.isBlank()) {
-                    if (data!=null && data!="1904") System.out.println("Work: " + data);
+                    //if (data!=null && data!="1904") System.out.println("Work: " + data);
                     // if (!data.equals("1904"))
 
                     String instruction = data;
@@ -360,6 +360,7 @@ public class Receive_message implements Runnable {
                                         success = true;
                                     }
                                 }
+                                //System.out.println(success);
                                 if (success) {
                                     try (PreparedStatement ps2 = Program.sql.prepareStatement(
                                             "select top 1 * from message where id1 = ? and id2 = ? and timesent = ? and sender = ? and message = ? and type = 3")) {
@@ -396,8 +397,9 @@ public class Receive_message implements Runnable {
                                                             rs.getTimestamp("timesent", Program.tzCal).getTime(),
                                                             rs.getBoolean("sender"), rs.getString("message"),
                                                             rs.getByte("type"));
-                                                    if (!ID.equals(receiver_id))
+                                                    if (!ID.equals(receiver_id)){
                                                         Program.sendToID(ID, msgobj);
+                                                    }
                                                     if (!Program.sendToID(receiver_id, msgobj)) {
                                                         Program.sessions.get(ID).Queue_command(
                                                                 ("0404"+receiver_id).getBytes(StandardCharsets.UTF_16LE));
@@ -421,7 +423,6 @@ public class Receive_message implements Runnable {
                             break;
                         case "1904": {
                             // suggest 1 line
-                            System.out.println("Receiving file");
                             String receiver_id = Tools.receive_unicode(s, 38);
                             String num = Tools.receive_ASCII_Automatically(s);
                             // long messagenumber = Long.parseLong(num);
@@ -441,15 +442,14 @@ public class Receive_message implements Runnable {
                                 boolean done = false;
                                 while (!done) {
                                     try {
-                                        System.out.println("Tryin to write");
                                         if (Program.files.get(filename).fos != null) {
                                             if (Program.files.get(filename).fos.getChannel().isOpen()) {
                                                 Program.files.get(filename).fos.getChannel().position(offset);
                                                 Program.files.get(filename).fos.write(databyte, 0, received_byte);
                                                 done = true;
                                                 Program.files.get(filename).size -= received_byte;
-                                                System.out.println(
-                                                        "Writing file" + offsetstr + " " + received_byte_str);
+                                                //System.out.println(
+                                                //        "Writing file" + offsetstr + " " + received_byte_str);
                                                 if (Program.files.get(filename).size <= 0) {
                                                     Program.files.get(filename).fos.close();
                                                     Program.files.get(filename).fos = null;
@@ -460,13 +460,13 @@ public class Receive_message implements Runnable {
 
                                         } else {
                                             // open filepath
-                                            System.out.println("Opening file");
+                                            //System.out.println("Opening file");
                                             Program.files.get(filename).fos = new FileOutputStream(filepath);
                                             Program.files.get(filename).fos.getChannel().position(offset);
                                             Program.files.get(filename).fos.write(databyte, 0, received_byte);
                                             done = true;
                                             Program.files.get(filename).size -= received_byte;
-                                            System.out.println("Writing file" + offsetstr + " " + received_byte_str);
+                                            //System.out.println("Writing file" + offsetstr + " " + received_byte_str);
                                             if (Program.files.get(filename).size <= 0) {
                                                 Program.files.get(filename).fos.close();
                                                 Program.files.get(filename).fos = null;
@@ -517,7 +517,7 @@ public class Receive_message implements Runnable {
                         case "1905": {
                             String receiver_id = Tools.receive_unicode(s, 38);
                             String num = Tools.receive_ASCII_Automatically(s);
-                            System.out.println("Sending file");
+                            //System.out.println("Sending file");
                             Program.executor.execute(new Send_file(ID, receiver_id, num));
                         }
                             break;
@@ -677,7 +677,7 @@ public class Receive_message implements Runnable {
                                         if (BCrypt.checkpw(opw, rs.getNString("pw"))) {
                                             try (PreparedStatement ps2 = Program.sql
                                                     .prepareStatement("update top (1) account set pw=? where id=?")) {
-                                                ps2.setString(1, npw);
+                                                ps2.setNString(1, BCrypt.hashpw(npw, BCrypt.gensalt()));
                                                 ps2.setLong(2, Long.parseLong(ID));
                                                 ps2.executeUpdate();
                                                 Program.sessions.get(ID).Queue_command(
@@ -712,7 +712,7 @@ public class Receive_message implements Runnable {
                             String newname = Tools.receive_Unicode_Automatically(s);
                             try (PreparedStatement ps = Program.sql
                                     .prepareStatement("update top (1) account set name=? where id=?")) {
-                                ps.setString(1, newname);
+                                ps.setNString(1, newname);
                                 ps.setLong(2, Long.parseLong(ID));
                                 if (ps.executeUpdate() == 1) {
                                     Program.sessions.get(ID).Queue_command(
@@ -772,7 +772,7 @@ public class Receive_message implements Runnable {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            System.out.flush();
+            //System.out.flush();
         }
     }
 }

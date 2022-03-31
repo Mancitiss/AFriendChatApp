@@ -109,16 +109,16 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                     //
                     //
                     try (PreparedStatement cmd = Program.sql.prepareStatement("select top 1 id, name, pw, avatar, private, state from account where username=?");){
-                        cmd.setString(1, lst_str[0]);
+                        cmd.setNString(1, lst_str[0]);
                         try (ResultSet rs = cmd.executeQuery()){
                             if (rs.next()){
-                                if (BCrypt.checkpw(lst_str[1], rs.getString("pw"))){
+                                if (BCrypt.checkpw(lst_str[1], rs.getNString("pw"))){
                                     String id = rs.getString("id");
                                     String str_id = new String(id);
                                     while(id.length() < 19){
                                         id = "0" + id;
                                     }
-                                    String name = rs.getString("name");
+                                    String name = rs.getNString("name");
                                     String namebyte = Integer.toString(name.getBytes(StandardCharsets.UTF_16LE).length);
                                     byte mystate = rs.getByte("state");
                                     String namebytelen = Integer.toString(namebyte.length());
