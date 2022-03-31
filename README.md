@@ -1,2 +1,2 @@
 A Friend Chat App  
-Current version: 3.1.0.0  
+Current version: 3.2.1.2  
