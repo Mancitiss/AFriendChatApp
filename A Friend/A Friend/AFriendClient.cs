@@ -239,7 +239,7 @@ namespace A_Friend
                                     file_found = true;
                                     try
                                     {
-                                        using (FileStream fileStream = File.Open(file, FileMode.Open))
+                                        using (FileStream fileStream = File.Open(file, FileMode.Open, FileAccess.Read))
                                         {
                                             long filesize = fileStream.Length;
                                             long offset = 0;
@@ -996,8 +996,8 @@ namespace A_Friend
                                         {
                                             if (Stream_receive(Int32.Parse(data), out string data_string))// all data received, send to UI
                                             {
-                                                Console.WriteLine("Data Received");
-                                                MessageObject msgobj = JSON.Deserialize<MessageObject>(data_string);
+                                                Console.WriteLine("Data Received\n"+data_string);
+                                                MessageObject msgobj = JSON.Deserialize<MessageObject>(data_string, Options.MillisecondsSinceUnixEpochUtc);
                                                 string sender = msgobj.id1;
                                                 if (msgobj.sender) sender = msgobj.id2;
                                                 //Console.WriteLine("{0}: {1}", sender, msgobj.message);
@@ -1253,7 +1253,7 @@ namespace A_Friend
                                     if (receive_data_automatically(out string objectdatastring))
                                     {
                                         Console.WriteLine("Old messages have come");
-                                        List<MessageObject> messageObjects = JSON.Deserialize<List<MessageObject>>(objectdatastring);
+                                        List<MessageObject> messageObjects = JSON.Deserialize<List<MessageObject>>(objectdatastring, Options.MillisecondsSinceUnixEpochUtc);
                                         try
                                         {
                                             Program.mainform.panelChats[panelid].Invoke(Program.mainform.panelChats[panelid].LoadMessageDelegate, new object[] { messageObjects });
