@@ -19,6 +19,7 @@ using System.Configuration;
 using System.Collections.Specialized;
 using System.Drawing.Imaging;
 using System.Collections.Concurrent;
+using System.Security.Policy;
 
 namespace AFriendServer
 {
@@ -26,8 +27,9 @@ namespace AFriendServer
     {
         static string avatar_path = ConfigurationManager.AppSettings.Get("avatar_path");
         static string img_path = ConfigurationManager.AppSettings.Get("msg_img_path");
-
-        static X509Certificate serverCertificate = new X509Certificate(Environment.GetEnvironmentVariable("certpath", EnvironmentVariableTarget.User), Environment.GetEnvironmentVariable("certpass", EnvironmentVariableTarget.User));
+        //Environment.GetEnvironmentVariable("certpath", EnvironmentVariableTarget.User)
+        //Environment.GetEnvironmentVariable("certpass", EnvironmentVariableTarget.User)
+        static X509Certificate serverCertificate = new X509Certificate(@"F:\Python Learning\web_cert2022\server.pfx", Environment.GetEnvironmentVariable("certpass", EnvironmentVariableTarget.User));
 
         static ConcurrentDictionary<string, Client> sessions = new ConcurrentDictionary<string, Client>();
         static ConcurrentDictionary<string, FileToWrite> files = new ConcurrentDictionary<string, FileToWrite>();
@@ -65,17 +67,13 @@ namespace AFriendServer
                         Environment.GetEnvironmentVariable("DBusername", EnvironmentVariableTarget.User) +
                         ";Password=" +
                         Environment.GetEnvironmentVariable("DBpassword", EnvironmentVariableTarget.User) +
-                        ";MultipleActiveResultSets = true"
+                        ";MultipleActiveResultSets = true;"
                         ))
                 {
                     try
                     {
 
                         sql.Open();
-                        //Thread Clientloop = new Thread(new ParameterizedThreadStart(Client_Loop));
-                        //Clientloop.IsBackground = true;
-                        //Clientloop.Start();
-                        //loop = Clientloop;
                         ExecuteServer();
                     }
                     catch (Exception e)
@@ -408,7 +406,11 @@ namespace AFriendServer
                                                             num = num - 1;
                                                             i = i + 1;
                                                         }
-                                                        string datasend = JSON.Serialize<List<MessageObject>>(messageObjects);
+                                                        string datasend = JSON.Serialize<List<MessageObject>>(messageObjects, Options.MillisecondsSinceUnixEpochUtc);
+                                                        Console.WriteLine("===============================================");
+                                                        // write datasend to console
+                                                        Console.WriteLine(datasend);
+                                                        Console.WriteLine("===============================================");
                                                         string datasendbyte = Encoding.Unicode.GetByteCount(datasend).ToString();
                                                         sessions[id].Queue_command(Encoding.Unicode.GetBytes("6475" + receiver_id + datasendbyte.Length.ToString().PadLeft(2, '0') + datasendbyte + datasend));
                                                         //Console.WriteLine("Old messages sent");
@@ -455,7 +457,7 @@ namespace AFriendServer
                                                             num = num - 1;
                                                             i = i + 1;
                                                         }
-                                                        string datasend = JSON.Serialize<List<MessageObject>>(messageObjects);
+                                                        string datasend = JSON.Serialize<List<MessageObject>>(messageObjects, Options.MillisecondsSinceUnixEpochUtc);
                                                         string datasendbyte = Encoding.Unicode.GetByteCount(datasend).ToString();
                                                         sessions[id].Queue_command(Encoding.Unicode.GetBytes("6475" + receiver_id + datasendbyte.Length.ToString().PadLeft(2, '0') + datasendbyte + datasend));
                                                         //Console.WriteLine("Old messages sent");
@@ -1507,7 +1509,7 @@ namespace AFriendServer
             {
                 try
                 {
-                    string data = JSON.Serialize<MessageObject>(msgobj);
+                    string data = JSON.Serialize<MessageObject>(msgobj, Options.MillisecondsSinceUnixEpochUtc);
                     string data_string = Encoding.Unicode.GetByteCount(data).ToString();
                     sessions[id].Queue_command(Encoding.Unicode.GetBytes("1901" + data_string.Length.ToString().PadLeft(2, '0') + data_string + data));
                     //sessions[id].stream.Flush();

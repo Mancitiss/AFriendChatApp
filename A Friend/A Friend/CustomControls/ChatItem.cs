@@ -277,6 +277,7 @@ namespace A_Friend.CustomControls
         public void UpdateDateTime()
         {
             //if (IsMyMessage())
+            //messageObject.timesent = DateTime.SpecifyKind(messageObject.timesent, DateTimeKind.Utc);
             if (true)
             {
                 if (messageObject.timesent.ToLocalTime() < DateTime.Today)
