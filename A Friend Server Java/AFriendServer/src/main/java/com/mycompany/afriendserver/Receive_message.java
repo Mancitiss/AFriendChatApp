@@ -31,7 +31,7 @@ public class Receive_message implements Runnable {
             do {
                 data = Tools.receive_unicode(s, 8);
 
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     //if (data!=null && data!="1904") System.out.println("Work: " + data);
                     // if (!data.equals("1904"))
 
