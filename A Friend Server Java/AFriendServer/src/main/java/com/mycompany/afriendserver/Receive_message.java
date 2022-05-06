@@ -619,36 +619,34 @@ public class Receive_message implements Runnable {
                             }
                         }
                             break;
-                        /*
-                         * case "0610":
-                         * {
-                         * String receiver_id = Tools.receive_unicode(s, 38);
-                         * try(PreparedStatement ps = Program.sql.
-                         * prepareStatement("select top 1 id, username, name from account where id=? and private=0"
-                         * )){
-                         * ps.setLong(1, Long.parseLong(receiver_id));
-                         * try(ResultSet rs = ps.executeQuery()){
-                         * if(rs.next()){
-                         * int state = Program.sessions.containsKey(rs.getString("id"))?1:0;
-                         * Program.sessions.get(ID).Queue_command(
-                         * Tools.combine(
-                         * "1610".getBytes(StandardCharsets.UTF_16LE),
-                         * Tools.data_with_unicode_byte(Tools.padleft(String.valueOf(rs.getLong("id")),
-                         * 19, '0') + " " + rs.getNString("username") + " " + rs.getNString("name") +
-                         * " " + state).getBytes(StandardCharsets.UTF_16LE)
-                         * )
-                         * );
-                         * }
-                         * else {
-                         * Program.sessions.get(ID).Queue_command(
-                         * "2609".getBytes(StandardCharsets.UTF_16LE)
-                         * );
-                         * }
-                         * }
-                         * }
-                         * }
-                         * break;
-                         */
+                        case "0610":
+                        {
+                            String receiver_username = Tools.receive_Unicode_Automatically(s);
+                            try(PreparedStatement ps = Program.sql.prepareStatement("select top 1 id, username, name from account where username=? and private=0"
+                            )){
+                                ps.setString(1, receiver_username);
+                                try(ResultSet rs = ps.executeQuery()){
+                                    if(rs.next()){
+                                        int state = Program.sessions.containsKey(rs.getString("id"))?1:0;
+                                        Program.sessions.get(ID).Queue_command(
+                                            Tools.combine(
+                                                "1610".getBytes(StandardCharsets.UTF_16LE),
+                                                Tools.data_with_unicode_byte(Tools.padleft(String.valueOf(rs.getLong("id")),
+                                                19, '0') + " " + rs.getNString("username") + " " + rs.getNString("name") +
+                                                " " + state).getBytes(StandardCharsets.UTF_16LE
+                                                )
+                                            )
+                                        );
+                                    }
+                                    else {
+                                        Program.sessions.get(ID).Queue_command(
+                                        "2609".getBytes(StandardCharsets.UTF_16LE)
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                        break;
                         case "1060": {
                             String receiver_id = Tools.receive_unicode(s, 38);
                             String path = Program.avatar_path + receiver_id + ".png";
