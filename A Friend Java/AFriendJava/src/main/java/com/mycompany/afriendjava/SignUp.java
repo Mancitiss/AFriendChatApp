@@ -1,0 +1,224 @@
+package com.mycompany.afriendjava;
+
+import java.awt.Color;
+import java.awt.Font;
+import javax.swing.JTextField;
+
+public class SignUp extends javax.swing.JFrame {
+
+    public SignUp() {
+        initComponents();
+        addPlaceholderStyle(textFieldUsername);
+        addPlaceholderStyle(pFieldPassword);
+        addPlaceholderStyle(pFieldConfirmPassword);
+    }
+    
+    public void addPlaceholderStyle(JTextField textField) {
+        textField.setForeground(Color.GRAY);
+    }
+    
+    public void removePlaceholderStyle(JTextField textField) {
+        textField.setForeground(Color.BLACK);
+    }
+
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        labelTitle = new javax.swing.JLabel();
+        textFieldUsername = new javax.swing.JTextField();
+        pFieldPassword = new javax.swing.JPasswordField();
+        pFieldConfirmPassword = new javax.swing.JPasswordField();
+        buttonSignUp = new javax.swing.JButton();
+        buttonExit = new javax.swing.JButton();
+        labelWarning = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setAutoRequestFocus(false);
+        setResizable(false);
+
+        labelTitle.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 36)); // NOI18N
+        labelTitle.setForeground(new java.awt.Color(90, 198, 140));
+        labelTitle.setText("Sign Up");
+
+        textFieldUsername.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
+        textFieldUsername.setText("Username");
+        textFieldUsername.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                textFieldUsernameFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                textFieldUsernameFocusLost(evt);
+            }
+        });
+
+        pFieldPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
+        pFieldPassword.setText("Password");
+        pFieldPassword.setEchoChar('\u0000');
+        pFieldPassword.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                pFieldPasswordFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                pFieldPasswordFocusLost(evt);
+            }
+        });
+
+        pFieldConfirmPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
+        pFieldConfirmPassword.setText("Confirm Password");
+        pFieldConfirmPassword.setEchoChar('\u0000');
+        pFieldConfirmPassword.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                pFieldConfirmPasswordFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                pFieldConfirmPasswordFocusLost(evt);
+            }
+        });
+
+        buttonSignUp.setBackground(new java.awt.Color(90, 198, 140));
+        buttonSignUp.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 18)); // NOI18N
+        buttonSignUp.setForeground(new java.awt.Color(255, 255, 255));
+        buttonSignUp.setText("SIGN UP");
+
+        buttonExit.setBackground(new java.awt.Color(213, 54, 41));
+        buttonExit.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 18)); // NOI18N
+        buttonExit.setForeground(new java.awt.Color(255, 255, 255));
+        buttonExit.setText("EXIT");
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(87, Short.MAX_VALUE)
+                .addComponent(labelTitle)
+                .addGap(80, 80, 80))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(26, 26, 26)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(labelWarning, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
+                    .addComponent(pFieldConfirmPassword, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
+                    .addComponent(pFieldPassword)
+                    .addComponent(buttonExit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(buttonSignUp, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
+                    .addComponent(textFieldUsername))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(61, 61, 61)
+                .addComponent(labelTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(textFieldUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(pFieldPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(pFieldConfirmPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(buttonSignUp, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(labelWarning, javax.swing.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(buttonExit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(52, 52, 52))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void textFieldUsernameFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFieldUsernameFocusGained
+        if(textFieldUsername.getText().equals("Username")) {
+            textFieldUsername.setText(null);
+            textFieldUsername.requestFocus();
+            removePlaceholderStyle(textFieldUsername);
+        }
+    }//GEN-LAST:event_textFieldUsernameFocusGained
+
+    private void pFieldPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusGained
+        if(pFieldPassword.getText().equals("Password")) {
+            pFieldPassword.setText(null);
+            pFieldPassword.requestFocus();
+            pFieldPassword.setEchoChar('\u25CF');
+            removePlaceholderStyle(pFieldPassword);
+        }
+    }//GEN-LAST:event_pFieldPasswordFocusGained
+
+    private void pFieldConfirmPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusGained
+        if(pFieldConfirmPassword.getText().equals("Confirm Password")) {
+            pFieldConfirmPassword.setText(null);
+            pFieldConfirmPassword.requestFocus();
+            pFieldConfirmPassword.setEchoChar('\u25CF');
+            removePlaceholderStyle(pFieldConfirmPassword);
+        }
+    }//GEN-LAST:event_pFieldConfirmPasswordFocusGained
+
+    private void textFieldUsernameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFieldUsernameFocusLost
+        if(textFieldUsername.getText().length() == 0) {
+            addPlaceholderStyle(textFieldUsername);
+            textFieldUsername.setText("Username");
+        }
+    }//GEN-LAST:event_textFieldUsernameFocusLost
+
+    private void pFieldPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusLost
+        if(pFieldPassword.getText().length() == 0) {
+            addPlaceholderStyle(pFieldPassword);
+            pFieldPassword.setText("Password");
+            pFieldPassword.setEchoChar('\u0000');
+        }
+    }//GEN-LAST:event_pFieldPasswordFocusLost
+
+    private void pFieldConfirmPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusLost
+        if(pFieldConfirmPassword.getText().length() == 0) {
+            addPlaceholderStyle(pFieldConfirmPassword);
+            pFieldConfirmPassword.setText("Confirm Password");
+            pFieldConfirmPassword.setEchoChar('\u0000');
+        }
+    }//GEN-LAST:event_pFieldConfirmPasswordFocusLost
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(SignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(SignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(SignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(SignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new SignUp().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton buttonExit;
+    private javax.swing.JButton buttonSignUp;
+    private javax.swing.JLabel labelTitle;
+    private javax.swing.JLabel labelWarning;
+    private javax.swing.JPasswordField pFieldConfirmPassword;
+    private javax.swing.JPasswordField pFieldPassword;
+    private javax.swing.JTextField textFieldUsername;
+    // End of variables declaration//GEN-END:variables
+}
