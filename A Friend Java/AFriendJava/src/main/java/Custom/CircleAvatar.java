@@ -16,7 +16,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
 public class CircleAvatar extends JComponent {
-    
+
     public Icon getImage() {
         return image;
     }
@@ -44,7 +44,7 @@ public class CircleAvatar extends JComponent {
     private Icon image;
     private int borderSize = 5;
     private Color borderColor = new Color(60, 60, 60);
-    
+
     @Override
     public void paint(Graphics g) {
         if (image != null) {
@@ -79,7 +79,7 @@ public class CircleAvatar extends JComponent {
         }
         super.paint(g);
     }
-    
+
     private Rectangle getAutoSize(Icon image) {
         int w = getWidth();
         int h = getHeight();
@@ -98,5 +98,5 @@ public class CircleAvatar extends JComponent {
     private Image toImage(Icon icon) {
         return ((ImageIcon) icon).getImage();
     }
-    
+
 }

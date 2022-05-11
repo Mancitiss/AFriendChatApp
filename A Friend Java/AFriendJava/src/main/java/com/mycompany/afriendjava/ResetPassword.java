@@ -1,13 +1,13 @@
 package com.mycompany.afriendjava;
 
 import java.awt.Color;
-import java.awt.Font;
 import javax.swing.JTextField;
 
 public class ResetPassword extends javax.swing.JFrame {
 
     public ResetPassword() {
         initComponents();
+        setLocationRelativeTo(null);
         addPlaceholderStyle(pFieldNewPassword);
         addPlaceholderStyle(pFieldConfirmPassword);
     }
@@ -15,11 +15,27 @@ public class ResetPassword extends javax.swing.JFrame {
     public void addPlaceholderStyle(JTextField textField) {
         textField.setForeground(Color.GRAY);
     }
-    
+
     public void removePlaceholderStyle(JTextField textField) {
         textField.setForeground(Color.BLACK);
     }
-    
+
+    private boolean IsEmptyTextField() {
+        if (pFieldNewPassword.getText().length() == 0 || pFieldNewPassword.getText().equals("Create New Password") || (pFieldConfirmPassword.getText().length() == 0 || pFieldConfirmPassword.getText().equals("Create New Password"))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean MatchPassword() {
+        if (pFieldNewPassword.getText().equals(pFieldConfirmPassword.getText())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -29,6 +45,7 @@ public class ResetPassword extends javax.swing.JFrame {
         buttonResetPassword = new javax.swing.JButton();
         pFieldNewPassword = new javax.swing.JPasswordField();
         pFieldConfirmPassword = new javax.swing.JPasswordField();
+        labelWarning = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setAutoRequestFocus(false);
@@ -42,6 +59,11 @@ public class ResetPassword extends javax.swing.JFrame {
         buttonResetPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
         buttonResetPassword.setForeground(new java.awt.Color(255, 255, 255));
         buttonResetPassword.setText("Reset Password");
+        buttonResetPassword.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                buttonResetPasswordMouseClicked(evt);
+            }
+        });
 
         pFieldNewPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
         pFieldNewPassword.setText("Create New Password");
@@ -67,35 +89,44 @@ public class ResetPassword extends javax.swing.JFrame {
             }
         });
 
+        labelWarning.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
+        labelWarning.setForeground(new java.awt.Color(255, 0, 0));
+        labelWarning.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(26, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(labelTitle)
-                        .addGap(34, 34, 34))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(pFieldNewPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(buttonResetPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(pFieldConfirmPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(25, 25, 25))))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(pFieldNewPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(buttonResetPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pFieldConfirmPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(25, 25, 25))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(37, 37, 37)
+                .addComponent(labelTitle)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(labelWarning, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(23, 23, 23)
+                .addGap(26, 26, 26)
                 .addComponent(labelTitle)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(pFieldNewPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(pFieldConfirmPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(buttonResetPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(labelWarning, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -113,7 +144,7 @@ public class ResetPassword extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void pFieldNewPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldNewPasswordFocusGained
-        if(pFieldNewPassword.getText().equals("Create New Password")) {
+        if (pFieldNewPassword.getText().equals("Create New Password")) {
             pFieldNewPassword.setText(null);
             pFieldNewPassword.requestFocus();
             pFieldNewPassword.setEchoChar('\u25CF');
@@ -122,7 +153,7 @@ public class ResetPassword extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldNewPasswordFocusGained
 
     private void pFieldConfirmPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusGained
-        if(pFieldConfirmPassword.getText().equals("Confirm Password")) {
+        if (pFieldConfirmPassword.getText().equals("Confirm Password")) {
             pFieldConfirmPassword.setText(null);
             pFieldConfirmPassword.requestFocus();
             pFieldConfirmPassword.setEchoChar('\u25CF');
@@ -131,7 +162,7 @@ public class ResetPassword extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldConfirmPasswordFocusGained
 
     private void pFieldNewPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldNewPasswordFocusLost
-        if(pFieldNewPassword.getText().length() == 0) {
+        if (pFieldNewPassword.getText().length() == 0) {
             addPlaceholderStyle(pFieldNewPassword);
             pFieldNewPassword.setText("Create New Password");
             pFieldNewPassword.setEchoChar('\u0000');
@@ -139,12 +170,24 @@ public class ResetPassword extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldNewPasswordFocusLost
 
     private void pFieldConfirmPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusLost
-        if(pFieldConfirmPassword.getText().length() == 0) {
+        if (pFieldConfirmPassword.getText().length() == 0) {
             addPlaceholderStyle(pFieldConfirmPassword);
             pFieldConfirmPassword.setText("Confirm Password");
             pFieldConfirmPassword.setEchoChar('\u0000');
         }
     }//GEN-LAST:event_pFieldConfirmPasswordFocusLost
+
+    private void buttonResetPasswordMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonResetPasswordMouseClicked
+        if (IsEmptyTextField())
+            labelWarning.setText("Please complete your password.");
+        else if (!MatchPassword())
+            labelWarning.setText("Passwords do NOT match.");
+        else {
+            dispose();
+            Login login = new Login();
+            login.setVisible(true);
+        }
+    }//GEN-LAST:event_buttonResetPasswordMouseClicked
 
     /**
      * @param args the command line arguments
@@ -185,6 +228,7 @@ public class ResetPassword extends javax.swing.JFrame {
     private javax.swing.JButton buttonResetPassword;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel labelTitle;
+    private javax.swing.JLabel labelWarning;
     private javax.swing.JPasswordField pFieldConfirmPassword;
     private javax.swing.JPasswordField pFieldNewPassword;
     // End of variables declaration//GEN-END:variables

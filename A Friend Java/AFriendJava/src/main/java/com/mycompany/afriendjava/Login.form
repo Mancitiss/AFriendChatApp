@@ -40,11 +40,15 @@
                   <Component id="buttonSignUp" pref="244" max="32767" attributes="0"/>
                   <Component id="buttonLogIn" max="32767" attributes="0"/>
                   <Component id="textFieldUsername" max="32767" attributes="0"/>
-                  <Component id="passwordFieldPassword" alignment="0" max="32767" attributes="0"/>
+                  <Component id="pFieldPassword" alignment="0" max="32767" attributes="0"/>
                   <Component id="labelForgotPassword" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="labelWarning" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
+          </Group>
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="labelWarning" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -56,14 +60,14 @@
               <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
               <Component id="textFieldUsername" min="-2" pref="40" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="passwordFieldPassword" min="-2" pref="40" max="-2" attributes="0"/>
+              <Component id="pFieldPassword" min="-2" pref="40" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="buttonLogIn" min="-2" pref="40" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="labelForgotPassword" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
-              <Component id="labelWarning" min="-2" pref="62" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace pref="37" max="32767" attributes="0"/>
+              <Component id="labelWarning" min="-2" pref="25" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="buttonSignUp" min="-2" pref="40" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="buttonExit" min="-2" pref="40" max="-2" attributes="0"/>
@@ -98,7 +102,7 @@
         <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textFieldUsernameFocusLost"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JPasswordField" name="passwordFieldPassword">
+    <Component class="javax.swing.JPasswordField" name="pFieldPassword">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Microsoft Sans Serif" size="14" style="0"/>
@@ -107,8 +111,8 @@
         <Property name="echoChar" type="char" value="\u0000" containsInvalidXMLChars="true"/>
       </Properties>
       <Events>
-        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="passwordFieldPasswordFocusGained"/>
-        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="passwordFieldPasswordFocusLost"/>
+        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="pFieldPasswordFocusGained"/>
+        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="pFieldPasswordFocusLost"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="buttonLogIn">
@@ -124,6 +128,9 @@
         </Property>
         <Property name="text" type="java.lang.String" value="LOG IN"/>
       </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="buttonLogInMouseClicked"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="buttonSignUp">
       <Properties>
@@ -138,6 +145,9 @@
         </Property>
         <Property name="text" type="java.lang.String" value="SIGN UP"/>
       </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="buttonSignUpMouseClicked"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="buttonExit">
       <Properties>
@@ -152,16 +162,34 @@
         </Property>
         <Property name="text" type="java.lang.String" value="EXIT"/>
       </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="buttonExitMouseClicked"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="labelWarning">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Microsoft Sans Serif" size="14" style="0"/>
+        </Property>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="0" green="0" red="ff" type="rgb"/>
+        </Property>
+        <Property name="horizontalAlignment" type="int" value="0"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="labelForgotPassword">
       <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Microsoft Sans Serif" size="14" style="0"/>
+        </Property>
         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="85" green="4b" red="25" type="rgb"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Forgot Password?"/>
       </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="labelForgotPasswordMouseClicked"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

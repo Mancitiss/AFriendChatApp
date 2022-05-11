@@ -1,32 +1,40 @@
 package com.mycompany.afriendjava;
 
 import java.awt.Color;
-import java.awt.Font;
 import javax.swing.JTextField;
 
 public class Login extends javax.swing.JFrame {
 
     public Login() {
         initComponents();
+        setLocationRelativeTo(null);
         addPlaceholderStyle(textFieldUsername);
-        addPlaceholderStyle(passwordFieldPassword);
+        addPlaceholderStyle(pFieldPassword);
     }
 
     public void addPlaceholderStyle(JTextField textField) {
         textField.setForeground(Color.GRAY);
     }
-    
+
     public void removePlaceholderStyle(JTextField textField) {
         textField.setForeground(Color.BLACK);
     }
-    
+
+    private boolean IsEmptyTextField() {
+        if (textFieldUsername.getText().length() == 0 || textFieldUsername.getText().equals("Username") || (pFieldPassword.getText().length() == 0 || pFieldPassword.getText().equals("Password"))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         labelTitle = new javax.swing.JLabel();
         textFieldUsername = new javax.swing.JTextField();
-        passwordFieldPassword = new javax.swing.JPasswordField();
+        pFieldPassword = new javax.swing.JPasswordField();
         buttonLogIn = new javax.swing.JButton();
         buttonSignUp = new javax.swing.JButton();
         buttonExit = new javax.swing.JButton();
@@ -55,15 +63,15 @@ public class Login extends javax.swing.JFrame {
             }
         });
 
-        passwordFieldPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
-        passwordFieldPassword.setText("Password");
-        passwordFieldPassword.setEchoChar('\u0000');
-        passwordFieldPassword.addFocusListener(new java.awt.event.FocusAdapter() {
+        pFieldPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
+        pFieldPassword.setText("Password");
+        pFieldPassword.setEchoChar('\u0000');
+        pFieldPassword.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
-                passwordFieldPasswordFocusGained(evt);
+                pFieldPasswordFocusGained(evt);
             }
             public void focusLost(java.awt.event.FocusEvent evt) {
-                passwordFieldPasswordFocusLost(evt);
+                pFieldPasswordFocusLost(evt);
             }
         });
 
@@ -71,19 +79,44 @@ public class Login extends javax.swing.JFrame {
         buttonLogIn.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 18)); // NOI18N
         buttonLogIn.setForeground(new java.awt.Color(255, 255, 255));
         buttonLogIn.setText("LOG IN");
+        buttonLogIn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                buttonLogInMouseClicked(evt);
+            }
+        });
 
         buttonSignUp.setBackground(new java.awt.Color(90, 198, 140));
         buttonSignUp.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 18)); // NOI18N
         buttonSignUp.setForeground(new java.awt.Color(255, 255, 255));
         buttonSignUp.setText("SIGN UP");
+        buttonSignUp.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                buttonSignUpMouseClicked(evt);
+            }
+        });
 
         buttonExit.setBackground(new java.awt.Color(213, 54, 41));
         buttonExit.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 18)); // NOI18N
         buttonExit.setForeground(new java.awt.Color(255, 255, 255));
         buttonExit.setText("EXIT");
+        buttonExit.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                buttonExitMouseClicked(evt);
+            }
+        });
 
+        labelWarning.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
+        labelWarning.setForeground(new java.awt.Color(255, 0, 0));
+        labelWarning.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        labelForgotPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
         labelForgotPassword.setForeground(new java.awt.Color(37, 75, 133));
         labelForgotPassword.setText("Forgot Password?");
+        labelForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                labelForgotPasswordMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -100,10 +133,13 @@ public class Login extends javax.swing.JFrame {
                     .addComponent(buttonSignUp, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
                     .addComponent(buttonLogIn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(textFieldUsername)
-                    .addComponent(passwordFieldPassword)
-                    .addComponent(labelForgotPassword, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(labelWarning, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(pFieldPassword)
+                    .addComponent(labelForgotPassword, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(labelWarning, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -113,14 +149,14 @@ public class Login extends javax.swing.JFrame {
                 .addGap(31, 31, 31)
                 .addComponent(textFieldUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(passwordFieldPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pFieldPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(buttonLogIn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(labelForgotPassword)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(labelWarning, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
+                .addComponent(labelWarning, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(buttonSignUp, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(buttonExit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -131,37 +167,61 @@ public class Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void textFieldUsernameFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFieldUsernameFocusGained
-        if(textFieldUsername.getText().equals("Username")) {
+        if (textFieldUsername.getText().equals("Username")) {
             textFieldUsername.setText(null);
             textFieldUsername.requestFocus();
             removePlaceholderStyle(textFieldUsername);
         }
     }//GEN-LAST:event_textFieldUsernameFocusGained
 
-    private void passwordFieldPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_passwordFieldPasswordFocusGained
-        if(passwordFieldPassword.getText().equals("Password")) {
-            passwordFieldPassword.setText(null);
-            passwordFieldPassword.requestFocus();
-            passwordFieldPassword.setEchoChar('\u25CF');
-            removePlaceholderStyle(passwordFieldPassword);
+    private void pFieldPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusGained
+        if (pFieldPassword.getText().equals("Password")) {
+            pFieldPassword.setText(null);
+            pFieldPassword.requestFocus();
+            pFieldPassword.setEchoChar('\u25CF');
+            removePlaceholderStyle(pFieldPassword);
         }
-    }//GEN-LAST:event_passwordFieldPasswordFocusGained
+    }//GEN-LAST:event_pFieldPasswordFocusGained
 
     private void textFieldUsernameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFieldUsernameFocusLost
-        if(textFieldUsername.getText().length() == 0) {
+        if (textFieldUsername.getText().length() == 0) {
             addPlaceholderStyle(textFieldUsername);
             textFieldUsername.setText("Username");
         }
     }//GEN-LAST:event_textFieldUsernameFocusLost
 
-    private void passwordFieldPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_passwordFieldPasswordFocusLost
-        if(passwordFieldPassword.getText().length() == 0) {
-            addPlaceholderStyle(passwordFieldPassword);
-            passwordFieldPassword.setText("Password");
-            passwordFieldPassword.setEchoChar('\u0000');
+    private void pFieldPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusLost
+        if (pFieldPassword.getText().length() == 0) {
+            addPlaceholderStyle(pFieldPassword);
+            pFieldPassword.setText("Password");
+            pFieldPassword.setEchoChar('\u0000');
         }
-    }//GEN-LAST:event_passwordFieldPasswordFocusLost
+    }//GEN-LAST:event_pFieldPasswordFocusLost
 
+    private void buttonLogInMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonLogInMouseClicked
+        if (IsEmptyTextField()) {
+            labelWarning.setText("Please complete your login information.");
+        }
+        /*else {
+            
+        }*/
+    }//GEN-LAST:event_buttonLogInMouseClicked
+
+    private void labelForgotPasswordMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelForgotPasswordMouseClicked
+        hide();
+        ResetPassword resetPassword = new ResetPassword();
+        resetPassword.setVisible(true);
+    }//GEN-LAST:event_labelForgotPasswordMouseClicked
+
+    private void buttonSignUpMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonSignUpMouseClicked
+        hide();
+        SignUp signUp = new SignUp();
+        signUp.setVisible(true);
+    }//GEN-LAST:event_buttonSignUpMouseClicked
+
+    private void buttonExitMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonExitMouseClicked
+        dispose();
+    }//GEN-LAST:event_buttonExitMouseClicked
 
     /**
      * @param args the command line arguments
@@ -205,7 +265,7 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JLabel labelForgotPassword;
     private javax.swing.JLabel labelTitle;
     private javax.swing.JLabel labelWarning;
-    private javax.swing.JPasswordField passwordFieldPassword;
+    private javax.swing.JPasswordField pFieldPassword;
     private javax.swing.JTextField textFieldUsername;
     // End of variables declaration//GEN-END:variables
 }

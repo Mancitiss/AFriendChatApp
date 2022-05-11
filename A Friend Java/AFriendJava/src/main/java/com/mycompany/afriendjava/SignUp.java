@@ -1,24 +1,40 @@
 package com.mycompany.afriendjava;
 
 import java.awt.Color;
-import java.awt.Font;
 import javax.swing.JTextField;
 
 public class SignUp extends javax.swing.JFrame {
 
     public SignUp() {
         initComponents();
+        setLocationRelativeTo(null);
         addPlaceholderStyle(textFieldUsername);
         addPlaceholderStyle(pFieldPassword);
         addPlaceholderStyle(pFieldConfirmPassword);
     }
-    
+
     public void addPlaceholderStyle(JTextField textField) {
         textField.setForeground(Color.GRAY);
     }
-    
+
     public void removePlaceholderStyle(JTextField textField) {
         textField.setForeground(Color.BLACK);
+    }
+
+    private boolean IsEmptyTextField() {
+        if (textFieldUsername.getText().length() == 0 || textFieldUsername.getText().equals("Username") || (pFieldConfirmPassword.getText().length() == 0 || pFieldConfirmPassword.getText().equals("Confirm Password")) || (pFieldPassword.getText().length() == 0 || pFieldPassword.getText().equals("Password"))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean MatchPassword() {
+        if (pFieldPassword.getText().equals(pFieldConfirmPassword.getText())) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -80,11 +96,24 @@ public class SignUp extends javax.swing.JFrame {
         buttonSignUp.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 18)); // NOI18N
         buttonSignUp.setForeground(new java.awt.Color(255, 255, 255));
         buttonSignUp.setText("SIGN UP");
+        buttonSignUp.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                buttonSignUpMouseClicked(evt);
+            }
+        });
 
         buttonExit.setBackground(new java.awt.Color(213, 54, 41));
         buttonExit.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 18)); // NOI18N
         buttonExit.setForeground(new java.awt.Color(255, 255, 255));
         buttonExit.setText("EXIT");
+        buttonExit.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                buttonExitMouseClicked(evt);
+            }
+        });
+
+        labelWarning.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
+        labelWarning.setForeground(new java.awt.Color(255, 0, 0));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -97,13 +126,16 @@ public class SignUp extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(labelWarning, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
                     .addComponent(pFieldConfirmPassword, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
                     .addComponent(pFieldPassword)
                     .addComponent(buttonExit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(buttonSignUp, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
                     .addComponent(textFieldUsername))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(labelWarning, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -118,9 +150,9 @@ public class SignUp extends javax.swing.JFrame {
                 .addComponent(pFieldConfirmPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(buttonSignUp, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(labelWarning, javax.swing.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(56, 56, 56)
+                .addComponent(labelWarning, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(buttonExit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(52, 52, 52))
         );
@@ -129,7 +161,7 @@ public class SignUp extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void textFieldUsernameFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFieldUsernameFocusGained
-        if(textFieldUsername.getText().equals("Username")) {
+        if (textFieldUsername.getText().equals("Username")) {
             textFieldUsername.setText(null);
             textFieldUsername.requestFocus();
             removePlaceholderStyle(textFieldUsername);
@@ -137,7 +169,7 @@ public class SignUp extends javax.swing.JFrame {
     }//GEN-LAST:event_textFieldUsernameFocusGained
 
     private void pFieldPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusGained
-        if(pFieldPassword.getText().equals("Password")) {
+        if (pFieldPassword.getText().equals("Password")) {
             pFieldPassword.setText(null);
             pFieldPassword.requestFocus();
             pFieldPassword.setEchoChar('\u25CF');
@@ -146,7 +178,7 @@ public class SignUp extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldPasswordFocusGained
 
     private void pFieldConfirmPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusGained
-        if(pFieldConfirmPassword.getText().equals("Confirm Password")) {
+        if (pFieldConfirmPassword.getText().equals("Confirm Password")) {
             pFieldConfirmPassword.setText(null);
             pFieldConfirmPassword.requestFocus();
             pFieldConfirmPassword.setEchoChar('\u25CF');
@@ -155,14 +187,14 @@ public class SignUp extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldConfirmPasswordFocusGained
 
     private void textFieldUsernameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFieldUsernameFocusLost
-        if(textFieldUsername.getText().length() == 0) {
+        if (textFieldUsername.getText().length() == 0) {
             addPlaceholderStyle(textFieldUsername);
             textFieldUsername.setText("Username");
         }
     }//GEN-LAST:event_textFieldUsernameFocusLost
 
     private void pFieldPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusLost
-        if(pFieldPassword.getText().length() == 0) {
+        if (pFieldPassword.getText().length() == 0) {
             addPlaceholderStyle(pFieldPassword);
             pFieldPassword.setText("Password");
             pFieldPassword.setEchoChar('\u0000');
@@ -170,12 +202,28 @@ public class SignUp extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldPasswordFocusLost
 
     private void pFieldConfirmPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusLost
-        if(pFieldConfirmPassword.getText().length() == 0) {
+        if (pFieldConfirmPassword.getText().length() == 0) {
             addPlaceholderStyle(pFieldConfirmPassword);
             pFieldConfirmPassword.setText("Confirm Password");
             pFieldConfirmPassword.setEchoChar('\u0000');
         }
     }//GEN-LAST:event_pFieldConfirmPasswordFocusLost
+
+    private void buttonSignUpMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonSignUpMouseClicked
+        labelWarning.setHorizontalAlignment(JTextField.CENTER);
+        if (IsEmptyTextField())
+            labelWarning.setText("Please complete your sign up information.");
+        else if (!MatchPassword())
+            labelWarning.setText("Passwords do NOT match.");
+        else {
+            dispose();
+
+        }
+    }//GEN-LAST:event_buttonSignUpMouseClicked
+
+    private void buttonExitMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonExitMouseClicked
+        dispose();
+    }//GEN-LAST:event_buttonExitMouseClicked
 
     /**
      * @param args the command line arguments
