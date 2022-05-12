@@ -6,10 +6,13 @@ import java.net.URL;
 
 import javax.swing.JFrame;
 
+import com.google.gson.Gson;
+
 public class Program {
 
     public static JFrame mainform;
     public static int[] thisversion = {3, 2, 1, 2};
+    public static Gson gson = new Gson();
     public static void main(String[] args) {
         try{
             boolean newv = false;

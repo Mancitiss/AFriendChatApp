@@ -5,6 +5,10 @@ import javax.swing.JTextField;
 
 public class Login extends javax.swing.JFrame {
 
+    public synchronized void setLabelTitleText(String text) {
+        labelTitle.setText(text);
+    }
+
     public Login() {
         initComponents();
         setLocationRelativeTo(null);

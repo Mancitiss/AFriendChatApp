@@ -11,6 +11,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -116,12 +119,12 @@ public class AFriendClient {
             }
         }
     }
-
+ 
     public static void queueSlot(String id, long num, String file, long length){
         availableSlots.add(new Slot(id, num, file, length));
         addSendFileThread();
     }
-
+ 
     public static void addSendFileThread(){
         if (0 == sendFileWorker.getAndSet(1)){
             try{
@@ -260,7 +263,7 @@ public class AFriendClient {
             }
         }
     }
-
+ 
     public static void queueCommand(byte[] command){
         commands.add(command);
         ping();
@@ -339,7 +342,7 @@ public class AFriendClient {
         } 
         tempName = null;
     }
-
+ 
     public static void executeClient(){
         try{
             while (user != null && (user.state == 1 || user.state == 2)){
@@ -361,7 +364,8 @@ public class AFriendClient {
             e.printStackTrace();
         }
     }
-
+ 
+ 
     public static boolean tryLogin(String username, String password){
         try {
             client = (SSLSocket) ssf.createSocket(SERVER_ADDRESS, SERVER_PORT);
@@ -405,8 +409,8 @@ public class AFriendClient {
             return;
         }
         queueCommand(("1901"+Tools.data_with_unicode_byte(id+str)).getBytes(StandardCharsets.UTF_16LE));
-    }
-
+    } 
+ 
     private static void receiveFromId(SSLSocket client){
         try{
             String instruction = Tools.receive_ASCII(dis, 8);
@@ -498,7 +502,262 @@ public class AFriendClient {
                     }
                 } break;
 
-                // 1111 username exists
+                // username exists
+                case "1111":{
+                    System.out.println("username exists");
+                } break;
+                
+                // addcontact
+                case "1609":{
+                    String data_found = Tools.receive_Unicode_Automatically(dis);
+                    String[] found = data_found.split(" ");
+                    System.out.println(String.join(" ", found));
+                    String name = "";
+                    for (int i = 2; i < found.length; i++){
+                        name += found[i] + " ";
+                    }
+                    name = name.trim();
+                    try{
+                        byte state = Byte.parseByte(found[found.length - 1]);
+                        // this method is synchronized, its parameters must be volatile
+                        Program.mainform.formAddContact.changeWarningLabel("New contact added!", new Color(143, 228, 185));
+                        
+                        // this method is synchronized, its parameters must be volatile
+                        Program.mainform.addContactItem(new Account(found[1], name, found[0], state));
+                        if (first.containsKey(found[0])){
+                            for(MessageObject msgobj: first.get(found[0])){
+                                // this method is synchronized, its parameters must be volatile
+                                Program.mainform.panelChats.AddMessage(msgobj);
+                            }
+                            first.remove(found[0]);
+                        }
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                    }
+                    queueCommand(("1060" + found[0]).getBytes(StandardCharsets.UTF_16LE));
+                }
+                break;
+
+                case "1901":{
+                    String json = Tools.receive_Unicode_Automatically(dis);
+                    MessageObject msgobj = Program.gson.fromJson(json, MessageObject.class);
+                    String sender = msgobj.id1;
+                    if (user.id == msgobj.id2){ // if me = user2 add user1
+                        if (Program.mainform.isThisPersonAdded(msgobj.id1)){
+                            Program.mainform.panelChats.get(msgobj.id1).AddMessage(msgobj);
+                            if (!msgobj.sender){
+                                // this method is synchronized, its parameters must be volatile
+                                Program.mainform.turnContactActiveState(msgobj.id1, (byte)1);
+                            }
+                        }
+                        else {
+                            if (first.containsKey(sender)){
+                                first.get(sender).add(msgobj);
+                            }
+                            else{
+                                first.put(sender, new ArrayList<MessageObject>(){
+                                    {
+                                        add(msgobj);
+                                    }
+                                });
+                                queueCommand(("0609" + sender).getBytes(StandardCharsets.UTF_16LE));
+                            }
+                        }
+                    }
+                    else if (user.id == msgobj.id1){
+                        if (Program.mainform.isThisPersonAdded(msgobj.id2)){
+                            Program.mainform.panelChats.get(msgobj.id2).AddMessage(msgobj);
+                            if (!msgobj.sender){
+                                // this method is synchronized, its parameters must be volatile
+                                Program.mainform.turnContactActiveState(msgobj.id2, (byte)1);
+                            }
+                        }
+                        else {
+                            if (first.containsKey(sender)){
+                                first.get(sender).add(msgobj);
+                            }
+                            else{
+                                first.put(sender, new ArrayList<MessageObject>(){
+                                    {
+                                        add(msgobj);
+                                    }
+                                });
+                                queueCommand(("0609" + sender).getBytes(StandardCharsets.UTF_16LE));
+                            }
+                        }
+                    }
+                } break;
+
+                case "1903":{
+                    String receiverId = Tools.receive_unicode(dis, 38);
+                    String numSlotStr = Tools.receive_ASCII_Automatically(dis);
+                    long numSlot = Long.parseLong(numSlotStr);
+                    String name = Tools.receive_Unicode_Automatically(dis);
+                    String lengthStr = Tools.receive_ASCII_Automatically(dis);
+                    long length = Long.parseLong(lengthStr);
+                    queueSlot(receiverId, numSlot, name, length);
+                } break;
+
+                case "1904":{
+                    String receiverId = Tools.receive_unicode(dis, 38);
+                    String numStr = Tools.receive_ASCII_Automatically(dis);
+                    long num = Long.parseLong(numStr);
+                    String offsetStr = Tools.receive_ASCII_Automatically(dis);
+                    long offset = Long.parseLong(offsetStr);
+                    if (offset < 0){
+                        String id1, id2;
+                        if (user.id.compareTo(receiverId) <= 0)
+                        {
+                            id1 = user.id;
+                            id2 = receiverId;
+                        }
+                        else
+                        {
+                            id1 = receiverId;
+                            id2 = user.id;
+                        }
+                        String filename = id1 + "_" + id2 + "_" + num + ".";
+                        System.out.println("Deleting file: " + filename);
+                        if (files.containsKey(filename)){
+                            try{
+                                try{
+                                    files.get(filename).fis.close();
+                                }
+                                catch (Exception e){}
+                                try{
+                                    files.get(filename).fos.close();
+                                }
+                                catch (Exception e){}
+                                String file = files.get(filename).name;
+                                files.remove(filename);
+                                Files.delete(Paths.get(file));
+                            }
+                            catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    else {
+                        String receivedByteStr = Tools.receive_ASCII_Automatically(dis);
+                        int receivedByte = Integer.parseInt(receivedByteStr);
+                        byte[] databyte = Tools.receive_byte_array(dis, receivedByte);
+                        String id1, id2;
+                        if (user.id.compareTo(receiverId) <= 0)
+                        {
+                            id1 = user.id;
+                            id2 = receiverId;
+                        }
+                        else
+                        {
+                            id1 = receiverId;
+                            id2 = user.id;
+                        }
+                        String filename = id1 + "_" + id2 + "_" + num + ".";
+                        System.out.println("File: " + filename);
+                        if (files.containsKey(filename)){
+                            writeCommands.add(new WriteCommand(filename, offset, receivedByte, databyte));
+                            addWriteThread();
+                        }
+                    }
+                } break;
+
+                case "1905":{
+                    String receiverId = Tools.receive_unicode(dis, 38);
+                    String numStr = Tools.receive_ASCII_Automatically(dis);
+                    String sizeStr = Tools.receive_ASCII_Automatically(dis);
+                    long size = Long.parseLong(sizeStr);
+                    String id1, id2;
+                    if (user.id.compareTo(receiverId) <= 0)
+                    {
+                        id1 = user.id;
+                        id2 = receiverId;
+                    }
+                    else
+                    {
+                        id1 = receiverId;
+                        id2 = user.id;
+                    }
+                    String file = id1 + "_" + id2 + "_" + numStr + ".";
+                    if (files.containsKey(file)){
+                        files.get(file).size += size;
+                        Program.mainform.panelChats.get(receiverId).messages.get(Long.parseLong(numStr)).startTimer(file, size);
+                        if (files.get(file).size == 0){
+                            files.remove(file);
+                        }
+                    }
+                } break;
+
+                case "2002":{
+                    String panelId = Tools.receive_unicode(dis, 38);
+                    String messageNumberStr = Tools.receive_Unicode_Automatically(dis);
+                    Long messageNumber = Long.parseLong(messageNumberStr);
+                    if (Program.mainform.panelChats.containsKey(panelId)){
+                        System.out.println("deleting: " + messageNumber);
+                        Program.mainform.panelChats.get(panelId).removeMessage(messageNumber);
+                    }
+                } break;
+
+                case "2004":{
+                    System.out.println("You are logged in from another device");
+                    user.state = 0;
+                    Program.mainform.showLoginForm();
+                } break;
+
+                // this id is online
+                case "2211":{
+                    String id = Tools.receive_unicode(dis, 38);
+                    Program.mainform.turnContactActiveState(id, (byte)1);
+                    
+                } break;
+
+                // sort contact list
+                case "2411":{
+                    Program.mainform.formLoading.showProgress(100);
+                    Program.mainform.sortContactItems();
+                } break;
+
+                // add contact failed
+                case "2609":{
+                    String id = Tools.receive_unicode(dis, 38);
+                    Program.mainform.formAddContact.changeWarningLabel("That ID doesn't exist", new Color(255, 0, 0));
+                } break;
+
+                // change password successfully
+                case "4269":{
+                    System.out.println("Change password successfully");
+                    Program.mainform.formSettings.changeSettingsWarning("Change password successfully", new Color(143, 228, 185));
+                } break;
+
+                // load messages
+                case "6475":{
+                    String panelId = Tools.receive_unicode(dis, 38);
+                    String json = Tools.receive_Unicode_Automatically(dis);
+                    System.out.println("Old messages have arrived");
+                    MessageObject[] messageObjects = Program.gson.fromJson(json, MessageObject[].class);
+                    try{
+                        Program.mainform.panelChats.get(panelId).loadMessages(messageObjects);
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                    }
+                    queueCommand(("0708" + panelId).getBytes(StandardCharsets.UTF_16LE));
+                } break;
+
+                case "7351":{
+                    String stateStr = Tools.receive_ASCII(dis, 2);
+                    byte state = Byte.parseByte(stateStr);
+                    publicState = state;
+                } break;
+
+                // old password is not correct
+                case "9624":{
+                    System.out.println("Old password is not correct");
+                    Program.mainform.formSettings.changeSettingsWarning("Old password is not correct", new Color(213, 54, 41));
+                } break;
 
                 default:{
 
@@ -510,4 +769,41 @@ public class AFriendClient {
             e.printStackTrace();
         }
     }
+
+    public static boolean signedUp(String username, String pw){
+        try{
+            boolean success = false;
+
+            client = (SSLSocket) ssf.createSocket(SERVER_ADDRESS, SERVER_PORT);
+            dis = new DataInputStream(client.getInputStream());
+            dos = new DataOutputStream(client.getOutputStream());
+            queueCommand(("0011"+Tools.data_with_unicode_byte(username) + Tools.data_with_unicode_byte(pw)).getBytes(StandardCharsets.UTF_16LE));
+            receiveFromId(client);
+            if (instruction == "1011"){
+                success = true;
+            }
+            else if (instruction == "1111"){
+                
+            }
+            queueCommand("2004".getBytes(StandardCharsets.UTF_16LE));
+            try{
+                dis.close();
+            }
+            catch(Exception e){}
+            try{
+                dos.close();
+            }
+            catch(Exception e){}
+            try{
+                client.close();
+            }
+            catch(Exception e){}
+            return success;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+     
 }
