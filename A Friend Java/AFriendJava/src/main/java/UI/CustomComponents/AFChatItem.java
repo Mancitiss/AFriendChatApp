@@ -4,6 +4,8 @@
  */
 package UI.CustomComponents;
 
+import java.awt.Component;
+
 /**
  *
  * @author maima
@@ -16,7 +18,19 @@ public class AFChatItem extends javax.swing.JPanel {
     public AFChatItem() {
         initComponents();
     }
-
+    public void setMessage(String mess)
+    {
+        TextBody.setText(mess);
+    }
+    public void hideLeft()
+    {
+        PanelBodyLeft.setVisible(!PanelBodyLeft.isVisible());
+        TopPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+    }
+    public void hideRight()
+    {
+        PanelBodyRight.setVisible(!PanelBodyRight.isVisible());
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -27,43 +41,51 @@ public class AFChatItem extends javax.swing.JPanel {
     private void initComponents() {
 
         TopPanel = new javax.swing.JPanel();
-        PanelBody = new javax.swing.JPanel();
-        LabelBody = new javax.swing.JLabel();
+        PanelBodyLeft = new javax.swing.JPanel();
+        TextBody = new javax.swing.JTextField();
         PanelButton = new javax.swing.JPanel();
         ButtonCopy = new javax.swing.JButton();
         ButtonDelete = new javax.swing.JButton();
+        PanelBodyRight = new javax.swing.JPanel();
+        TextBody1 = new javax.swing.JTextField();
         BottomPanel = new javax.swing.JPanel();
         LabelAuthor = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(773, 160));
 
         TopPanel.setPreferredSize(new java.awt.Dimension(749, 132));
+        TopPanel.setLayout(new javax.swing.BoxLayout(TopPanel, javax.swing.BoxLayout.LINE_AXIS));
 
-        PanelBody.setMinimumSize(new java.awt.Dimension(290, 100));
+        PanelBodyLeft.setMinimumSize(new java.awt.Dimension(290, 100));
 
-        LabelBody.setText("THIS IS A TEXT MESS");
+        TextBody.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TextBodyActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout PanelBodyLayout = new javax.swing.GroupLayout(PanelBody);
-        PanelBody.setLayout(PanelBodyLayout);
-        PanelBodyLayout.setHorizontalGroup(
-            PanelBodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(LabelBody, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
+        javax.swing.GroupLayout PanelBodyLeftLayout = new javax.swing.GroupLayout(PanelBodyLeft);
+        PanelBodyLeft.setLayout(PanelBodyLeftLayout);
+        PanelBodyLeftLayout.setHorizontalGroup(
+            PanelBodyLeftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelBodyLeftLayout.createSequentialGroup()
+                .addComponent(TextBody, javax.swing.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
+                .addGap(0, 0, 0))
         );
-        PanelBodyLayout.setVerticalGroup(
-            PanelBodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(LabelBody, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        PanelBodyLeftLayout.setVerticalGroup(
+            PanelBodyLeftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(TextBody)
         );
+
+        TopPanel.add(PanelBodyLeft);
 
         PanelButton.setMinimumSize(new java.awt.Dimension(290, 100));
 
         ButtonCopy.setBackground(new java.awt.Color(255, 255, 255));
         ButtonCopy.setForeground(new java.awt.Color(255, 255, 255));
-        ButtonCopy.setIcon(new javax.swing.ImageIcon(getClass().getResource("/UI/CustomComponents/copyIcon.png"))); // NOI18N
 
         ButtonDelete.setBackground(new java.awt.Color(255, 255, 255));
         ButtonDelete.setForeground(new java.awt.Color(255, 255, 255));
-        ButtonDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/UI/CustomComponents/deleteIcon.png"))); // NOI18N
-        ButtonDelete.setText("jButton1");
 
         javax.swing.GroupLayout PanelButtonLayout = new javax.swing.GroupLayout(PanelButton);
         PanelButton.setLayout(PanelButtonLayout);
@@ -74,35 +96,44 @@ public class AFChatItem extends javax.swing.JPanel {
                 .addComponent(ButtonCopy, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ButtonDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 0, 0))
         );
         PanelButtonLayout.setVerticalGroup(
             PanelButtonLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelButtonLayout.createSequentialGroup()
-                .addContainerGap(66, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(PanelButtonLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(ButtonCopy)
-                    .addComponent(ButtonDelete))
+                    .addComponent(ButtonCopy, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ButtonDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(24, 24, 24))
         );
 
-        javax.swing.GroupLayout TopPanelLayout = new javax.swing.GroupLayout(TopPanel);
-        TopPanel.setLayout(TopPanelLayout);
-        TopPanelLayout.setHorizontalGroup(
-            TopPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(TopPanelLayout.createSequentialGroup()
-                .addComponent(PanelBody, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(PanelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 246, Short.MAX_VALUE))
+        TopPanel.add(PanelButton);
+
+        PanelBodyRight.setMinimumSize(new java.awt.Dimension(290, 100));
+
+        TextBody1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TextBody1ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout PanelBodyRightLayout = new javax.swing.GroupLayout(PanelBodyRight);
+        PanelBodyRight.setLayout(PanelBodyRightLayout);
+        PanelBodyRightLayout.setHorizontalGroup(
+            PanelBodyRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelBodyRightLayout.createSequentialGroup()
+                .addGap(0, 0, 0)
+                .addComponent(TextBody1, javax.swing.GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE))
         );
-        TopPanelLayout.setVerticalGroup(
-            TopPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(PanelBody, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(PanelButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        PanelBodyRightLayout.setVerticalGroup(
+            PanelBodyRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(TextBody1, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
         );
 
-        LabelAuthor.setText("Sender");
+        TopPanel.add(PanelBodyRight);
+
+        LabelAuthor.setText("Time-Date");
 
         javax.swing.GroupLayout BottomPanelLayout = new javax.swing.GroupLayout(BottomPanel);
         BottomPanel.setLayout(BottomPanelLayout);
@@ -126,7 +157,7 @@ public class AFChatItem extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(TopPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(TopPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 870, Short.MAX_VALUE)
                     .addComponent(BottomPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -139,15 +170,25 @@ public class AFChatItem extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void TextBody1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TextBody1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_TextBody1ActionPerformed
+
+    private void TextBodyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TextBodyActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_TextBodyActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel BottomPanel;
     private javax.swing.JButton ButtonCopy;
     private javax.swing.JButton ButtonDelete;
     private javax.swing.JLabel LabelAuthor;
-    private javax.swing.JLabel LabelBody;
-    private javax.swing.JPanel PanelBody;
+    private javax.swing.JPanel PanelBodyLeft;
+    private javax.swing.JPanel PanelBodyRight;
     private javax.swing.JPanel PanelButton;
+    private javax.swing.JTextField TextBody;
+    private javax.swing.JTextField TextBody1;
     private javax.swing.JPanel TopPanel;
     // End of variables declaration//GEN-END:variables
 }
