@@ -1,4 +1,4 @@
-package Custom;
+package com.mycompany.afriendjava.custom;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -13,6 +13,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.metal.MetalTextFieldUI;
 public class TextFieldUI extends MetalTextFieldUI {
+
 	public List<String> getItems() {
         return items;
     }
@@ -72,6 +73,7 @@ public class TextFieldUI extends MetalTextFieldUI {
 
     private class Border extends EmptyBorder {
 
+        @SuppressWarnings("never used")
         public int getRound() {
             return round;
         }

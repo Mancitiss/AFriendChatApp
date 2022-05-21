@@ -1,3 +1,5 @@
+package com.mycompany.afriendjava;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -23,23 +25,23 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-import Custom.TextField;
+import com.mycompany.afriendjava.custom.TextField;
 
 import javax.swing.SwingConstants;
-import Custom.*;
 
 public class MainUI extends javax.swing.JFrame {
-public static String i;
+
+    //public static String i;
+    public static String currentID;
     /**
      * Creates new form Main
      */
     public MainUI() {
     	setTitle("AFriend Chat");
-    	setIconImage(Toolkit.getDefaultToolkit().getImage("D:\\programer\\Eclipse\\MainUI\\Resoure\\logo.png"));
+    	setIconImage(Toolkit.getDefaultToolkit().getImage("Resources/logo.png"));
         try {
 			initComponents();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         getContentPane().setBackground(new Color(255, 255, 255));
@@ -108,7 +110,7 @@ public static String i;
         JButton LogOut_Button = new JButton("");
         //LogOut_Button.setIcon(new ImageIcon("D:\\programer\\Eclipse\\MainUI\\Resources\\sign-out-option.png"));
         try {
-        Image img = ImageIO.read(getClass().getResource("R/sign-out-option.png"));
+        Image img = ImageIO.read(getClass().getResource("Resources/sign-out-option.png"));
         LogOut_Button.setIcon(new ImageIcon(img));
         
         } catch (Exception ex) {
@@ -172,8 +174,6 @@ public static String i;
         SearchBar_Panel.setLayout(gl_SearchBar_Panel);
         ContactList_Panel.setLayout(gl_ContactList_Panel);
         getContentPane().setLayout(layout);
-
-        i = SearchBar_Panel.getSize().toString();
         
         pack();
         setLocationRelativeTo(null);
@@ -213,7 +213,7 @@ public static String i;
         int W = (int)width;
         int H = (int)height;
         
-        File imageCheck = new File("R/sign-out-option.png");
+        File imageCheck = new File("Resources/sign-out-option.png");
         if(imageCheck.exists()) 
             System.out.println("Image file found!");
         else 

@@ -1,4 +1,4 @@
-package Custom;
+package com.mycompany.afriendjava.custom;
 import javax.swing.JTextField;
 public class TextField extends JTextField{
 	private TextFieldUI textUI;
