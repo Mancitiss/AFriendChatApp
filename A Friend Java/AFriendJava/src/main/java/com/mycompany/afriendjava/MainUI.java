@@ -14,6 +14,8 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.GroupLayout;
@@ -26,12 +28,57 @@ import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import com.mycompany.afriendjava.custom.TextField;
+import ui.customcomponents.*;
 
 import javax.swing.SwingConstants;
 
 public class MainUI extends javax.swing.JFrame {
     
+    // variables
+    public PanelChat currentPanelChat;
+    public HashMap<String, PanelChat> panelChats = new HashMap<String, PanelChat>();
+    public HashMap<String, ContactItem> contactItems = new HashMap<String, ContactItem>();
+    public TreeMap<Integer, String> orderOfContactItems = new TreeMap<Integer, String>();
+
     public static String currentID;
+
+    private boolean check = true;
+    private String searchText = "";
+    public boolean loaded = false;
+    private boolean priv = false;
+
+    // forms
+    // private FormContactRemoved formContactRemoved = new FormContactRemoved();
+    // private FormGetStarted formGetStarted = new FormGetStarted();
+    public Loading formLoading = new Loading();
+    public Settings formSettings = new Settings();
+    public FormAddContact formAddContact = new FormAddContact();
+
+
+
+    public synchronized void sortContactItems(){
+        //TODO sort contact items
+    }
+    public synchronized void setAvatar(String id, Image img){
+        //TODO set avatar
+    }
+    public synchronized void showLogin(){
+        //TODO show login
+    }
+    public synchronized void showPanelChat(String id, boolean force){
+        //TODO show panel chat
+    }
+    public synchronized void addContactItem(Account acc){
+        //TODO add contact item
+    }
+    public synchronized void addMessageItem(String str, boolean left){
+        //TODO add message item
+    }
+    public synchronized void turnContactActiveState(String id, byte state){
+        //TODO turn contact active state
+    }
+
+
     /**
      * Creates new form Main
      */
