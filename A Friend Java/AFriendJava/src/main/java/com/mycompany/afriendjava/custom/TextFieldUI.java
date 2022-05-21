@@ -73,7 +73,6 @@ public class TextFieldUI extends MetalTextFieldUI {
 
     private class Border extends EmptyBorder {
 
-        @SuppressWarnings("never used")
         public int getRound() {
             return round;
         }

@@ -25,14 +25,13 @@ public class Login extends javax.swing.JFrame {
     }
 
     private boolean IsEmptyTextField() {
-        if (textFieldUsername.getText().length() == 0 || textFieldUsername.getText().equals("Username") || (pFieldPassword.getText().length() == 0 || pFieldPassword.getText().equals("Password"))) {
+        if (textFieldUsername.getText().length() == 0 || textFieldUsername.getText().equals("Username") || (pFieldPassword.getPassword().toString().length() == 0 || pFieldPassword.getPassword().toString().equals("Password"))) {
             return true;
         } else {
             return false;
         }
     }
 
-    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -179,7 +178,7 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_textFieldUsernameFocusGained
 
     private void pFieldPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusGained
-        if (pFieldPassword.getText().equals("Password")) {
+        if (pFieldPassword.getPassword().toString().equals("Password")) {
             pFieldPassword.setText(null);
             pFieldPassword.requestFocus();
             pFieldPassword.setEchoChar('\u25CF');
@@ -195,7 +194,7 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_textFieldUsernameFocusLost
 
     private void pFieldPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusLost
-        if (pFieldPassword.getText().length() == 0) {
+        if (pFieldPassword.getPassword().toString().length() == 0) {
             addPlaceholderStyle(pFieldPassword);
             pFieldPassword.setText("Password");
             pFieldPassword.setEchoChar('\u0000');
@@ -206,19 +205,63 @@ public class Login extends javax.swing.JFrame {
         if (IsEmptyTextField()) {
             labelWarning.setText("Please complete your login information.");
         }
-        /*else {
-            
-        }*/
+        else {
+            if (checkInvalidUsernameCharacter()){
+                labelWarning.setText("Username contains invalid character.");
+                return;
+            }
+            else {
+                if (checkInvalidPasswordCharacter()){
+                    labelWarning.setText("Password contains invalid characters");
+                    return;
+                }
+                else {
+                    if (!correctPassword()){
+                        labelWarning.setText("Incorrect password.");
+                        return;
+                    }
+                }
+            }
+        }
+        labelWarning.setText("You have logged in successfully".toUpperCase());
+        labelWarning.setForeground(new Color(37, 75, 133));
+        
     }//GEN-LAST:event_buttonLogInMouseClicked
 
+    private boolean correctPassword() {
+        boolean res = AFriendClient.tryLogin(textFieldUsername.getText(), pFieldPassword.getPassword().toString());
+        AFriendClient.loginResult = true;
+        return res;
+    }
+
+    private boolean checkInvalidPasswordCharacter() {
+        for(char i : pFieldPassword.getPassword()){
+            if (!(i == 33 || i > 34 && i < 38 || i >= 42 && i <= 43 || i == 45 || i >= 48 && i <= 57 || i >= 64 && i <= 90 || i == 94 || i == 95 || i >= 97 && i <= 122))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkInvalidUsernameCharacter() {
+        for(char i : textFieldUsername.getText().toCharArray()){
+            if (!(i >= 48 && i <= 57 || i >= 65 && i <= 90 || i >= 97 && i <= 122 || i == 95))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void labelForgotPasswordMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelForgotPasswordMouseClicked
-        hide();
+        setVisible(false);
         ResetPassword resetPassword = new ResetPassword();
         resetPassword.setVisible(true);
     }//GEN-LAST:event_labelForgotPasswordMouseClicked
 
     private void buttonSignUpMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonSignUpMouseClicked
-        hide();
+        setVisible(false);
         SignUp signUp = new SignUp();
         signUp.setVisible(true);
     }//GEN-LAST:event_buttonSignUpMouseClicked

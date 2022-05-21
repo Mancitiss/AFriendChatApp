@@ -9,8 +9,8 @@ public class Settings extends javax.swing.JFrame {
     public Settings() {
         initComponents();
         setLocationRelativeTo(null);
-        panelChangeName.hide();
-        panelChangePassword.hide();
+        panelChangeName.setVisible(false);
+        panelChangePassword.setVisible(false);
         addPlaceholderStyle(pFieldCurrentPassword);
         addPlaceholderStyle(pFieldNewPassword);
         addPlaceholderStyle(pFieldConfirmPassword);
@@ -34,7 +34,7 @@ public class Settings extends javax.swing.JFrame {
     }
 
     private boolean IsEmptyPasswordField() {
-        if (pFieldNewPassword.getText().length() == 0 || pFieldNewPassword.getText().equals("New Password") || (pFieldConfirmPassword.getText().length() == 0 || pFieldConfirmPassword.getText().equals("Confirm Password")) || pFieldCurrentPassword.getText().length() == 0 || pFieldCurrentPassword.getText().equals("Current Password")) {
+        if (pFieldNewPassword.getPassword().toString().length() == 0 || pFieldNewPassword.getPassword().toString().equals("New Password") || (pFieldConfirmPassword.getPassword().toString().length() == 0 || pFieldConfirmPassword.getPassword().toString().equals("Confirm Password")) || pFieldCurrentPassword.getPassword().toString().length() == 0 || pFieldCurrentPassword.getPassword().toString().equals("Current Password")) {
             return true;
         } else {
             return false;
@@ -42,14 +42,13 @@ public class Settings extends javax.swing.JFrame {
     }
 
     private boolean MatchPassword() {
-        if (pFieldNewPassword.getText().equals(pFieldConfirmPassword.getText())) {
+        if (pFieldNewPassword.getPassword().toString().equals(pFieldConfirmPassword.getPassword().toString())) {
             return true;
         } else {
             return false;
         }
     }
-
-    @SuppressWarnings("unchecked")
+    
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -410,7 +409,7 @@ public class Settings extends javax.swing.JFrame {
     }//GEN-LAST:event_labelChangeUsernameMouseClicked
 
     private void pFieldNewPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldNewPasswordFocusGained
-        if (pFieldNewPassword.getText().equals("New Password")) {
+        if (pFieldNewPassword.getPassword().toString().equals("New Password")) {
             pFieldNewPassword.setText(null);
             pFieldNewPassword.requestFocus();
             pFieldNewPassword.setEchoChar('\u25CF');
@@ -419,7 +418,7 @@ public class Settings extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldNewPasswordFocusGained
 
     private void pFieldNewPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldNewPasswordFocusLost
-        if (pFieldNewPassword.getText().length() == 0) {
+        if (pFieldNewPassword.getPassword().toString().length() == 0) {
             addPlaceholderStyle(pFieldNewPassword);
             pFieldNewPassword.setText("New Password");
             pFieldNewPassword.setEchoChar('\u0000');
@@ -427,7 +426,7 @@ public class Settings extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldNewPasswordFocusLost
 
     private void pFieldConfirmPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusGained
-        if (pFieldConfirmPassword.getText().equals("Confirm Password")) {
+        if (pFieldConfirmPassword.getPassword().toString().equals("Confirm Password")) {
             pFieldConfirmPassword.setText(null);
             pFieldConfirmPassword.requestFocus();
             pFieldConfirmPassword.setEchoChar('\u25CF');
@@ -436,7 +435,7 @@ public class Settings extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldConfirmPasswordFocusGained
 
     private void pFieldConfirmPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusLost
-        if (pFieldConfirmPassword.getText().length() == 0) {
+        if (pFieldConfirmPassword.getPassword().toString().length() == 0) {
             addPlaceholderStyle(pFieldConfirmPassword);
             pFieldConfirmPassword.setText("Confirm Password");
             pFieldConfirmPassword.setEchoChar('\u0000');
@@ -444,7 +443,7 @@ public class Settings extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldConfirmPasswordFocusLost
 
     private void pFieldCurrentPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldCurrentPasswordFocusGained
-        if (pFieldCurrentPassword.getText().equals("Current Password")) {
+        if (pFieldCurrentPassword.getPassword().toString().equals("Current Password")) {
             pFieldCurrentPassword.setText(null);
             pFieldCurrentPassword.requestFocus();
             pFieldCurrentPassword.setEchoChar('\u25CF');
@@ -453,7 +452,7 @@ public class Settings extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldCurrentPasswordFocusGained
 
     private void pFieldCurrentPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldCurrentPasswordFocusLost
-        if (pFieldCurrentPassword.getText().length() == 0) {
+        if (pFieldCurrentPassword.getPassword().toString().length() == 0) {
             addPlaceholderStyle(pFieldCurrentPassword);
             pFieldCurrentPassword.setText("Current Password");
             pFieldCurrentPassword.setEchoChar('\u0000');
@@ -468,7 +467,7 @@ public class Settings extends javax.swing.JFrame {
         if (IsEmptyTextField())
             labelWarning1.setText("Please enter your new name.");
         else {
-            panelChangeName.hide();
+            panelChangeName.setVisible(false);
             labelWarning1.setText("");
             labelUsername.setText(textFieldNewUsername.getText());
         }
@@ -488,7 +487,7 @@ public class Settings extends javax.swing.JFrame {
         else if (!MatchPassword())
             labelWarning2.setText("Passwords do NOT match.");
         else {
-            panelChangePassword.hide();
+            panelChangePassword.setVisible(false);
             labelWarning2.setText("");
         }
     }//GEN-LAST:event_buttonSavePasswordMouseClicked

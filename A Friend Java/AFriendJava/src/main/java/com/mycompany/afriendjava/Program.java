@@ -4,13 +4,11 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-import javax.swing.JFrame;
-
 import com.google.gson.Gson;
 
 public class Program {
 
-    public static JFrame mainform;
+    public static MainUI mainform;
     public static int[] thisversion = {3, 2, 1, 2};
     public static Gson gson = new Gson();
     public static void main(String[] args) {

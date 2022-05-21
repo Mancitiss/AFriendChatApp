@@ -21,7 +21,7 @@ public class ResetPassword extends javax.swing.JFrame {
     }
 
     private boolean IsEmptyTextField() {
-        if (pFieldNewPassword.getText().length() == 0 || pFieldNewPassword.getText().equals("Create New Password") || (pFieldConfirmPassword.getText().length() == 0 || pFieldConfirmPassword.getText().equals("Create New Password"))) {
+        if (pFieldNewPassword.getPassword().toString().length() == 0 || pFieldNewPassword.getPassword().toString().equals("Create New Password") || (pFieldConfirmPassword.getPassword().toString().length() == 0 || pFieldConfirmPassword.getPassword().toString().equals("Create New Password"))) {
             return true;
         } else {
             return false;
@@ -29,14 +29,13 @@ public class ResetPassword extends javax.swing.JFrame {
     }
 
     private boolean MatchPassword() {
-        if (pFieldNewPassword.getText().equals(pFieldConfirmPassword.getText())) {
+        if (pFieldNewPassword.getPassword().toString().equals(pFieldConfirmPassword.getPassword().toString())) {
             return true;
         } else {
             return false;
         }
     }
 
-    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -144,7 +143,7 @@ public class ResetPassword extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void pFieldNewPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldNewPasswordFocusGained
-        if (pFieldNewPassword.getText().equals("Create New Password")) {
+        if (pFieldNewPassword.getPassword().toString().equals("Create New Password")) {
             pFieldNewPassword.setText(null);
             pFieldNewPassword.requestFocus();
             pFieldNewPassword.setEchoChar('\u25CF');
@@ -153,7 +152,7 @@ public class ResetPassword extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldNewPasswordFocusGained
 
     private void pFieldConfirmPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusGained
-        if (pFieldConfirmPassword.getText().equals("Confirm Password")) {
+        if (pFieldConfirmPassword.getPassword().toString().equals("Confirm Password")) {
             pFieldConfirmPassword.setText(null);
             pFieldConfirmPassword.requestFocus();
             pFieldConfirmPassword.setEchoChar('\u25CF');
@@ -162,7 +161,7 @@ public class ResetPassword extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldConfirmPasswordFocusGained
 
     private void pFieldNewPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldNewPasswordFocusLost
-        if (pFieldNewPassword.getText().length() == 0) {
+        if (pFieldNewPassword.getPassword().toString().length() == 0) {
             addPlaceholderStyle(pFieldNewPassword);
             pFieldNewPassword.setText("Create New Password");
             pFieldNewPassword.setEchoChar('\u0000');
@@ -170,7 +169,7 @@ public class ResetPassword extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldNewPasswordFocusLost
 
     private void pFieldConfirmPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusLost
-        if (pFieldConfirmPassword.getText().length() == 0) {
+        if (pFieldConfirmPassword.getPassword().toString().length() == 0) {
             addPlaceholderStyle(pFieldConfirmPassword);
             pFieldConfirmPassword.setText("Confirm Password");
             pFieldConfirmPassword.setEchoChar('\u0000');

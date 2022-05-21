@@ -22,7 +22,7 @@ public class SignUp extends javax.swing.JFrame {
     }
 
     private boolean IsEmptyTextField() {
-        if (textFieldUsername.getText().length() == 0 || textFieldUsername.getText().equals("Username") || (pFieldConfirmPassword.getText().length() == 0 || pFieldConfirmPassword.getText().equals("Confirm Password")) || (pFieldPassword.getText().length() == 0 || pFieldPassword.getText().equals("Password"))) {
+        if (textFieldUsername.getText().length() == 0 || textFieldUsername.getText().equals("Username") || (pFieldConfirmPassword.getPassword().toString().length() == 0 || pFieldConfirmPassword.getPassword().toString().equals("Confirm Password")) || (pFieldPassword.getPassword().toString().length() == 0 || pFieldPassword.getPassword().toString().equals("Password"))) {
             return true;
         } else {
             return false;
@@ -30,14 +30,13 @@ public class SignUp extends javax.swing.JFrame {
     }
 
     private boolean MatchPassword() {
-        if (pFieldPassword.getText().equals(pFieldConfirmPassword.getText())) {
+        if (pFieldPassword.getPassword().toString().equals(pFieldConfirmPassword.getPassword().toString())) {
             return true;
         } else {
             return false;
         }
     }
-
-    @SuppressWarnings("unchecked")
+    
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -169,7 +168,7 @@ public class SignUp extends javax.swing.JFrame {
     }//GEN-LAST:event_textFieldUsernameFocusGained
 
     private void pFieldPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusGained
-        if (pFieldPassword.getText().equals("Password")) {
+        if (pFieldPassword.getPassword().toString().equals("Password")) {
             pFieldPassword.setText(null);
             pFieldPassword.requestFocus();
             pFieldPassword.setEchoChar('\u25CF');
@@ -178,7 +177,7 @@ public class SignUp extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldPasswordFocusGained
 
     private void pFieldConfirmPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusGained
-        if (pFieldConfirmPassword.getText().equals("Confirm Password")) {
+        if (pFieldConfirmPassword.getPassword().toString().equals("Confirm Password")) {
             pFieldConfirmPassword.setText(null);
             pFieldConfirmPassword.requestFocus();
             pFieldConfirmPassword.setEchoChar('\u25CF');
@@ -194,7 +193,7 @@ public class SignUp extends javax.swing.JFrame {
     }//GEN-LAST:event_textFieldUsernameFocusLost
 
     private void pFieldPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusLost
-        if (pFieldPassword.getText().length() == 0) {
+        if (pFieldPassword.getPassword().toString().length() == 0) {
             addPlaceholderStyle(pFieldPassword);
             pFieldPassword.setText("Password");
             pFieldPassword.setEchoChar('\u0000');
@@ -202,7 +201,7 @@ public class SignUp extends javax.swing.JFrame {
     }//GEN-LAST:event_pFieldPasswordFocusLost
 
     private void pFieldConfirmPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusLost
-        if (pFieldConfirmPassword.getText().length() == 0) {
+        if (pFieldConfirmPassword.getPassword().toString().length() == 0) {
             addPlaceholderStyle(pFieldConfirmPassword);
             pFieldConfirmPassword.setText("Confirm Password");
             pFieldConfirmPassword.setEchoChar('\u0000');

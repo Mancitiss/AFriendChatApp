@@ -378,7 +378,7 @@ public class AFriendClient {
                 ping();
                 throw new Exception("Login failed");
             }
-            FormApplication.currentID = user.id;
+            MainUI.currentID = user.id;
             if (!loginResult){
                 return false;
             }

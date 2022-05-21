@@ -8,7 +8,7 @@ public class ForgotPassword extends javax.swing.JFrame {
     public ForgotPassword() {
         initComponents();
         setLocationRelativeTo(null);
-        labelWarning.hide();
+        labelWarning.setVisible(false);
         addPlaceholderStyle(textFieldEmail);
     }
 
@@ -28,7 +28,6 @@ public class ForgotPassword extends javax.swing.JFrame {
         }
     }
 
-    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
