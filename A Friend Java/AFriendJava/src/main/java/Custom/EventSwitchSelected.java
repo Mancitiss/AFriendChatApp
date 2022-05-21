@@ -1,4 +1,4 @@
-package Custom;
+package custom;
 
 public interface EventSwitchSelected {
 

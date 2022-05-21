@@ -61,7 +61,7 @@ public class Settings extends javax.swing.JFrame {
         textFieldNewUsername = new javax.swing.JTextField();
         buttonSaveName = new javax.swing.JButton();
         labelID = new javax.swing.JLabel();
-        circleAvatar1 = new Custom.CircleAvatar();
+        circleAvatar1 = new custom.CircleAvatar();
         buttonAvatar = new javax.swing.JButton();
         labelChangeUsername = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
@@ -73,7 +73,7 @@ public class Settings extends javax.swing.JFrame {
         pFieldCurrentPassword = new javax.swing.JPasswordField();
         jPanel5 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        toggleButton1 = new Custom.ToggleButton();
+        toggleButton1 = new custom.ToggleButton();
         labelChangePassword1 = new javax.swing.JLabel();
         labelWarning2 = new javax.swing.JLabel();
 
@@ -532,7 +532,7 @@ public class Settings extends javax.swing.JFrame {
     private javax.swing.JButton buttonExit;
     private javax.swing.JButton buttonSaveName;
     private javax.swing.JButton buttonSavePassword;
-    private Custom.CircleAvatar circleAvatar1;
+    private custom.CircleAvatar circleAvatar1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -551,6 +551,6 @@ public class Settings extends javax.swing.JFrame {
     private javax.swing.JPanel panelChangeName;
     private javax.swing.JPanel panelChangePassword;
     private javax.swing.JTextField textFieldNewUsername;
-    private Custom.ToggleButton toggleButton1;
+    private custom.ToggleButton toggleButton1;
     // End of variables declaration//GEN-END:variables
 }

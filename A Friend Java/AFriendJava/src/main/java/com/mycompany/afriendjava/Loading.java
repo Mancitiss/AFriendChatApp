@@ -15,7 +15,7 @@ public class Loading extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        progress = new Custom.CustomPanel();
+        progress = new custom.CustomPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -109,6 +109,6 @@ public class Loading extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
-    private Custom.CustomPanel progress;
+    private custom.CustomPanel progress;
     // End of variables declaration//GEN-END:variables
 }

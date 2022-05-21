@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-package UI.CustomComponents;
+package ui.customcomponents;
 
 import java.awt.Component;
 
@@ -11,6 +11,10 @@ import java.awt.Component;
  * @author maima
  */
 public class AFChatItem extends javax.swing.JPanel {
+
+    public void changeTextUpload(byte percent){
+        
+    }
 
     /**
      * Creates new form AFChatItem

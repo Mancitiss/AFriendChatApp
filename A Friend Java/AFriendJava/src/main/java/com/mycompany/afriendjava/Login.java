@@ -1,13 +1,19 @@
 package com.mycompany.afriendjava;
 
 import java.awt.Color;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.event.KeyEvent;
+import java.io.IOException;
+import ui.customcomponents.*;
 import javax.swing.JTextField;
 
 public class Login extends javax.swing.JFrame {
 
-    public synchronized void setLabelTitleText(String text) {
-        labelTitle.setText(text);
-    }
+    private TextPrompt usernamePrompt;
+    private TextPrompt passwordPrompt;
 
     public Login() {
         initComponents();
@@ -16,23 +22,6 @@ public class Login extends javax.swing.JFrame {
         addPlaceholderStyle(pFieldPassword);
     }
 
-    public void addPlaceholderStyle(JTextField textField) {
-        textField.setForeground(Color.GRAY);
-    }
-
-    public void removePlaceholderStyle(JTextField textField) {
-        textField.setForeground(Color.BLACK);
-    }
-
-    private boolean IsEmptyTextField() {
-        if (textFieldUsername.getText().length() == 0 || textFieldUsername.getText().equals("Username") || (pFieldPassword.getPassword().toString().length() == 0 || pFieldPassword.getPassword().toString().equals("Password"))) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         labelTitle = new javax.swing.JLabel();
@@ -65,6 +54,12 @@ public class Login extends javax.swing.JFrame {
                 textFieldUsernameFocusLost(evt);
             }
         });
+        textFieldUsername.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                textFieldUsernameKeyPressed(evt);
+            }
+        });
+        usernamePrompt = new TextPrompt("Username", textFieldUsername);
 
         pFieldPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
         pFieldPassword.setText("Password");
@@ -77,6 +72,13 @@ public class Login extends javax.swing.JFrame {
                 pFieldPasswordFocusLost(evt);
             }
         });
+        pFieldPassword.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                pFieldPasswordKeyPressed(evt);
+            }
+        });
+        pFieldPassword.setEchoChar('\u25CF');
+        passwordPrompt = new TextPrompt("Password", pFieldPassword);
 
         buttonLogIn.setBackground(new java.awt.Color(37, 75, 133));
         buttonLogIn.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 18)); // NOI18N
@@ -167,41 +169,140 @@ public class Login extends javax.swing.JFrame {
         );
 
         pack();
-    }// </editor-fold>//GEN-END:initComponents
+    }
 
-    private void textFieldUsernameFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFieldUsernameFocusGained
-        if (textFieldUsername.getText().equals("Username")) {
-            textFieldUsername.setText(null);
-            textFieldUsername.requestFocus();
-            removePlaceholderStyle(textFieldUsername);
+    private TimerTask timerClosingTask = new TimerTask(){
+        @Override
+        public void run() {
+            timerClosing_Tick();
         }
-    }//GEN-LAST:event_textFieldUsernameFocusGained
+    };
+    private Timer timerClosing = new Timer();
 
-    private void pFieldPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusGained
-        if (pFieldPassword.getPassword().toString().equals("Password")) {
-            pFieldPassword.setText(null);
-            pFieldPassword.requestFocus();
-            pFieldPassword.setEchoChar('\u25CF');
-            removePlaceholderStyle(pFieldPassword);
+    private TimerTask timerDisconnectTask = new TimerTask(){
+        @Override
+        public void run() {
+            timerDisconnect_Tick();
         }
-    }//GEN-LAST:event_pFieldPasswordFocusGained
+    };
 
-    private void textFieldUsernameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFieldUsernameFocusLost
+    private Timer timerDisconnect = new Timer();
+    
+    private void timerDisconnect_Tick(){
+        if (labelWarning.getText() == "" || labelWarning.getText() == "Somthing is missing!"){
+            try {
+                AFriendClient.dos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                AFriendClient.dis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                AFriendClient.client.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            labelWarning.setText("Cannot connect to server");
+        }
+    }
+
+    private void timerClosing_Tick(){
+        MainUI frm = new MainUI();
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        int width = gd.getDisplayMode().getWidth();
+        int height = gd.getDisplayMode().getHeight();
+        frm.setLocation(width / 4, height / 4);
+        this.ResetTexts();
+        frm.setVisible(true);
+        this.setVisible(false);
+        Program.mainform = frm;
+        Program.executor.execute(new Runnable(){
+            @Override
+            public void run(){
+                AFriendClient.executeClient();
+            }
+        });
+    }
+
+
+    private void ResetTexts() {
+        textFieldUsername.setText("");
+        pFieldPassword.setText("");
+        labelWarning.setText("");
+    }
+
+
+    public synchronized void setLabelTitleText(String text) {
+        labelTitle.setText(text);
+    }
+
+    public void addPlaceholderStyle(JTextField textField) {
+        textField.setForeground(Color.GRAY);
+    }
+
+    public void removePlaceholderStyle(JTextField textField) {
+        textField.setForeground(Color.BLACK);
+    }
+
+    private boolean IsEmptyTextField() {
+        if (textFieldUsername.getText().length() == 0 || textFieldUsername.getText().equals("Username") || (pFieldPassword.getPassword().toString().length() == 0 || pFieldPassword.getPassword().toString().equals("Password"))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+
+    protected void pFieldPasswordKeyPressed(KeyEvent evt) {
+        // check if key is ENTER
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            buttonLogIn.doClick();
+        }
+    }
+
+    protected void textFieldUsernameKeyPressed(KeyEvent evt) {
+        // check if key is ENTER
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            buttonLogIn.doClick();
+        }
+        
+    }
+
+    private void textFieldUsernameFocusGained(java.awt.event.FocusEvent evt) {
+        if (labelWarning.getText() == "" || labelWarning.getText() == "Something is missing!")
+        {
+            return;
+        }
+        this.ResetTexts();
+    }
+
+    private void pFieldPasswordFocusGained(java.awt.event.FocusEvent evt) {
+        if (labelWarning.getText() == "" || labelWarning.getText() == "Something is missing!")
+        {
+            return;
+        }
+        this.ResetTexts();
+    }
+
+    private void textFieldUsernameFocusLost(java.awt.event.FocusEvent evt) {
         if (textFieldUsername.getText().length() == 0) {
             addPlaceholderStyle(textFieldUsername);
             textFieldUsername.setText("Username");
         }
-    }//GEN-LAST:event_textFieldUsernameFocusLost
+    }
 
-    private void pFieldPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusLost
+    private void pFieldPasswordFocusLost(java.awt.event.FocusEvent evt) {
         if (pFieldPassword.getPassword().toString().length() == 0) {
             addPlaceholderStyle(pFieldPassword);
             pFieldPassword.setText("Password");
             pFieldPassword.setEchoChar('\u0000');
         }
-    }//GEN-LAST:event_pFieldPasswordFocusLost
+    }
 
-    private void buttonLogInMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonLogInMouseClicked
+    private void buttonLogInMouseClicked(java.awt.event.MouseEvent evt) {
         if (IsEmptyTextField()) {
             labelWarning.setText("Please complete your login information.");
         }
@@ -225,8 +326,8 @@ public class Login extends javax.swing.JFrame {
         }
         labelWarning.setText("You have logged in successfully".toUpperCase());
         labelWarning.setForeground(new Color(37, 75, 133));
-        
-    }//GEN-LAST:event_buttonLogInMouseClicked
+        timerClosing.schedule(timerClosingTask, 1000);
+    }
 
     private boolean correctPassword() {
         boolean res = AFriendClient.tryLogin(textFieldUsername.getText(), pFieldPassword.getPassword().toString());
@@ -254,21 +355,21 @@ public class Login extends javax.swing.JFrame {
         return false;
     }
 
-    private void labelForgotPasswordMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelForgotPasswordMouseClicked
+    private void labelForgotPasswordMouseClicked(java.awt.event.MouseEvent evt) {
         setVisible(false);
         ResetPassword resetPassword = new ResetPassword();
         resetPassword.setVisible(true);
-    }//GEN-LAST:event_labelForgotPasswordMouseClicked
+    }
 
-    private void buttonSignUpMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonSignUpMouseClicked
+    private void buttonSignUpMouseClicked(java.awt.event.MouseEvent evt) {
         setVisible(false);
         SignUp signUp = new SignUp();
         signUp.setVisible(true);
-    }//GEN-LAST:event_buttonSignUpMouseClicked
+    }
 
-    private void buttonExitMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonExitMouseClicked
-        dispose();
-    }//GEN-LAST:event_buttonExitMouseClicked
+    private void buttonExitMouseClicked(java.awt.event.MouseEvent evt) {
+        System.exit(0);
+    }
 
     /**
      * @param args the command line arguments
@@ -305,7 +406,6 @@ public class Login extends javax.swing.JFrame {
         });
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonExit;
     private javax.swing.JButton buttonLogIn;
     private javax.swing.JButton buttonSignUp;
@@ -314,5 +414,4 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JLabel labelWarning;
     private javax.swing.JPasswordField pFieldPassword;
     private javax.swing.JTextField textFieldUsername;
-    // End of variables declaration//GEN-END:variables
 }

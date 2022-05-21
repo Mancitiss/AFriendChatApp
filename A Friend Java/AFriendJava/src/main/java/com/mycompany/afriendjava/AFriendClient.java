@@ -27,7 +27,7 @@ import javax.imageio.ImageIO;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-public class AFriendClient {
+public class AFriendClient{
     public static final String SERVER_ADDRESS = "mancitiss.duckdns.org";
     public static final int SERVER_PORT = 11111;
 
@@ -223,7 +223,7 @@ public class AFriendClient {
                                                             try
                                                             {
                                                                 // this method is synchronized, its parameters must be volatile
-                                                                Program.mainform.panelChats.get(s.id).messages.get(s.num).changeTextUpload(byte)(100 * offset / fileSize);
+                                                                Program.mainform.panelChats.get(s.id).messages.get(s.num).changeTextUpload((byte)(100 * offset / fileSize));
                                                             }
                                                             catch (Exception ex)
                                                             {
@@ -701,7 +701,7 @@ public class AFriendClient {
                 case "2004":{
                     System.out.println("You are logged in from another device");
                     user.state = 0;
-                    Program.mainform.showLoginForm();
+                    Program.mainform.showLogin();
                 } break;
 
                 // this id is online
@@ -739,9 +739,6 @@ public class AFriendClient {
                         Program.mainform.panelChats.get(panelId).loadMessages(messageObjects);
                     }
                     catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    catch(Exception e){
                         e.printStackTrace();
                     }
                     queueCommand(("0708" + panelId).getBytes(StandardCharsets.UTF_16LE));
@@ -805,5 +802,4 @@ public class AFriendClient {
             return false;
         }
     }
-     
 }

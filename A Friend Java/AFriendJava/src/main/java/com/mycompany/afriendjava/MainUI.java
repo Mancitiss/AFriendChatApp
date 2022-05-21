@@ -30,6 +30,7 @@ import com.mycompany.afriendjava.custom.TextField;
 import javax.swing.SwingConstants;
 
 public class MainUI extends javax.swing.JFrame {
+    
     public static String currentID;
     /**
      * Creates new form Main
