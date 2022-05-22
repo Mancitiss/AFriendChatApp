@@ -24,11 +24,12 @@ public class AFChatItem extends javax.swing.JPanel {
     }
     public void setMessage(String mess)
     {
-        TextBody.setText(mess);
+        String temp= "<html><table><tr><td width='300'>"+mess+"</td></tr></table></html>";
+        labelLeft.setText(temp);
     }
     public void hideLeft()
     {
-        PanelBodyLeft.setVisible(!PanelBodyLeft.isVisible());
+        //PanelBodyLeft.setVisible(!PanelBodyLeft.isVisible());
         TopPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
     }
     public void hideRight()
@@ -46,40 +47,26 @@ public class AFChatItem extends javax.swing.JPanel {
 
         TopPanel = new javax.swing.JPanel();
         PanelBodyLeft = new javax.swing.JPanel();
-        TextBody = new javax.swing.JTextField();
+        labelLeft = new javax.swing.JLabel();
         PanelButton = new javax.swing.JPanel();
         ButtonCopy = new javax.swing.JButton();
         ButtonDelete = new javax.swing.JButton();
         PanelBodyRight = new javax.swing.JPanel();
-        TextBody1 = new javax.swing.JTextField();
+        labelRight = new javax.swing.JLabel();
         BottomPanel = new javax.swing.JPanel();
         LabelAuthor = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(773, 160));
+        setLayout(new java.awt.CardLayout());
 
         TopPanel.setPreferredSize(new java.awt.Dimension(749, 132));
         TopPanel.setLayout(new javax.swing.BoxLayout(TopPanel, javax.swing.BoxLayout.LINE_AXIS));
 
         PanelBodyLeft.setMinimumSize(new java.awt.Dimension(290, 100));
+        PanelBodyLeft.setLayout(new java.awt.CardLayout());
 
-        TextBody.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                TextBodyActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout PanelBodyLeftLayout = new javax.swing.GroupLayout(PanelBodyLeft);
-        PanelBodyLeft.setLayout(PanelBodyLeftLayout);
-        PanelBodyLeftLayout.setHorizontalGroup(
-            PanelBodyLeftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PanelBodyLeftLayout.createSequentialGroup()
-                .addComponent(TextBody, javax.swing.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
-                .addGap(0, 0, 0))
-        );
-        PanelBodyLeftLayout.setVerticalGroup(
-            PanelBodyLeftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(TextBody)
-        );
+        labelLeft.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        PanelBodyLeft.add(labelLeft, "card2");
 
         TopPanel.add(PanelBodyLeft);
 
@@ -105,7 +92,7 @@ public class AFChatItem extends javax.swing.JPanel {
         PanelButtonLayout.setVerticalGroup(
             PanelButtonLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelButtonLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(157, Short.MAX_VALUE)
                 .addGroup(PanelButtonLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ButtonCopy, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ButtonDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -116,26 +103,24 @@ public class AFChatItem extends javax.swing.JPanel {
 
         PanelBodyRight.setMinimumSize(new java.awt.Dimension(290, 100));
 
-        TextBody1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                TextBody1ActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout PanelBodyRightLayout = new javax.swing.GroupLayout(PanelBodyRight);
         PanelBodyRight.setLayout(PanelBodyRightLayout);
         PanelBodyRightLayout.setHorizontalGroup(
             PanelBodyRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelBodyRightLayout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addComponent(TextBody1, javax.swing.GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE))
+            .addGroup(PanelBodyRightLayout.createSequentialGroup()
+                .addComponent(labelRight, javax.swing.GroupLayout.PREFERRED_SIZE, 423, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         PanelBodyRightLayout.setVerticalGroup(
             PanelBodyRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(TextBody1, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+            .addGroup(PanelBodyRightLayout.createSequentialGroup()
+                .addComponent(labelRight, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         TopPanel.add(PanelBodyRight);
+
+        add(TopPanel, "card2");
 
         LabelAuthor.setText("Time-Date");
 
@@ -154,33 +139,8 @@ public class AFChatItem extends javax.swing.JPanel {
                 .addComponent(LabelAuthor))
         );
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(TopPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 870, Short.MAX_VALUE)
-                    .addComponent(BottomPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(BottomPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(TopPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
+        add(BottomPanel, "card3");
     }// </editor-fold>//GEN-END:initComponents
-
-    private void TextBody1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TextBody1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_TextBody1ActionPerformed
-
-    private void TextBodyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TextBodyActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_TextBodyActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -191,9 +151,9 @@ public class AFChatItem extends javax.swing.JPanel {
     private javax.swing.JPanel PanelBodyLeft;
     private javax.swing.JPanel PanelBodyRight;
     private javax.swing.JPanel PanelButton;
-    private javax.swing.JTextField TextBody;
-    private javax.swing.JTextField TextBody1;
     private javax.swing.JPanel TopPanel;
+    private javax.swing.JLabel labelLeft;
+    private javax.swing.JLabel labelRight;
     // End of variables declaration//GEN-END:variables
     public void startTimer(String file, long size) {
         //TODO start timer
