@@ -29,12 +29,10 @@ public class Receive_from_socket_not_logged_in implements Runnable {
             // create streams from client
             DIS = new DataInputStream(client.getInputStream());
             DOS = new DataOutputStream(client.getOutputStream());
-            //
             String data = Tools.receive_unicode(DIS, 8);
-            //
+            System.out.println(data);
             if (data != null && !data.isEmpty()) {
                 String instruction = data;
-                
                 if (instruction.equals("0012")) {
                     Thread.sleep(100);
                     data = Tools.receive_ASCII(DIS, 19);
@@ -102,12 +100,13 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                 }
                 else if (instruction.equals("0010")) {
                     //
+                    System.out.println("login");
                     String[] lst_str = new String[2];
                     lst_str[0] = Tools.receive_Unicode_Automatically(DIS);
                     lst_str[1] = Tools.receive_Unicode_Automatically(DIS);
                     // print lst_str
-                    //
-                    //
+                    System.out.println(lst_str[0]);
+                    System.out.println(lst_str[1]);
                     try (PreparedStatement cmd = Program.sql.prepareStatement("select top 1 id, name, pw, avatar, private, state from account where username=?");){
                         cmd.setNString(1, lst_str[0]);
                         try (ResultSet rs = cmd.executeQuery()){
@@ -118,6 +117,7 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                     while(id.length() < 19){
                                         id = "0" + id;
                                     }
+                                    System.out.println(id);
                                     String name = rs.getNString("name");
                                     String namebyte = Integer.toString(name.getBytes(StandardCharsets.UTF_16LE).length);
                                     byte mystate = rs.getByte("state");
@@ -131,7 +131,7 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                     }
                                     //
                                     DOS.write(("0200" + id + namebytelen + namebyte + name + priv).getBytes(StandardCharsets.UTF_16LE));
-                                    
+                                    System.out.println("0200 sent");
                                     try{
                                         if (Program.sessions.containsKey(id)){
                                             try{
@@ -209,7 +209,7 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                         client.status = mystate;
                                         Program.sessions.put(id, client);
                                         client.stream.write(("7351" + Byte.toString(mystate)).getBytes(StandardCharsets.UTF_16LE));
-                                        
+                                        System.out.println("Logged in successfully");
                                         //
                                     } 
                                     catch (Exception e){
@@ -236,6 +236,7 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                     try{
                                         try{
                                             DOS.write("-200".getBytes(StandardCharsets.UTF_16LE));
+                                            System.out.println("-200 sent");
                                         } catch (Exception e){
                                         }
                                         try{
@@ -328,7 +329,8 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            if (!e.getMessage().contains("terminated the handshake"))
+                e.printStackTrace();
             // close all possible resouces with try catch
             try {
                 DIS.close();

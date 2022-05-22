@@ -114,4 +114,7 @@ public class Loading extends javax.swing.JFrame {
     public void showProgress(int i) {
         //TODO show progress
     }
+
+    public void stopSpinning() {
+    }
 }

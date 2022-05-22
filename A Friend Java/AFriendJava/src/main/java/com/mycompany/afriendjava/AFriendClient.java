@@ -307,7 +307,7 @@ public class AFriendClient{
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
@@ -372,8 +372,10 @@ public class AFriendClient{
             dis = new DataInputStream(client.getInputStream());
             dos = new DataOutputStream(client.getOutputStream());
             queueCommand(("0010" + Tools.data_with_unicode_byte(username) + Tools.data_with_unicode_byte(password)).getBytes(StandardCharsets.UTF_16LE));
+            
             receiveFromId(client);
             if (user == null){
+                System.out.println("null user");
                 queueCommand("0004".getBytes(StandardCharsets.UTF_16LE));
                 ping();
                 throw new Exception("Login failed");
@@ -413,7 +415,7 @@ public class AFriendClient{
  
     private static void receiveFromId(SSLSocket client){
         try{
-            String instruction = Tools.receive_ASCII(dis, 8);
+            String instruction = Tools.receive_unicode(dis, 8);
             System.out.println(instruction);
             switch(instruction){
                 // log in failed
@@ -425,6 +427,7 @@ public class AFriendClient{
                 // log in success
                 case "0200":{
                     user = new Account();
+                    System.out.println(user == null);
                     user.id = Tools.receive_unicode(dis, 38);
                     user.name = Tools.receive_Unicode_Automatically(dis);
                     String priv = Tools.receive_unicode(dis, 10);
@@ -492,7 +495,7 @@ public class AFriendClient{
 
                 case "1060":{
                     String panelId = Tools.receive_unicode(dis, 38);
-                    String friendAvatar = Tools.receive_Unicode_Automatically(dis);
+                    String friendAvatar = Tools.receive_ASCII_Automatically(dis);
                     if (friendAvatar!=null && !friendAvatar.isEmpty()){
                         byte[] avatar = Base64.getDecoder().decode(friendAvatar);
                         BufferedImage img = ImageIO.read(new ByteArrayInputStream(avatar));
@@ -745,7 +748,7 @@ public class AFriendClient{
                 } break;
 
                 case "7351":{
-                    String stateStr = Tools.receive_ASCII(dis, 2);
+                    String stateStr = Tools.receive_unicode(dis, 2);
                     byte state = Byte.parseByte(stateStr);
                     publicState = state;
                 } break;
@@ -757,13 +760,14 @@ public class AFriendClient{
                 } break;
 
                 default:{
-
+                    System.out.println("command not found");
                 }
                 break;
             }
         }
         catch (Exception e){
             e.printStackTrace();
+            if(e.getMessage().contains("Socket")) user.state = 0;
         }
     }
 

@@ -193,26 +193,12 @@ public class Login extends javax.swing.JFrame {
             }
         });
     }
-
-    private TimerTask timerClosingTask = new TimerTask(){
-        @Override
-        public void run() {
-            timerClosing_Tick();
-        }
-    };
     private Timer timerClosing = new Timer();
-
-    private TimerTask timerDisconnectTask = new TimerTask(){
-        @Override
-        public void run() {
-            timerDisconnect_Tick();
-        }
-    };
 
     private Timer timerDisconnect = new Timer();
     
     private void timerDisconnect_Tick(){
-        if (labelWarning.getText() == "" || labelWarning.getText() == "Somthing is missing!"){
+        if ((labelWarning.getText() == "" || labelWarning.getText() == "Somthing is missing!") && this.isVisible()){
             try {
                 AFriendClient.dos.close();
             } catch (IOException e) {
@@ -242,12 +228,13 @@ public class Login extends javax.swing.JFrame {
         frm.setVisible(true);
         this.setVisible(false);
         Program.mainform = frm;
-        Program.executor.execute(new Runnable(){
+        Thread thread = new Thread(new Runnable(){
             @Override
             public void run(){
                 AFriendClient.executeClient();
             }
         });
+        thread.start();
     }
 
 
@@ -319,6 +306,13 @@ public class Login extends javax.swing.JFrame {
     }
 
     private void buttonLogInMouseClicked(java.awt.event.MouseEvent evt) {
+        timerDisconnect.schedule(new TimerTask()
+        {
+            @Override
+            public void run() {
+                timerDisconnect_Tick();
+            }
+        }, 19000);
         if (IsEmptyTextField()) {
             labelWarning.setText("Please complete your login information.");
         }
@@ -342,11 +336,19 @@ public class Login extends javax.swing.JFrame {
         }
         labelWarning.setText("You have logged in successfully".toUpperCase());
         labelWarning.setForeground(new Color(37, 75, 133));
-        timerClosing.schedule(timerClosingTask, 1000);
+        timerClosing.schedule(
+            new TimerTask()
+            {
+                @Override
+                public void run() {
+                    timerClosing_Tick();
+                }
+            }
+            , 1000);
     }
 
     private boolean correctPassword() {
-        boolean res = AFriendClient.tryLogin(textFieldUsername.getText(), pFieldPassword.getPassword().toString());
+        boolean res = AFriendClient.tryLogin(textFieldUsername.getText(), new String(pFieldPassword.getPassword()));
         AFriendClient.loginResult = true;
         return res;
     }

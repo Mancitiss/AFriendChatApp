@@ -1,23 +1,20 @@
 package com.mycompany.afriendjava;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.TreeMap;
-
-import javax.imageio.ImageIO;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
@@ -26,6 +23,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import java.awt.event.*;
 
 import com.mycompany.afriendjava.custom.TextField;
 import ui.customcomponents.*;
@@ -39,7 +37,8 @@ public class MainUI extends javax.swing.JFrame {
     public HashMap<String, PanelChat> panelChats = new HashMap<String, PanelChat>();
     public HashMap<String, ContactItem> contactItems = new HashMap<String, ContactItem>();
     public TreeMap<Integer, String> orderOfContactItems = new TreeMap<Integer, String>();
-
+    
+    public static ConcurrentHashMap<String, JFrame> subForms = new ConcurrentHashMap<String, JFrame>();
     public static String currentID;
 
     private boolean check = true;
@@ -53,21 +52,104 @@ public class MainUI extends javax.swing.JFrame {
     public Loading formLoading = new Loading();
     public Settings formSettings = new Settings();
     public FormAddContact formAddContact = new FormAddContact();
+    public JPanel panelLoading = new JPanel();
+
+    // initialization
+    private JPanel ContactList_Panel;
+    private JPanel Chat_Panel;
+    private JPanel SearchBar_Panel;
+    private JScrollPane ContactList_ScrollPanel;
+    private JPanel Button_Panel;
+    private JButton LogOut_Button;
+    private JButton Setting_Button;
+    private JButton AddFriend_Button;
+    private TextField SearchBar;
+    // end initialization
+    
+    public Image logoutIcon = (new ImageIcon(getClass().getResource("Resources/sign-out-option.png"))).getImage();
+    private ContactItem currentContactItem;
 
 
-
-    public boolean isThisPersonAdded(String id2) {
-        //TODO is this person added
-        return false;
+    public boolean isThisPersonAdded(String id) {
+        return contactItems.containsKey(id);
     }
     public synchronized void sortContactItems(){
-        //TODO sort contact items
+        try{
+            int length = contactItems.size();
+            for(int i = 0; i < length; i++){
+                String min = "";
+                int j = 0;
+                for(Entry<Integer, String> keyValuePair: orderOfContactItems.entrySet()){
+                    if (j == length){
+                        break;
+                    }
+                    if (min == ""){
+                        min = keyValuePair.getValue();
+                    }
+                    else
+                    {
+                        if (panelChats.get(min).DateTimeOfLastMessage() > panelChats.get(keyValuePair.getValue()).DateTimeOfLastMessage()){
+                            min = keyValuePair.getValue();
+                        }
+                    }
+                    j = j + 1;
+                }
+                length = length - 1;
+                bringContactItemToTop(min);
+            }
+
+            for(Entry<Integer, String> keyValuePair1: orderOfContactItems.entrySet()){
+                ContactList_Panel.add(contactItems.get(keyValuePair1.getValue()));
+            }
+
+            loaded = true;
+
+            //panelLoading.toBack(); //how?
+            formLoading.stopSpinning();
+            formLoading.dispose();
+            panelLoading.setVisible(false);
+
+            if(panelChats.size() > 0){
+                showPanelChat(orderOfContactItems.lastEntry().getValue(), false);
+                panelChats.get(orderOfContactItems.lastEntry().getValue()).scrollToBottom();
+                this.currentContactItem = contactItems.get(orderOfContactItems.lastEntry().getValue());
+                this.currentContactItem.Clicked = true;
+            }
+            else {
+                // clear controls of panelright
+                //panelRight.removeAll();
+                //TODO: clear controls of panelright
+                SearchBar.setVisible(false);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void bringContactItemToTop(String min) {
     }
     public synchronized void setAvatar(String id, Image img){
-        //TODO set avatar
+        if(panelChats.containsKey(id)){
+            panelChats.get(id).avatar = img;
+            contactItems.get(id).avatar = img;
+        }
     }
     public synchronized void showLogin(){
-        //TODO show login
+        for(JFrame f: subForms.values()){
+            f.dispose();
+        }
+        this.dispose();
+        Login lg = new Login();
+        lg.setVisible(true);
+        Program.mainform = null;
+        try{
+            if (AFriendClient.user != null){
+                AFriendClient.user.state = 0;
+            }
+        }
+        catch(Exception e){
+            AFriendClient.user = null;
+        }
     }
     public synchronized void showPanelChat(String id, boolean force){
         //TODO show panel chat
@@ -97,22 +179,15 @@ public class MainUI extends javax.swing.JFrame {
         getContentPane().setBackground(new Color(255, 255, 255));
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     * @throws IOException 
-     */
-    
     private void initComponents() throws IOException {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
         
-        JPanel ContactList_Panel = new JPanel();
+        ContactList_Panel = new JPanel();
         ContactList_Panel.setMinimumSize(new Dimension(20000, 10));
         ContactList_Panel.setBackground(Color.WHITE);
         
-        JPanel Chat_Panel = new JPanel();
+        Chat_Panel = new JPanel();
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         layout.setHorizontalGroup(
@@ -130,12 +205,12 @@ public class MainUI extends javax.swing.JFrame {
         
         
         
-        JPanel SearchBar_Panel = new JPanel();
+        SearchBar_Panel = new JPanel();
         SearchBar_Panel.setBackground(new Color(0, 204, 204));
         
-        JScrollPane ContactList_ScrollPanel = new JScrollPane();
+        ContactList_ScrollPanel = new JScrollPane();
         
-        JPanel Button_Panel = new JPanel();
+        Button_Panel = new JPanel();
         Button_Panel.setBackground(Color.PINK);
         GroupLayout gl_ContactList_Panel = new GroupLayout(ContactList_Panel);
         gl_ContactList_Panel.setHorizontalGroup(
@@ -157,20 +232,21 @@ public class MainUI extends javax.swing.JFrame {
         			.addComponent(Button_Panel, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE))
         );
         
-        JButton LogOut_Button = new JButton("");
+        LogOut_Button = new JButton("");
+        LogOut_Button.setMinimumSize(new Dimension(40, 40));
         //LogOut_Button.setIcon(new ImageIcon("D:\\programer\\Eclipse\\MainUI\\Resources\\sign-out-option.png"));
-        try {
-        Image img = ImageIO.read(getClass().getResource("Resources/sign-out-option.png"));
-        LogOut_Button.setIcon(new ImageIcon(img));
+        //LogOut_Button.setIcon(new ImageIcon(logoutIcon.getScaledInstance(LogOut_Button.getWidth(), LogOut_Button.getHeight(), Image.SCALE_SMOOTH)));
+        LogOut_Button.addComponentListener(new ComponentAdapter() {         
+            @Override
+            public void componentResized(ComponentEvent e) {
+                LogOut_Button.setIcon(new ImageIcon(logoutIcon.getScaledInstance(LogOut_Button.getWidth(), LogOut_Button.getHeight(), Image.SCALE_SMOOTH)));
+            }
+        });
         
-        } catch (Exception ex) {
-            System.out.println(ex);
-          }
-        
-        JButton Setting_Button = new JButton("");
+        Setting_Button = new JButton("");
         Setting_Button.setIcon(null);
         
-        JButton AddFriend_Button = new JButton("");
+        AddFriend_Button = new JButton("");
         AddFriend_Button.setIcon(null);
         GroupLayout gl_Button_Panel = new GroupLayout(Button_Panel);
         gl_Button_Panel.setHorizontalGroup(
@@ -196,16 +272,16 @@ public class MainUI extends javax.swing.JFrame {
         );
         Button_Panel.setLayout(gl_Button_Panel);
         
-        TextField SearchBar = new TextField();
+        SearchBar = new TextField();
         SearchBar.addFocusListener(new FocusAdapter() {
         	@Override
         	public void focusGained(FocusEvent e) {
         		SearchBar.removeItemSuggestion(SearchBar.getText());
         	}
         });
-        SearchBar.setText("Search");
         SearchBar.setHorizontalAlignment(SwingConstants.LEFT);
         SearchBar.setBackground(Color.RED);
+        TextPrompt tpSearch = new TextPrompt("Search", SearchBar);
         GroupLayout gl_SearchBar_Panel = new GroupLayout(SearchBar_Panel);
         gl_SearchBar_Panel.setHorizontalGroup(
         	gl_SearchBar_Panel.createParallelGroup(Alignment.LEADING)
@@ -227,7 +303,7 @@ public class MainUI extends javax.swing.JFrame {
         
         pack();
         setLocationRelativeTo(null);
-    }// </editor-fold>//GEN-END:initComponents
+    }
 
     /**
      * @param args the command line arguments

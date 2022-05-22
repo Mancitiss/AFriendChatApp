@@ -213,8 +213,10 @@ namespace A_Friend
         private void timerDisconnect_Tick(object sender, EventArgs e)
         {
             timerDisconnect.Stop();
+            Console.WriteLine("tick");
             if (labelWarning.Text == "" || labelWarning.Text == "Something is missing!")
             {
+                Console.WriteLine("closing");
                 AFriendClient.stream.Close();
                 AFriendClient.client.Close();
                 labelWarning.Text = "Cannot connect to the server";

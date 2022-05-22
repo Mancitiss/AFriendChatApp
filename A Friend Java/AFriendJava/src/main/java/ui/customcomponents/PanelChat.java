@@ -1,5 +1,6 @@
 package ui.customcomponents;
 
+import java.awt.Image;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -9,6 +10,7 @@ public class PanelChat {
 
     public ConcurrentLinkedQueue<String> filesToSend = new ConcurrentLinkedQueue<String>();
     public HashMap<Long, AFChatItem> messages = new HashMap<Long, AFChatItem>();
+    public Image avatar;
 
     public void removeMessage(Long messageNumber) {
         //TODO removeMessage
@@ -24,6 +26,13 @@ public class PanelChat {
 
     public void loadMessages(MessageObject[] messageObjects) {
         //TODO load messages
+    }
+
+    public int DateTimeOfLastMessage() {
+        return 0;
+    }
+
+    public void scrollToBottom() {
     }
     
 }

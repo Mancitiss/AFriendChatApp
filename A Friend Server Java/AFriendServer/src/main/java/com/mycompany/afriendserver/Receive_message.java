@@ -32,7 +32,7 @@ public class Receive_message implements Runnable {
                 data = Tools.receive_unicode(s, 8);
 
                 if (data != null && !data.isEmpty()) {
-                    //if (data!=null && data!="1904") System.out.println("Work: " + data);
+                    if (data!=null && data!="1904") System.out.println("Work: " + data);
                     // if (!data.equals("1904"))
 
                     String instruction = data;
@@ -142,7 +142,7 @@ public class Receive_message implements Runnable {
                                             .Queue_command(("6475" + receiver_id + Tools.data_with_unicode_byte(json))
                                                     .getBytes(StandardCharsets.UTF_16LE));
                                     // old messages sent
-
+                                    System.out.println("6475 sent");
                                     if (Program.sessions.containsKey(ID)) {
                                         if (Program.sessions.get(ID).loaded > 1) {
                                             Program.sessions.get(ID).loaded -= 1;
@@ -150,7 +150,7 @@ public class Receive_message implements Runnable {
                                             Program.sessions.get(ID)
                                                     .Queue_command("2411".getBytes(StandardCharsets.UTF_16LE));
                                             Program.sessions.get(ID).loaded -= 1;
-
+                                            System.out.println("Sent 2411");
                                         }
                                     }
                                 }
