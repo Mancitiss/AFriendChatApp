@@ -56,6 +56,10 @@ public class MainUI extends javax.swing.JFrame {
 
 
 
+    public boolean isThisPersonAdded(String id2) {
+        //TODO is this person added
+        return false;
+    }
     public synchronized void sortContactItems(){
         //TODO sort contact items
     }

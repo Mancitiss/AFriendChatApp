@@ -13,7 +13,7 @@ import java.awt.Component;
 public class AFChatItem extends javax.swing.JPanel {
 
     public void changeTextUpload(byte percent){
-        
+        //TODO change text upload
     }
 
     /**
@@ -195,4 +195,7 @@ public class AFChatItem extends javax.swing.JPanel {
     private javax.swing.JTextField TextBody1;
     private javax.swing.JPanel TopPanel;
     // End of variables declaration//GEN-END:variables
+    public void startTimer(String file, long size) {
+        //TODO start timer
+    }
 }

@@ -111,4 +111,7 @@ public class Loading extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private custom.CustomPanel progress;
     // End of variables declaration//GEN-END:variables
+    public void showProgress(int i) {
+        //TODO show progress
+    }
 }

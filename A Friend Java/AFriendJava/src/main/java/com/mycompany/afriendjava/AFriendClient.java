@@ -527,7 +527,7 @@ public class AFriendClient{
                         if (first.containsKey(found[0])){
                             for(MessageObject msgobj: first.get(found[0])){
                                 // this method is synchronized, its parameters must be volatile
-                                Program.mainform.panelChats.AddMessage(msgobj);
+                                Program.mainform.panelChats.get(found[0]).addMessage(msgobj);
                             }
                             first.remove(found[0]);
                         }
@@ -545,7 +545,7 @@ public class AFriendClient{
                     String sender = msgobj.id1;
                     if (user.id == msgobj.id2){ // if me = user2 add user1
                         if (Program.mainform.isThisPersonAdded(msgobj.id1)){
-                            Program.mainform.panelChats.get(msgobj.id1).AddMessage(msgobj);
+                            Program.mainform.panelChats.get(msgobj.id1).addMessage(msgobj);
                             if (!msgobj.sender){
                                 // this method is synchronized, its parameters must be volatile
                                 Program.mainform.turnContactActiveState(msgobj.id1, (byte)1);
@@ -567,7 +567,7 @@ public class AFriendClient{
                     }
                     else if (user.id == msgobj.id1){
                         if (Program.mainform.isThisPersonAdded(msgobj.id2)){
-                            Program.mainform.panelChats.get(msgobj.id2).AddMessage(msgobj);
+                            Program.mainform.panelChats.get(msgobj.id2).addMessage(msgobj);
                             if (!msgobj.sender){
                                 // this method is synchronized, its parameters must be volatile
                                 Program.mainform.turnContactActiveState(msgobj.id2, (byte)1);

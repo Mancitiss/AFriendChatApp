@@ -553,4 +553,11 @@ public class Settings extends javax.swing.JFrame {
     private javax.swing.JTextField textFieldNewUsername;
     private custom.ToggleButton toggleButton1;
     // End of variables declaration//GEN-END:variables
+    public void changeIncognitoMode(boolean priv) {
+        //TODO change incognito mode
+    }
+
+    public void changeSettingsWarning(String string, Color color) {
+        //TODO change settings warning
+    }
 }
