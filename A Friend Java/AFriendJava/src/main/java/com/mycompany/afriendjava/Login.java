@@ -10,6 +10,8 @@ import java.io.IOException;
 import ui.customcomponents.*;
 import javax.swing.JTextField;
 
+import com.google.inject.spi.RequireAtInjectOnConstructorsOption;
+
 public class Login extends javax.swing.JFrame {
 
     private TextPrompt usernamePrompt;
@@ -37,13 +39,20 @@ public class Login extends javax.swing.JFrame {
         setAutoRequestFocus(false);
         setResizable(false);
         setSize(new java.awt.Dimension(418, 662));
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                load();
+            }
+        });
+        setUndecorated(true);
 
         labelTitle.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 36)); // NOI18N
         labelTitle.setForeground(new java.awt.Color(37, 75, 133));
         labelTitle.setText("Log In");
 
         textFieldUsername.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
-        textFieldUsername.setText("Username");
+        textFieldUsername.setText("");
         textFieldUsername.setToolTipText("");
         textFieldUsername.setName(""); // NOI18N
         textFieldUsername.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -62,7 +71,7 @@ public class Login extends javax.swing.JFrame {
         usernamePrompt = new TextPrompt("Username", textFieldUsername);
 
         pFieldPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
-        pFieldPassword.setText("Password");
+        pFieldPassword.setText("");
         pFieldPassword.setEchoChar('\u0000');
         pFieldPassword.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
@@ -169,6 +178,20 @@ public class Login extends javax.swing.JFrame {
         );
 
         pack();
+    }
+
+    protected void load() {
+        this.setTitle("\t");
+        this.setAlwaysOnTop(true);
+        this.requestFocus();
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                toFront();
+                repaint();
+                setAlwaysOnTop(false);
+            }
+        });
     }
 
     private TimerTask timerClosingTask = new TimerTask(){
@@ -288,18 +311,11 @@ public class Login extends javax.swing.JFrame {
     }
 
     private void textFieldUsernameFocusLost(java.awt.event.FocusEvent evt) {
-        if (textFieldUsername.getText().length() == 0) {
-            addPlaceholderStyle(textFieldUsername);
-            textFieldUsername.setText("Username");
-        }
+        return;
     }
 
     private void pFieldPasswordFocusLost(java.awt.event.FocusEvent evt) {
-        if (pFieldPassword.getPassword().toString().length() == 0) {
-            addPlaceholderStyle(pFieldPassword);
-            pFieldPassword.setText("Password");
-            pFieldPassword.setEchoChar('\u0000');
-        }
+        return;
     }
 
     private void buttonLogInMouseClicked(java.awt.event.MouseEvent evt) {
