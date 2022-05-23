@@ -7,18 +7,52 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.border.Border;
 
 public class ContactItem extends JComponent{
 
+    public static void main(String[] args) {
+        // create a jframe and add this ContactItem to it
+        JFrame frame = new JFrame();
+        frame.setBounds(100, 100, 800, 800);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(null);
+        ContactItem contact = new ContactItem();
+        frame.getContentPane().add(contact);
+        contact.setLocation(0,0);
+        
+        frame.setVisible(true);
+    }
+
     public Image avatar;
-    public boolean Clicked;
-    public Image defaultFriendPicture = (new ImageIcon(getClass().getResource("Resources/newUser.png"))).getImage();
+    public Image defaultFriendPicture = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/newUser.png"))).getImage();
 
     private JLabel labelLastMessage;
     private JLabel labelName;
     private custom.CircleAvatar friendPicture;
+    public boolean clicked;
+    private boolean mouseOn;
+    private byte state;
+    private Color stateColor = Color.decode("#FF0000");
+
+    public byte getState(){ return state; }
+    public void setState(byte state){ 
+        if (this.state != state){
+            this.state = state;
+
+            if (this.state == 0){
+                this.stateColor = Color.decode("#DCDCDC");
+            }
+            else if (this.state == 1){
+                this.stateColor = Color.decode("#00FF7F");
+            }
+            else{
+                this.stateColor = Color.decode("#FF0000");
+            }
+            this.invalidate();
+        }
+     }
 
     public void setUnread(boolean b) {
         //TODO setUnread
@@ -35,7 +69,7 @@ public class ContactItem extends JComponent{
 
         // label last message
         labelLastMessage.setBackground(new Color(0f, 0f, 0f, 1f));
-        labelLastMessage.setForeground(new Color(696969));
+        labelLastMessage.setForeground(Color.decode("#696969"));
         // set font to arial, regular, 11
         labelLastMessage.setFont(new java.awt.Font("Arial", 0, 11));
         // set location to 75 36
@@ -48,7 +82,14 @@ public class ContactItem extends JComponent{
         labelLastMessage.setSize(197, 20);
         // set text to "You: last text here"
         labelLastMessage.setText("You: last text here");
+        // add resize event
+        labelLastMessage.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                labelLastMessageComponentResized(evt);
+            }
+        });
         // set click event
+        /*
         labelLastMessage.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -63,6 +104,7 @@ public class ContactItem extends JComponent{
                 labelLastMessageMouseExited(evt);
             }
         });
+        */
 
         // label name
         labelName.setBackground(new Color(0f, 0f, 0f, 1f));
@@ -79,6 +121,7 @@ public class ContactItem extends JComponent{
         // set text to "You: last text here"
         labelName.setText("Friend name");
         // set click event
+        /*
         labelName.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -93,6 +136,7 @@ public class ContactItem extends JComponent{
                 labelNameMouseExited(evt);
             }
         });
+        */
         // add resize event
         labelName.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
@@ -103,27 +147,145 @@ public class ContactItem extends JComponent{
 
         // friend picture
         friendPicture.setBackground(new Color(0f, 0f, 0f, 1f));
-        //TODO continue
+        friendPicture.setBorderColor(new Color(180, 236, 180));
+        friendPicture.setBorderSize(0);
+        friendPicture.setLocation(20, 20);
+        friendPicture.setSize(45, 45);
+        friendPicture.setImage(new ImageIcon(defaultFriendPicture.getScaledInstance(45, 45, Image.SCALE_SMOOTH)));
+        // add click event
+        /*
+        friendPicture.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                friendPictureMouseClicked(evt);
+            }
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                friendPictureMouseEntered(evt);
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                friendPictureMouseExited(evt);
+            }
+        });
+        */
+
+        // contact item
+        setBackground(new Color(1f, 1f, 1f, 0f));
+        // set padding
+        setBorder(new javax.swing.border.EmptyBorder(10, 5, 10, 5));
+        // set font
+        setFont(new java.awt.Font("Microsoft Sans Serif", 0, 12));
+        // set size
+        setSize(300, 65);
+        // add all components
+        add(labelLastMessage);
+        add(labelName);
+        add(friendPicture);
+        // set click event
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                itemMouseClicked(evt);
+            }
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                itemMouseEntered(evt);
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                itemMouseExited(evt);
+            }
+        });
+    }
+
+    protected void labelLastMessageComponentResized(ComponentEvent evt) {
+        // print
+        System.out.println("labelLastMessage ComponentResized");
+    }
+    @Override
+    protected void paintComponent(java.awt.Graphics g){
+        if (clicked){
+            g.setColor(new Color(255, 202, 152, 95));
+            g.fillRect(10, 2, this.getWidth() - 20, this.getHeight() - 4);
+
+        }
+        else if (mouseOn){
+            g.setColor(new Color(255, 202, 152, 50));
+            g.fillRect(10, 2, this.getWidth() - 20, this.getHeight() - 4);
+        }
+        g.setColor(stateColor);
+        g.drawOval(friendPicture.getX() - 1, friendPicture.getY() - 1 , friendPicture.getWidth() + 1 , friendPicture.getHeight() + 1);
+    }
+
+    protected void itemMouseEntered(MouseEvent evt) {
+        mouseOn = true;
+        repaint();
+        System.out.println("item mouse entered");
+    }
+
+    protected void itemMouseExited(MouseEvent evt) {
+        mouseOn = false;
+        repaint();
+        // print
+        System.out.println("item Mouse exited");
+    }
+
+    protected void itemMouseClicked(MouseEvent evt) {
+        clicked = !clicked;
+        labelName.setText(labelName.getText() + ".");
+        labelLastMessage.setText(labelLastMessage.getText() + ".");
+        repaint();
+        System.out.println("item clicked");
+    }
+
+    protected void friendPictureMouseExited(MouseEvent evt) {
+        // print
+        System.out.println("friend picture Mouse exited");
+    }
+
+    protected void friendPictureMouseEntered(MouseEvent evt) {
+        // print
+        System.out.println("friend picture Mouse entered");
+    }
+
+    protected void friendPictureMouseClicked(MouseEvent evt) {
+        // print
+        System.out.println("friend picture clicked");
     }
 
     protected void labelNameComponentResized(ComponentEvent evt) {
+        // print
+        System.out.println("label name component resized");
     }
 
     protected void labelNameMouseExited(MouseEvent evt) {
+        // print
+        System.out.println("label name Mouse exited");
     }
 
     protected void labelNameMouseEntered(MouseEvent evt) {
+        // print
+        System.out.println("label name Mouse entered");
     }
 
     protected void labelNameMouseClicked(MouseEvent evt) {
+        // print
+        System.out.println("label name clicked");
     }
 
     protected void labelLastMessageMouseExited(MouseEvent evt) {
+        // print
+        System.out.println("label last message Mouse exited");
     }
 
     protected void labelLastMessageMouseEntered(MouseEvent evt) {
+        // print
+        System.out.println("label last message Mouse entered");
     }
 
     protected void labelLastMessageMouseClicked(MouseEvent evt) {
+        // print
+        System.out.println("label last message clicked");
     }
 }

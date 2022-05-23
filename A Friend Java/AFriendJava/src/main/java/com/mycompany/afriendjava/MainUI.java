@@ -113,7 +113,7 @@ public class MainUI extends javax.swing.JFrame {
                 showPanelChat(orderOfContactItems.lastEntry().getValue(), false);
                 panelChats.get(orderOfContactItems.lastEntry().getValue()).scrollToBottom();
                 this.currentContactItem = contactItems.get(orderOfContactItems.lastEntry().getValue());
-                this.currentContactItem.Clicked = true;
+                this.currentContactItem.clicked = true;
             }
             else {
                 // clear controls of panelright

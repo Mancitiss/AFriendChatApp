@@ -8,7 +8,7 @@
             "type": "java",
             "name": "Launch Current File",
             "request": "launch",
-            "mainClass": "com.mycompany.afriendjava.Program",
+            "mainClass": "${file}",
             "vmArgs": "--module-path F:/App/javafx-sdk-18.0.1/lib --add-modules javafx.controls,javafx.fxml"
         },
         {
