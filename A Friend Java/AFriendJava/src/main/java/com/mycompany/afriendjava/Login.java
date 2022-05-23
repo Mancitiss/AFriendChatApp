@@ -5,6 +5,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import ui.customcomponents.*;
@@ -93,9 +94,9 @@ public class Login extends javax.swing.JFrame {
         buttonLogIn.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 18)); // NOI18N
         buttonLogIn.setForeground(new java.awt.Color(255, 255, 255));
         buttonLogIn.setText("LOG IN");
-        buttonLogIn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                buttonLogInMouseClicked(evt);
+        buttonLogIn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonLogInActionPerformed(evt);
             }
         });
 
@@ -178,6 +179,10 @@ public class Login extends javax.swing.JFrame {
         );
 
         pack();
+    }
+
+    protected void buttonLogInActionPerformed(ActionEvent evt) {
+        buttonLogInMouseClicked();
     }
 
     protected void load() {
@@ -305,7 +310,7 @@ public class Login extends javax.swing.JFrame {
         return;
     }
 
-    private void buttonLogInMouseClicked(java.awt.event.MouseEvent evt) {
+    private void buttonLogInMouseClicked() {
         timerDisconnect.schedule(new TimerTask()
         {
             @Override

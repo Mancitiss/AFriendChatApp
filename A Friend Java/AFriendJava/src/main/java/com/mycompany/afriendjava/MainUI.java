@@ -67,7 +67,7 @@ public class MainUI extends javax.swing.JFrame {
     // end initialization
     
     public Image logoutIcon = (new ImageIcon(getClass().getResource("Resources/sign-out-option.png"))).getImage();
-    private ContactItem currentContactItem;
+    public ContactItem currentContactItem;
 
 
     public boolean isThisPersonAdded(String id) {

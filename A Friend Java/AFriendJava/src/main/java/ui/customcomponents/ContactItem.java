@@ -10,6 +10,8 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import com.mycompany.afriendjava.MainUI;
+
 public class ContactItem extends JComponent{
 
     public static void main(String[] args) {
@@ -18,7 +20,7 @@ public class ContactItem extends JComponent{
         frame.setBounds(100, 100, 800, 800);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(null);
-        ContactItem contact = new ContactItem();
+        ContactItem contact = new ContactItem("Ai cũng đc", "ê thằng kia", true);
         frame.getContentPane().add(contact);
         contact.setLocation(0,0);
         
@@ -28,6 +30,7 @@ public class ContactItem extends JComponent{
     public Image avatar;
     public Image defaultFriendPicture = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/newUser.png"))).getImage();
 
+    private String id;
     private JLabel labelLastMessage;
     private JLabel labelName;
     private custom.CircleAvatar friendPicture;
@@ -35,6 +38,7 @@ public class ContactItem extends JComponent{
     private boolean mouseOn;
     private byte state;
     private Color stateColor = Color.decode("#FF0000");
+    private boolean unread;
 
     public byte getState(){ return state; }
     public void setState(byte state){ 
@@ -55,7 +59,24 @@ public class ContactItem extends JComponent{
      }
 
     public void setUnread(boolean b) {
-        //TODO setUnread
+        unread = b;
+        if (unread){
+            labelLastMessage.setForeground(new Color(65, 165, 238));
+        }
+        else {
+            labelLastMessage.setForeground(Color.decode("#696969"));
+        }
+    }
+
+    public boolean getUnread(){
+        return unread;
+    }
+
+    public ContactItem(String name, String lastmessage, boolean unread){
+        initializeComponent();
+        labelName.setText(name);
+        labelLastMessage.setText(lastmessage);
+        setUnread(unread);
     }
     
     public ContactItem(){
@@ -233,9 +254,14 @@ public class ContactItem extends JComponent{
 
     protected void itemMouseClicked(MouseEvent evt) {
         clicked = true;
-        labelName.setText(labelName.getText() + ".");
-        labelLastMessage.setText(labelLastMessage.getText() + ".");
         repaint();
+        if (this.getParent().getParent().getParent() instanceof MainUI){
+            MainUI parent = (MainUI) this.getParent().getParent().getParent();
+            if (parent.currentContactItem != null && parent.currentContactItem != this){
+                parent.currentContactItem.clicked = false;
+                parent.currentContactItem.repaint();
+            }
+        }
         System.out.println("item clicked");
     }
 
