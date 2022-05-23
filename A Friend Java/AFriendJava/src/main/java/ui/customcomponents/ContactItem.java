@@ -232,7 +232,7 @@ public class ContactItem extends JComponent{
     }
 
     protected void itemMouseClicked(MouseEvent evt) {
-        clicked = !clicked;
+        clicked = true;
         labelName.setText(labelName.getText() + ".");
         labelLastMessage.setText(labelLastMessage.getText() + ".");
         repaint();
