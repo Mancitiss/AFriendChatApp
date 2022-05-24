@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.mycompany.afriendjava.MessageObject;
 
-public class PanelChat {
+public class PanelChat extends javax.swing.JPanel{
 
     public ConcurrentLinkedQueue<String> filesToSend = new ConcurrentLinkedQueue<String>();
     public HashMap<Long, AFChatItem> messages = new HashMap<Long, AFChatItem>();
@@ -35,4 +35,5 @@ public class PanelChat {
     public void scrollToBottom() {
     }
     
+
 }

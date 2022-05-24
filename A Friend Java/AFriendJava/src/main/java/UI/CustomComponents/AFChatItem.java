@@ -4,13 +4,33 @@
  */
 package ui.customcomponents;
 
+import java.awt.Color;
 import java.awt.Component;
+
+import javax.swing.JFrame;
 
 /**
  *
  * @author maima
  */
 public class AFChatItem extends javax.swing.JPanel {
+
+    public static void main(String[] args){
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setBounds(100, 100, 800, 600);
+        frame.setLayout(null);
+        AFChatItem chat = new AFChatItem();
+        chat.setLocation(0, 0);
+        chat.setSize(500, 300);
+        chat.hideLeft();
+        chat.setMessage("alodslfdos");
+        chat.setBackground(new Color(255, 0 ,0));
+        chat.setVisible(true);
+        frame.add(chat);
+        frame.setVisible(true);
+
+    }
 
     public void changeTextUpload(byte percent){
         //TODO change text upload
@@ -24,7 +44,8 @@ public class AFChatItem extends javax.swing.JPanel {
     }
     public void setMessage(String mess)
     {
-        TextBody.setText(mess);
+        TextBody.add(new javax.swing.JLabel(mess));
+        TextBody1.add(new javax.swing.JLabel(mess));
     }
     public void hideLeft()
     {
@@ -46,12 +67,12 @@ public class AFChatItem extends javax.swing.JPanel {
 
         TopPanel = new javax.swing.JPanel();
         PanelBodyLeft = new javax.swing.JPanel();
-        TextBody = new javax.swing.JTextField();
+        TextBody = new MessagePanel();
         PanelButton = new javax.swing.JPanel();
         ButtonCopy = new javax.swing.JButton();
         ButtonDelete = new javax.swing.JButton();
         PanelBodyRight = new javax.swing.JPanel();
-        TextBody1 = new javax.swing.JTextField();
+        TextBody1 = new MessagePanel();
         BottomPanel = new javax.swing.JPanel();
         LabelAuthor = new javax.swing.JLabel();
 
@@ -62,11 +83,13 @@ public class AFChatItem extends javax.swing.JPanel {
 
         PanelBodyLeft.setMinimumSize(new java.awt.Dimension(290, 100));
 
+        /*
         TextBody.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 TextBodyActionPerformed(evt);
             }
         });
+        */
 
         javax.swing.GroupLayout PanelBodyLeftLayout = new javax.swing.GroupLayout(PanelBodyLeft);
         PanelBodyLeft.setLayout(PanelBodyLeftLayout);
@@ -116,11 +139,13 @@ public class AFChatItem extends javax.swing.JPanel {
 
         PanelBodyRight.setMinimumSize(new java.awt.Dimension(290, 100));
 
+        /*
         TextBody1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 TextBody1ActionPerformed(evt);
             }
         });
+        */
 
         javax.swing.GroupLayout PanelBodyRightLayout = new javax.swing.GroupLayout(PanelBodyRight);
         PanelBodyRight.setLayout(PanelBodyRightLayout);
@@ -191,8 +216,8 @@ public class AFChatItem extends javax.swing.JPanel {
     private javax.swing.JPanel PanelBodyLeft;
     private javax.swing.JPanel PanelBodyRight;
     private javax.swing.JPanel PanelButton;
-    private javax.swing.JTextField TextBody;
-    private javax.swing.JTextField TextBody1;
+    private MessagePanel TextBody;
+    private MessagePanel TextBody1;
     private javax.swing.JPanel TopPanel;
     // End of variables declaration//GEN-END:variables
     public void startTimer(String file, long size) {
