@@ -32,6 +32,8 @@ import javax.swing.SwingConstants;
 
 public class MainUI extends javax.swing.JFrame {
     
+    static int He;
+    static int We;
     // variables
     public PanelChat currentPanelChat;
     public HashMap<String, PanelChat> panelChats = new HashMap<String, PanelChat>();
@@ -64,6 +66,7 @@ public class MainUI extends javax.swing.JFrame {
     private JButton Setting_Button;
     private JButton AddFriend_Button;
     private TextField SearchBar;
+    private JButton AddGroup_Button;
     // end initialization
     
     public Image logoutIcon = (new ImageIcon(getClass().getResource("Resources/sign-out-option.png"))).getImage();
@@ -164,113 +167,125 @@ public class MainUI extends javax.swing.JFrame {
         //TODO turn contact active state
     }
 
-
+    private void formComponentResized(java.awt.event.ComponentEvent evt) {                                      
+        
+        int SetHeight = getHeight();
+        int SetWidth = getWidth();
+        System.out.println(SetHeight);
+        ContactList_Panel.setSize(350,SetHeight);
+        Chat_Panel.setSize(SetWidth - 350, SetHeight);
+    }       
+    
+    private void TestMouseClicked(java.awt.event.MouseEvent evt) {                                      
+        Button_Panel.setBackground(Color.white);
+    }
     /**
      * Creates new form Main
      */
     public MainUI() {
     	setTitle("AFriend Chat");
     	setIconImage(Toolkit.getDefaultToolkit().getImage("Resources/logo.png"));
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        double width = screenSize.getWidth();
+        double height = screenSize.getHeight();
+        We = (int)width;
+        He = (int)height;
+        
+        setBounds(We/4,He/4,We/2,He/2);        
+        setMinimumSize(new Dimension(900, 457));
+        setLayout(null);
         try {
-			initComponents();
+			initComponents(We,He);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        getContentPane().setBackground(new Color(255, 255, 255));
+        //getContentPane().setBackground(new Color(0, 205, 205));
     }
 
-    private void initComponents() throws IOException {
+    private void initComponents(int W,int H) throws IOException {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
+        //setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
+        //Container contentPane = this.getContentPane(); 
+        getContentPane().setMinimumSize(new Dimension(900,460));
+        //getContentPane().setSize(700,460);
         
         ContactList_Panel = new JPanel();
-        ContactList_Panel.setMinimumSize(new Dimension(20000, 10));
+        ContactList_Panel.setLayout(null);
+        ContactList_Panel.setLocation(0,0);
+        ContactList_Panel.setMinimumSize(new Dimension(0, 0));
+        ContactList_Panel.setSize(350, getHeight());
         ContactList_Panel.setBackground(Color.WHITE);
+        ContactList_Panel.setVisible(true);
         
-        Chat_Panel = new JPanel();
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        layout.setHorizontalGroup(
-        	layout.createParallelGroup(Alignment.LEADING)
-        		.addGroup(layout.createSequentialGroup()
-        			.addComponent(ContactList_Panel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        			.addPreferredGap(ComponentPlacement.RELATED)
-        			.addComponent(Chat_Panel, GroupLayout.DEFAULT_SIZE, 626, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-        	layout.createParallelGroup(Alignment.LEADING)
-        		.addComponent(ContactList_Panel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        		.addComponent(Chat_Panel, GroupLayout.DEFAULT_SIZE, 470, Short.MAX_VALUE)
-        );
+        Chat_Panel = new JPanel();        
+        Chat_Panel.setLocation(350,0);
+        Chat_Panel.setBackground(Color.WHITE);
+        Chat_Panel.setSize(getWidth() - 350, getHeight());
+        Chat_Panel.setMinimumSize(new Dimension(0, 0));
+        Chat_Panel.setVisible(true);
         
+        getContentPane().add(ContactList_Panel);        
+        getContentPane().add(Chat_Panel);
         
         
         SearchBar_Panel = new JPanel();
         SearchBar_Panel.setBackground(new Color(0, 204, 204));
+        SearchBar_Panel.setLocation(0, 0);
+        SearchBar_Panel.setSize(350, 60);
         
         ContactList_ScrollPanel = new JScrollPane();
+        ContactList_ScrollPanel.setLocation(0, 60);
+        ContactList_ScrollPanel.setBorder(null);
+        ContactList_ScrollPanel.setSize(350, 300);
         
         Button_Panel = new JPanel();
         Button_Panel.setBackground(Color.PINK);
-        GroupLayout gl_ContactList_Panel = new GroupLayout(ContactList_Panel);
-        gl_ContactList_Panel.setHorizontalGroup(
-        	gl_ContactList_Panel.createParallelGroup(Alignment.LEADING)
-        		.addGroup(gl_ContactList_Panel.createSequentialGroup()
-        			.addGroup(gl_ContactList_Panel.createParallelGroup(Alignment.LEADING, false)
-        				.addComponent(Button_Panel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
-        				.addComponent(SearchBar_Panel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        				.addComponent(ContactList_ScrollPanel, Alignment.TRAILING))
-        			.addGap(0))
-        );
-        gl_ContactList_Panel.setVerticalGroup(
-        	gl_ContactList_Panel.createParallelGroup(Alignment.LEADING)
-        		.addGroup(gl_ContactList_Panel.createSequentialGroup()
-        			.addComponent(SearchBar_Panel, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
-        			.addPreferredGap(ComponentPlacement.RELATED)
-        			.addComponent(ContactList_ScrollPanel, GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
-        			.addPreferredGap(ComponentPlacement.RELATED)
-        			.addComponent(Button_Panel, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE))
-        );
+        Button_Panel.setLocation(0, 360);
+        Button_Panel.setSize(350, 60);
+        Button_Panel.setLayout(null);
+
+        ContactList_Panel.add(SearchBar_Panel);        
+        ContactList_Panel.add(ContactList_ScrollPanel);
+        ContactList_Panel.add(Button_Panel);
         
         LogOut_Button = new JButton("");
         LogOut_Button.setMinimumSize(new Dimension(40, 40));
-        //LogOut_Button.setIcon(new ImageIcon("D:\\programer\\Eclipse\\MainUI\\Resources\\sign-out-option.png"));
-        //LogOut_Button.setIcon(new ImageIcon(logoutIcon.getScaledInstance(LogOut_Button.getWidth(), LogOut_Button.getHeight(), Image.SCALE_SMOOTH)));
+        LogOut_Button.setLocation(20, 10);
+        LogOut_Button.setSize(40, 40);
         LogOut_Button.addComponentListener(new ComponentAdapter() {         
             @Override
             public void componentResized(ComponentEvent e) {
                 LogOut_Button.setIcon(new ImageIcon(logoutIcon.getScaledInstance(LogOut_Button.getWidth(), LogOut_Button.getHeight(), Image.SCALE_SMOOTH)));
             }
         });
+        LogOut_Button.setVisible(true);
         
         Setting_Button = new JButton("");
+        Setting_Button.setMinimumSize(new Dimension(40, 40));
+        Setting_Button.setLocation(70, 10);
+        Setting_Button.setSize(40, 40);
         Setting_Button.setIcon(null);
+        Setting_Button.setVisible(true);
         
         AddFriend_Button = new JButton("");
+        AddFriend_Button.setMinimumSize(new Dimension(40, 40));
+        AddFriend_Button.setLocation(120, 10);
+        AddFriend_Button.setSize(40, 40);
         AddFriend_Button.setIcon(null);
-        GroupLayout gl_Button_Panel = new GroupLayout(Button_Panel);
-        gl_Button_Panel.setHorizontalGroup(
-        	gl_Button_Panel.createParallelGroup(Alignment.LEADING)
-        		.addGroup(gl_Button_Panel.createSequentialGroup()
-        			.addContainerGap()
-        			.addComponent(LogOut_Button, GroupLayout.PREFERRED_SIZE, 31, Short.MAX_VALUE)
-        			.addPreferredGap(ComponentPlacement.UNRELATED)
-        			.addComponent(Setting_Button, GroupLayout.PREFERRED_SIZE, 31, GroupLayout.PREFERRED_SIZE)
-        			.addPreferredGap(ComponentPlacement.UNRELATED)
-        			.addComponent(AddFriend_Button, GroupLayout.PREFERRED_SIZE, 31, GroupLayout.PREFERRED_SIZE)
-        			.addGap(153))
-        );
-        gl_Button_Panel.setVerticalGroup(
-        	gl_Button_Panel.createParallelGroup(Alignment.LEADING)
-        		.addGroup(gl_Button_Panel.createSequentialGroup()
-        			.addContainerGap()
-        			.addGroup(gl_Button_Panel.createParallelGroup(Alignment.BASELINE)
-        				.addComponent(LogOut_Button, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        				.addComponent(Setting_Button)
-        				.addComponent(AddFriend_Button))
-        			.addGap(0))
-        );
-        Button_Panel.setLayout(gl_Button_Panel);
+        AddFriend_Button.setVisible(true);
+        
+        AddGroup_Button = new JButton("");
+        AddGroup_Button.setMinimumSize(new Dimension(40, 40));
+        AddGroup_Button.setLocation(170, 10);
+        AddGroup_Button.setSize(40, 40);
+        AddGroup_Button.setIcon(null);
+        AddGroup_Button.setVisible(true);
+
+
+        Button_Panel.add(LogOut_Button);
+        Button_Panel.add(Setting_Button);
+        Button_Panel.add(AddFriend_Button);
+        Button_Panel.add(AddGroup_Button);
         
         SearchBar = new TextField();
         SearchBar.addFocusListener(new FocusAdapter() {
@@ -279,30 +294,30 @@ public class MainUI extends javax.swing.JFrame {
         		SearchBar.removeItemSuggestion(SearchBar.getText());
         	}
         });
-        SearchBar.setHorizontalAlignment(SwingConstants.LEFT);
-        SearchBar.setBackground(Color.RED);
+        SearchBar.setBackground(Color.WHITE);
+        SearchBar.setLocation(40, 10);
+        SearchBar.setSize(270, 36);
+        SearchBar.setOpaque(true);
         TextPrompt tpSearch = new TextPrompt("Search", SearchBar);
-        GroupLayout gl_SearchBar_Panel = new GroupLayout(SearchBar_Panel);
-        gl_SearchBar_Panel.setHorizontalGroup(
-        	gl_SearchBar_Panel.createParallelGroup(Alignment.LEADING)
-        		.addGroup(gl_SearchBar_Panel.createSequentialGroup()
-        			.addContainerGap()
-        			.addComponent(SearchBar, GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
-        			.addContainerGap())
-        );
-        gl_SearchBar_Panel.setVerticalGroup(
-        	gl_SearchBar_Panel.createParallelGroup(Alignment.LEADING)
-        		.addGroup(Alignment.TRAILING, gl_SearchBar_Panel.createSequentialGroup()
-        			.addGap(19)
-        			.addComponent(SearchBar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        			.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        SearchBar_Panel.setLayout(gl_SearchBar_Panel);
-        ContactList_Panel.setLayout(gl_ContactList_Panel);
-        getContentPane().setLayout(layout);
+
+        SearchBar_Panel.setLayout(null);
+        SearchBar_Panel.add(SearchBar);    
+        
+        //event
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                formComponentResized(evt);
+            }
+        });
+        AddGroup_Button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                TestMouseClicked(evt);
+            }
+        });
         
         pack();
-        setLocationRelativeTo(null);
     }
 
     /**
@@ -333,13 +348,8 @@ public class MainUI extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        double width = screenSize.getWidth();
-        double height = screenSize.getHeight();
-        int W = (int)width;
-        int H = (int)height;
         
-        File imageCheck = new File("Resources/sign-out-option.png");
+        File imageCheck = new File("/com/mycompany/afriendjava/Resources/sign-out-option.png");
         if(imageCheck.exists()) 
             System.out.println("Image file found!");
         else 
@@ -348,9 +358,9 @@ public class MainUI extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
             	JFrame f = new MainUI();
-                f.setVisible(true);
-                f.setBounds(W/4,H/4,W/2,H/2);
-                f.setDefaultCloseOperation(HIDE_ON_CLOSE);
+                f.setVisible(true);       
+                f.setBounds(We/4,He/4,We/2,He/2);
+                f.setDefaultCloseOperation(EXIT_ON_CLOSE);
             }
         });
     }
