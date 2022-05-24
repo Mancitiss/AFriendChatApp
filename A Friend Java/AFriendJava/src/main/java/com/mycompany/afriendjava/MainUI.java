@@ -34,6 +34,8 @@ public class MainUI extends javax.swing.JFrame {
     
     static int He;
     static int We;
+    Dimension d;
+    Dimension dMin;
     // variables
     public PanelChat currentPanelChat;
     public HashMap<String, PanelChat> panelChats = new HashMap<String, PanelChat>();
@@ -171,10 +173,19 @@ public class MainUI extends javax.swing.JFrame {
         
         int SetHeight = getHeight();
         int SetWidth = getWidth();
-        System.out.println(SetHeight);
+        //System.out.println(SetHeight);
         ContactList_Panel.setSize(350,SetHeight);
         Chat_Panel.setSize(SetWidth - 350, SetHeight);
+        Button_Panel.setLocation(0, SetHeight - 98);
+        ContactList_ScrollPanel.setSize(350,SetHeight - 158);
     }       
+    
+    private void formWindowStateChanged(java.awt.event.WindowEvent evt) {   
+        int SetHeight = getHeight();
+        int SetWidth = getWidth();
+        Button_Panel.setLocation(0, SetHeight - 98);
+        ContactList_ScrollPanel.setSize(350,SetHeight - 158);
+    }  
     
     private void TestMouseClicked(java.awt.event.MouseEvent evt) {                                      
         Button_Panel.setBackground(Color.white);
@@ -190,9 +201,14 @@ public class MainUI extends javax.swing.JFrame {
         double height = screenSize.getHeight();
         We = (int)width;
         He = (int)height;
-        
-        setBounds(We/4,He/4,We/2,He/2);        
-        setMinimumSize(new Dimension(900, 457));
+        if((We/2<900)&(He/2<457)){
+        setBounds(200,100,900,457);
+        }
+        else{
+        setBounds(We/4,He/4,We/2,He/2);
+        }
+                
+        setMinimumSize(new Dimension(900,457));
         setLayout(null);
         try {
 			initComponents(We,He);
@@ -206,8 +222,15 @@ public class MainUI extends javax.swing.JFrame {
 
         //setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
         //Container contentPane = this.getContentPane(); 
-        getContentPane().setMinimumSize(new Dimension(900,460));
-        //getContentPane().setSize(700,460);
+        //getContentPane().setMinimumSize(new Dimension(900,457));
+        /*d = getSize();
+        dMin = getMinimumSize();
+        if(d.width<dMin.width)
+        d.width=dMin.width;
+        if(d.height<dMin.height)
+        d.height=dMin.height;
+        this.setSize(d);*/
+        //getContentPane().setSize(700,457);
         
         ContactList_Panel = new JPanel();
         ContactList_Panel.setLayout(null);
@@ -236,12 +259,14 @@ public class MainUI extends javax.swing.JFrame {
         ContactList_ScrollPanel = new JScrollPane();
         ContactList_ScrollPanel.setLocation(0, 60);
         ContactList_ScrollPanel.setBorder(null);
+        ContactList_ScrollPanel.setDoubleBuffered(true);
         ContactList_ScrollPanel.setSize(350, 300);
         
         Button_Panel = new JPanel();
         Button_Panel.setBackground(Color.PINK);
         Button_Panel.setLocation(0, 360);
         Button_Panel.setSize(350, 60);
+        Button_Panel.setDoubleBuffered(true);
         Button_Panel.setLayout(null);
 
         ContactList_Panel.add(SearchBar_Panel);        
@@ -316,6 +341,12 @@ public class MainUI extends javax.swing.JFrame {
                 TestMouseClicked(evt);
             }
         });
+        addWindowStateListener(new java.awt.event.WindowStateListener() {
+            @Override
+            public void windowStateChanged(java.awt.event.WindowEvent evt) {
+                formWindowStateChanged(evt);
+            }
+        });
         
         pack();
     }
@@ -359,7 +390,6 @@ public class MainUI extends javax.swing.JFrame {
             public void run() {
             	JFrame f = new MainUI();
                 f.setVisible(true);       
-                f.setBounds(We/4,He/4,We/2,He/2);
                 f.setDefaultCloseOperation(EXIT_ON_CLOSE);
             }
         });
