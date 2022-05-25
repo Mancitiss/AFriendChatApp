@@ -71,7 +71,8 @@ public class MainUI extends javax.swing.JFrame {
     private JButton AddGroup_Button;
     // end initialization
     
-    public Image logoutIcon = (new ImageIcon(getClass().getResource("Resources/sign-out-option.png"))).getImage();
+    public Image appIcon = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/logo.ico"))).getImage();
+    public Image logoutIcon = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/sign-out-option.png"))).getImage();
     public ContactItem currentContactItem;
 
 
@@ -195,7 +196,7 @@ public class MainUI extends javax.swing.JFrame {
      */
     public MainUI() {
     	setTitle("AFriend Chat");
-    	setIconImage(Toolkit.getDefaultToolkit().getImage("Resources/logo.png"));
+    	setIconImage(appIcon);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         double width = screenSize.getWidth();
         double height = screenSize.getHeight();
@@ -277,12 +278,7 @@ public class MainUI extends javax.swing.JFrame {
         LogOut_Button.setMinimumSize(new Dimension(40, 40));
         LogOut_Button.setLocation(20, 10);
         LogOut_Button.setSize(40, 40);
-        LogOut_Button.addComponentListener(new ComponentAdapter() {         
-            @Override
-            public void componentResized(ComponentEvent e) {
-                LogOut_Button.setIcon(new ImageIcon(logoutIcon.getScaledInstance(LogOut_Button.getWidth(), LogOut_Button.getHeight(), Image.SCALE_SMOOTH)));
-            }
-        });
+        LogOut_Button.setIcon(new ImageIcon(logoutIcon.getScaledInstance(LogOut_Button.getWidth(), LogOut_Button.getHeight(), Image.SCALE_SMOOTH))); 
         LogOut_Button.setVisible(true);
         
         Setting_Button = new JButton("");
@@ -380,12 +376,13 @@ public class MainUI extends javax.swing.JFrame {
 
         /* Create and display the form */
         
+        /*
         File imageCheck = new File("/com/mycompany/afriendjava/Resources/sign-out-option.png");
         if(imageCheck.exists()) 
             System.out.println("Image file found!");
         else 
             System.out.println("Image file not found!");
-        
+        */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
             	JFrame f = new MainUI();
