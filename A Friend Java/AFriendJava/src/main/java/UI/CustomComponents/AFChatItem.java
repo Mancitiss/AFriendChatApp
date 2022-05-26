@@ -111,7 +111,8 @@ public class AFChatItem extends javax.swing.JPanel {
 
     protected void chatItemComponentResized(ComponentEvent evt) {
         int width = this.getParent().getWidth()*3/5-20;
-        int height = textBody.getPreferredSize().height; Graphics g = textBody.getGraphics();
+        int height = textBody.getPreferredSize().height; 
+        Graphics g = textBody.getGraphics();
         int textWidth = g.getFontMetrics(textBody.getFont()).stringWidth(textBody.getText());
         //textBody.setSize(new java.awt.Dimension(this.getPreferredSize().width -20, textBody.getPreferredSize().height)); the original code
         int newWidth = (textWidth + 20 < width)? textWidth : width - 20;
