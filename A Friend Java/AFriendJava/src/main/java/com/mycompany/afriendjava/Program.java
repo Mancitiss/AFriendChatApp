@@ -47,9 +47,13 @@ public class Program {
                 e.printStackTrace();
             }
             if (newv){
-                (new Login()).setVisible(true);
+                java.awt.EventQueue.invokeLater(() -> {
+                    new Login().setVisible(true);
+                });
             } else {
-                (new Login()).setVisible(true);
+                java.awt.EventQueue.invokeLater(() -> {
+                    new Login().setVisible(true);
+                });
             }
         }
         catch (Exception e){

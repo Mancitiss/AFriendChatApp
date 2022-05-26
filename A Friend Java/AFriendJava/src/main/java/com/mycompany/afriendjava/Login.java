@@ -391,6 +391,7 @@ public class Login extends javax.swing.JFrame {
     }
 
     private void buttonExitMouseClicked(java.awt.event.MouseEvent evt) {
+        //this.dispose();
         System.exit(0);
     }
 

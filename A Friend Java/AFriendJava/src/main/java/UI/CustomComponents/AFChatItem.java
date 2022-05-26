@@ -41,42 +41,10 @@ public class AFChatItem extends javax.swing.JPanel {
         JScrollPane scroll = new JScrollPane(panel);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         frame.add(scroll);
-        AFChatItem chatItem = new AFChatItem("1234567890");
-        chatItem.setAlignmentX(Component.LEFT_ALIGNMENT);
-        Box b = Box.createHorizontalBox();
-        b.add(chatItem);
-        b.add(Box.createHorizontalGlue());
-        b.setBackground(Color.GREEN);
-        panel.add(b, 0);
+        //AFChatItem chatItem = new AFChatItem("1234567890");
+        //panel.add(ChatLayout.createChatItemBox(chatItem));
         AFChatItem chatItem2 = new AFChatItem("Kết quả sau 2 ngày nghiên cứu (thật ra làm có 15p à nhưng làm sai mất 2 ngày)", true);
-        chatItem2.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        Box b2 = Box.createHorizontalBox();
-        b2.add(Box.createHorizontalGlue());
-        b2.add(chatItem2);
-        b2.setBackground(Color.GREEN);
-        panel.add(b2);
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
-        panel.add(new AFChatItem("asdlsadosalddsaoas"));
+        panel.add(ChatLayout.createChatItemBox(chatItem2));
 
         frame.setVisible(true);
     }
@@ -142,13 +110,13 @@ public class AFChatItem extends javax.swing.JPanel {
     }
 
     protected void chatItemComponentResized(ComponentEvent evt) {
-        int width = this.getPreferredSize().width;
-        int height = textBody.getPreferredSize().height;
-        Graphics g = textBody.getGraphics();
+        int width = this.getParent().getWidth()*3/5-20;
+        int height = textBody.getPreferredSize().height; Graphics g = textBody.getGraphics();
         int textWidth = g.getFontMetrics(textBody.getFont()).stringWidth(textBody.getText());
         //textBody.setSize(new java.awt.Dimension(this.getPreferredSize().width -20, textBody.getPreferredSize().height)); the original code
-        textBody.setSize(new java.awt.Dimension((textWidth < width)? textWidth + 10 : width - 20 , height));
-        panelBody.setSize(new java.awt.Dimension(width, height));
+        int newWidth = (textWidth + 20 < width)? textWidth : width - 20;
+        textBody.setSize(new java.awt.Dimension(newWidth + 10, height));
+        panelBody.setSize(new java.awt.Dimension(newWidth+20, height));
     }
 
     @Override
@@ -163,11 +131,11 @@ public class AFChatItem extends javax.swing.JPanel {
 
     @Override
     public java.awt.Dimension getPreferredSize(){
-        return new java.awt.Dimension(this.getParent().getWidth()*3/5 + 7, panelBody.getPreferredSize().height + 19);
+        return new java.awt.Dimension(this.getParent().getWidth()*3/5, panelBody.getPreferredSize().height + panelBody.getInsets().top + panelBody.getInsets().bottom);
     }
 
     private String text;
-    private boolean isMine;
+    public boolean isMine;
     public JTextArea textBody;
     private JScrollPane scroll;
     private MessagePanel panelBody;
