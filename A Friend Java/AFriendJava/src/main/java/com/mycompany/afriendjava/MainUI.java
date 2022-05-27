@@ -26,6 +26,11 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.event.*;
 
 import com.mycompany.afriendjava.custom.TextField;
+import java.awt.AWTException;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
 import ui.customcomponents.*;
 
 import javax.swing.SwingConstants;
@@ -174,7 +179,7 @@ public class MainUI extends javax.swing.JFrame {
         
         int SetHeight = getHeight();
         int SetWidth = getWidth();
-        //System.out.println(SetHeight);
+        System.out.println(SetHeight);
         ContactList_Panel.setSize(350,SetHeight);
         Chat_Panel.setSize(SetWidth - 350, SetHeight);
         Button_Panel.setLocation(0, SetHeight - 98);
@@ -191,17 +196,70 @@ public class MainUI extends javax.swing.JFrame {
     private void TestMouseClicked(java.awt.event.MouseEvent evt) {                                      
         Button_Panel.setBackground(Color.white);
     }
+    
+    private void formComponentHidden(java.awt.event.ComponentEvent evt) {                                     
+                TrayIcon trayIcon = null;
+        if (SystemTray.isSupported()) {
+        // get the SystemTray instance
+        SystemTray tray = SystemTray.getSystemTray();
+        // load an image
+        Image image = Toolkit.getDefaultToolkit().getImage("src/com/mycompany/afriendjava/Resources/sign-out-option.png");
+        // create a action listener to listen for default action executed on the tray icon
+        ActionListener listener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // execute default action of the application
+                // ...
+            }
+        };
+        // create a popup menu
+        PopupMenu popup = new PopupMenu();
+        // create menu item for the default action
+        MenuItem defaultItem = new MenuItem("Hello");
+        defaultItem.addActionListener(listener);
+        popup.add(defaultItem);
+        /// ... add other items
+        // construct a TrayIcon
+        trayIcon = new TrayIcon(image, "Tray Demo", popup);
+        // set the TrayIcon properties
+        trayIcon.addActionListener(listener);
+        // ...
+        // add the tray image
+        try {
+            tray.add(trayIcon);
+        } catch (AWTException e) {
+            System.err.println(e);
+        }
+        // ...
+    } else {
+    // disable tray option in your application or
+    // perform other actions
+    
+//}
+// ...
+// some time later
+// the application state has changed - update the image
+    
+if (trayIcon != null) {
+    //trayIcon.setImage(updatedImage);
+}
+// ...*/
+        
+    }
+    }
     /**
      * Creates new form Main
      */
     public MainUI() {
     	setTitle("AFriend Chat");
     	setIconImage(appIcon);
+        //take screen size
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         double width = screenSize.getWidth();
         double height = screenSize.getHeight();
         We = (int)width;
         He = (int)height;
+        //Set bound but it's not working
         if((We/2<900)&(He/2<457)){
         setBounds(200,100,900,457);
         }
@@ -211,6 +269,8 @@ public class MainUI extends javax.swing.JFrame {
                 
         setMinimumSize(new Dimension(900,457));
         setLayout(null);
+        
+       
         try {
 			initComponents(We,He);
 		} catch (IOException e) {
@@ -343,6 +403,11 @@ public class MainUI extends javax.swing.JFrame {
                 formWindowStateChanged(evt);
             }
         });
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentHidden(java.awt.event.ComponentEvent evt) {
+                formComponentHidden(evt);
+            }
+        });
         
         pack();
     }
@@ -375,7 +440,6 @@ public class MainUI extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        
         /*
         File imageCheck = new File("/com/mycompany/afriendjava/Resources/sign-out-option.png");
         if(imageCheck.exists()) 
@@ -387,7 +451,7 @@ public class MainUI extends javax.swing.JFrame {
             public void run() {
             	JFrame f = new MainUI();
                 f.setVisible(true);       
-                f.setDefaultCloseOperation(EXIT_ON_CLOSE);
+                f.setDefaultCloseOperation(HIDE_ON_CLOSE);
             }
         });
     }
