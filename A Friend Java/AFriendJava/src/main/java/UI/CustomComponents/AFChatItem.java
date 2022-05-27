@@ -30,23 +30,28 @@ import java.awt.FlowLayout;
 public class AFChatItem extends javax.swing.JPanel {
 
     public static void main(String[] args){
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setBounds(100, 100, 500, 500);
-        //frame.setLayout(null);
-        //frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
-        
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        JScrollPane scroll = new JScrollPane(panel);
-        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        frame.add(scroll);
-        //AFChatItem chatItem = new AFChatItem("1234567890");
-        //panel.add(ChatLayout.createChatItemBox(chatItem));
-        AFChatItem chatItem2 = new AFChatItem("Kết quả sau 2 ngày nghiên cứu (thật ra làm có 15p à nhưng làm sai mất 2 ngày)", true);
-        panel.add(ChatLayout.createChatItemBox(chatItem2));
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                
+                JFrame frame = new JFrame();
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setBounds(100, 100, 500, 500);
+                //frame.setLayout(null);
+                //frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
+                
+                JPanel panel = new JPanel();
+                panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+                JScrollPane scroll = new JScrollPane(panel);
+                scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                frame.add(scroll);
+                //AFChatItem chatItem = new AFChatItem("1234567890");
+                //panel.add(ChatLayout.createChatItemBox(chatItem));
+                AFChatItem chatItem2 = new AFChatItem("Kết quả sau 2 ngày nghiên cứu (thật ra làm có 15p à nhưng làm sai mất 2 ngày)", true);
+                panel.add(ChatLayout.createChatItemBox(chatItem2));
 
-        frame.setVisible(true);
+                frame.setVisible(true);
+            }
+        });
     }
 
     public void changeTextUpload(byte percent){
@@ -117,7 +122,7 @@ public class AFChatItem extends javax.swing.JPanel {
         //textBody.setSize(new java.awt.Dimension(this.getPreferredSize().width -20, textBody.getPreferredSize().height)); the original code
         int newWidth = (textWidth + 20 < width)? textWidth : width - 20;
         textBody.setSize(new java.awt.Dimension(newWidth + 10, height));
-        panelBody.setSize(new java.awt.Dimension(newWidth+20, height));
+        panelBody.setSize(new java.awt.Dimension(newWidth + 20, height + 20));
     }
 
     @Override
