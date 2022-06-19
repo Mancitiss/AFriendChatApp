@@ -166,7 +166,36 @@ public class MainUI extends javax.swing.JFrame {
         //TODO show panel chat
     }
     public synchronized void addContactItem(Account acc){
-        //TODO add contact item
+        try{
+            if (!panelChats.containsKey(acc.id)){
+                ContactItem ci = new ContactItem(acc);
+                ci.setUnread(true);
+                if (loaded){
+                    ContactList_Panel.add(ci);
+                }
+                if (orderOfContactItems.size() == 0){
+                    orderOfContactItems.put(0, acc.id);
+                }
+                else{
+                    orderOfContactItems.put(orderOfContactItems.lastKey() + 1, acc.id);
+                }
+
+                if (loaded){
+                    // scroll ContactList_Panel to where the new contact item is
+                    ContactList_ScrollPanel.getVerticalScrollBar().setValue(ci.getLocation().y);
+                }
+                contactItems.put(acc.id, ci);
+                PanelChat panelChat = new PanelChat(acc);
+                panelChats.put(acc.id, panelChat);
+
+                panelChat.LoadMessage();
+                panelChat.scrollToBottom();
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
     }
     public synchronized void addMessageItem(String str, boolean left){
         //TODO add message item

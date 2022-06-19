@@ -10,6 +10,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import com.mycompany.afriendjava.Account;
 import com.mycompany.afriendjava.MainUI;
 
 public class ContactItem extends JComponent{
@@ -39,6 +40,7 @@ public class ContactItem extends JComponent{
     private byte state;
     private Color stateColor = Color.decode("#FF0000");
     private boolean unread;
+    private Account account;
 
     public byte getState(){ return state; }
     public void setState(byte state){ 
@@ -70,6 +72,26 @@ public class ContactItem extends JComponent{
 
     public boolean getUnread(){
         return unread;
+    }
+
+    public String getFriendName(){
+        return account.name;
+    }
+
+    public void setFriendName(String name){
+        labelName.setText(name);
+    }
+
+    public ContactItem(Account account){
+        initializeComponent();
+        this.account = account;
+        this.setDoubleBuffered(true);
+        this.setName("contacItem_" + account.id);
+        this.setFriendName(account.name);
+        this.id = account.id;
+        this.setState(account.state);
+
+        //TODO double click event
     }
 
     public ContactItem(String name, String lastmessage, boolean unread){

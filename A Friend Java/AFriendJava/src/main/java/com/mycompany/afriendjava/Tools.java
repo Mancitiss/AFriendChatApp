@@ -7,8 +7,35 @@ import java.io.IOException;
 import java.io.PushbackInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.awt.Image;
 
 public class Tools {
+    public static BufferedImage getBufferedImage(Image image){
+        BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = bufferedImage.createGraphics();
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return bufferedImage;
+    }
+    public static BufferedImage setImageOpacity(BufferedImage imgPic, float imgOpac){
+        BufferedImage img = new BufferedImage(imgPic.getWidth(), imgPic.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = img.createGraphics();
+        g2d.drawImage(imgPic, 0, 0, null);
+        g2d.setComposite(java.awt.AlphaComposite.getInstance(java.awt.AlphaComposite.SRC_OVER, imgOpac));
+        g2d.dispose();
+        return img;
+    }
+
+    public static BufferedImage resizeImage(BufferedImage originalImage, int type, int width, int height) {
+        BufferedImage resizedImage = new BufferedImage(width, height, type);
+        Graphics2D g = resizedImage.createGraphics();
+        g.drawImage(originalImage, 0, 0, width, height, null);
+        g.dispose();
+        return resizedImage;
+    }
+
     /**
      *
      * @param DIS
