@@ -94,6 +94,10 @@ public class ContactItem extends JComponent{
         //TODO double click event
     }
 
+    public void setLastMessage(String message){
+        labelLastMessage.setText(message);
+    }
+
     public ContactItem(String name, String lastmessage, boolean unread){
         initializeComponent();
         labelName.setText(name);

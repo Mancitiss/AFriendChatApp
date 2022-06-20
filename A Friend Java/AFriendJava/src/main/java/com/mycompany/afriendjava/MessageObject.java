@@ -1,6 +1,6 @@
 package com.mycompany.afriendjava;
 
-import java.security.Timestamp;
+import java.sql.Timestamp;
 
 public class MessageObject {
     public String id1;

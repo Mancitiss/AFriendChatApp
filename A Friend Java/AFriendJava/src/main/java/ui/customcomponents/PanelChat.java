@@ -11,8 +11,11 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
+import java.io.File;
 import java.awt.AlphaComposite;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.Box;
@@ -37,6 +40,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.mycompany.afriendjava.AFriendClient;
 import com.mycompany.afriendjava.Account;
 import com.mycompany.afriendjava.MessageObject;
+import com.mycompany.afriendjava.Program;
 import com.mycompany.afriendjava.Tools;
 
 import custom.CircleAvatar;
@@ -51,7 +55,7 @@ public class PanelChat extends javax.swing.JPanel{
 
 
     public JPanel panelChat;
-
+    private JScrollPane panelChatScroll;
 
     private JPanel panelBottom;
     private JTextArea textboxWriting;
@@ -74,6 +78,8 @@ public class PanelChat extends javax.swing.JPanel{
     public Image sendImageIcon = (new ImageIcon(getClass().getResource("camera-outline.png"))).getImage();
     public Image sendFileIcon = (new ImageIcon(getClass().getResource("file_icon_207228.png"))).getImage();
 
+    public int isFormShowing;
+
     private static final String TEXT_SUBMIT = "text-submit";
 
     private void initializeComponent(){
@@ -83,21 +89,6 @@ public class PanelChat extends javax.swing.JPanel{
         labelState = new JLabel();
         buttonDelete = new JButton();
         panelChat = new JPanel(){
-            @Override
-            public java.awt.Dimension getMinimumSize(){
-                return getPreferredSize();
-            }
-
-            @Override
-            public java.awt.Dimension getMaximumSize(){
-                return getPreferredSize();
-            }
-
-            @Override
-            public java.awt.Dimension getPreferredSize(){
-                return new java.awt.Dimension(this.getParent().getSize().width, this.getParent().getSize().height - 60 - 144);
-            }
-
             @Override
             public void paintComponent(Graphics g){
                 super.paintComponent(g);
@@ -217,6 +208,19 @@ public class PanelChat extends javax.swing.JPanel{
         panelChat.setLayout(new BoxLayout(panelChat, BoxLayout.Y_AXIS));
         panelChat.setOpaque(false);
 
+        panelChatScroll = new JScrollPane(panelChat);
+        panelChatScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        panelChatScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        panelChatScroll.setOpaque(false);
+        panelChatScroll.setBorder(null);
+        panelChatScroll.setBounds(0, 0, 912, 474);
+        panelChatScroll.getVerticalScrollBar().setUnitIncrement(16);
+        panelChatScroll.getVerticalScrollBar().setBlockIncrement(16);
+        panelChatScroll.setWheelScrollingEnabled(true);
+        panelChatScroll.getViewport().setOpaque(false);
+
+        panelChat.add(Box.createVerticalGlue());
+
         
         textboxWriting = new JTextArea();
         textboxWriting.setBorder(null);
@@ -226,18 +230,18 @@ public class PanelChat extends javax.swing.JPanel{
         textboxWriting.setFont(new java.awt.Font("Arial", 0, 12));
         textboxWriting.setBounds(0, 0, 912, 120);
         InputMap input = textboxWriting.getInputMap();
-    KeyStroke enter = KeyStroke.getKeyStroke("ENTER");
-    KeyStroke shiftEnter = KeyStroke.getKeyStroke("shift ENTER");
-    input.put(shiftEnter, "insert-break");  // input.get(enter)) = "insert-break"
-    input.put(enter, TEXT_SUBMIT);
+        KeyStroke enter = KeyStroke.getKeyStroke("ENTER");
+        KeyStroke shiftEnter = KeyStroke.getKeyStroke("shift ENTER");
+        input.put(shiftEnter, "insert-break");  // input.get(enter)) = "insert-break"
+        input.put(enter, TEXT_SUBMIT);
 
-    ActionMap actions = textboxWriting.getActionMap();
-    actions.put(TEXT_SUBMIT, new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            submitText();
-        }
-    });
+        ActionMap actions = textboxWriting.getActionMap();
+        actions.put(TEXT_SUBMIT, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                submitText();
+            }
+        });
         // make textboxWriting scrollable
         textboxScroll = new JScrollPane(textboxWriting);
         textboxScroll.setOpaque(false);
@@ -262,7 +266,30 @@ public class PanelChat extends javax.swing.JPanel{
         }
 
         sendImageButton = new JButton();
+        sendImageButton.setOpaque(false);
+        sendImageButton.setBackground(new Color(230, 244, 241));
+        sendImageButton.setBounds(1, 126, 20, 20);
+        try{
+            //Resize the image to fit the button
+            Image newImg = new ImageIcon(sendImageIcon.getScaledInstance(sendImageButton.getSize().width - 2, sendImageButton.getSize().height - 2, Image.SCALE_SMOOTH)).getImage();
+            sendImageButton.setIcon(new ImageIcon(newImg));
+        }
+        catch(Exception e){
+            System.out.println("Error: " + e.getMessage());
+        }
+
         sendFileButton = new JButton();
+        sendFileButton.setOpaque(false);
+        sendFileButton.setBackground(new Color(230, 244, 241));
+        sendFileButton.setBounds(21, 126, 20, 20);
+        try{
+            //Resize the image to fit the button
+            Image newImg = new ImageIcon(sendFileIcon.getScaledInstance(sendFileButton.getSize().width - 2, sendFileButton.getSize().height - 2, Image.SCALE_SMOOTH)).getImage();
+            sendFileButton.setIcon(new ImageIcon(newImg));
+        }
+        catch(Exception e){
+            System.out.println("Error: " + e.getMessage());
+        }
 
         panelBottom.setLayout(null);
         panelBottom.setOpaque(false);
@@ -282,7 +309,7 @@ public class PanelChat extends javax.swing.JPanel{
 
         this.setSize(new Dimension(912, 681));
         this.add(panelTop);
-        this.add(panelChat);
+        this.add(panelChatScroll);
         this.add(panelBottom);
         // resize event
         this.addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -320,8 +347,10 @@ public class PanelChat extends javax.swing.JPanel{
         currentBackgroundImage = new ImageIcon(avatar.getScaledInstance(width, height, Image.SCALE_SMOOTH)).getImage();
         currentBufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         this.panelTop.setBounds(0, 0, width, 60);
-        this.panelChat.setBounds(0, 60, width, height - 60 - 144);
+        this.panelChatScroll.setBounds(0, 60, width, height - 60 - 144);
         this.panelBottom.setBounds(0, height - 144, width, 144);
+        //System.out.println(panelChat.getSize().width + " " + panelChat.getSize().height);
+        //System.out.println(panelChatScroll.getSize().width + " " + panelChatScroll.getSize().height);
     }
 
     Image currentBackgroundImage = null;
@@ -371,15 +400,109 @@ public class PanelChat extends javax.swing.JPanel{
     }
 
     public void removeMessage(Long messageNumber) {
-        //TODO removeMessage
+        byte type = messages.get(messageNumber).messageObject.type;
+        panelChat.remove(messages.get(messageNumber).getParent());
+        messages.remove(messageNumber);
+        Program.mainform.contactItems.get(id).setLastMessage(this.getLastMessage());
+        if (messages.size() > 0){
+            // scroll to the last message
+            panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
+        }
+
+        // code to remove message
+        String id1 = AFriendClient.user.id;
+        String id2 = id;
+        if (type == 3) {
+            // set filesOnCancel id1+"_"+id2+"_"+messageNumber to true
+            String fileId = id1 + "_" + id2 + "_" + messageNumber;
+            AFriendClient.filesOnCancel.put(fileId, true);
+        }
+    }
+
+    protected int timi = 240; // this is the elapsed time (in second) between 2 message needed to show timer
+
+    public String getLastMessage() {
+        if (messages.size() == 0){
+            return "New conversation!";
+        }
+        this.evaluateMaxmin();
+        MessageObject messageObject = messages.get(currentmax).messageObject;
+        if (messageObject.type == 0){
+            return messageObject.message;
+        }
+        else if (messageObject.type == 1){
+            return "<Photo>";
+        }
+        return "";
+    }
+
+    public long currentmin = -1;
+    public long currentmax = -1;
+
+    private void evaluateMaxmin() {
+        if (messages.size() == 0) return;
+        while (!messages.containsKey(currentmax)) currentmax -= 1;
+        while (!messages.containsKey(currentmin)) currentmin += 1;
+
     }
 
     public boolean isLastMessageFromYou() {
         return false;
     }
 
-    public void addMessage(MessageObject msgobj) {
-        //TODO add message
+    public void addMessage(MessageObject message) {
+        try{
+            if (messages.containsKey(message.messagenumber)){
+                System.out.println("Message already exists");
+                return;
+            }
+            if (currentmin == -1 || currentmin > message.messagenumber) currentmin = message.messagenumber;
+            if (currentmax == -1 || currentmax < message.messagenumber) currentmax = message.messagenumber;
+            AFChatItem chatItem = new AFChatItem(message);
+            if (message.type == 3 || !messages.containsKey(message.messagenumber - 1) || messages.get(message.messagenumber - 1).messageObject.type == 3 || (message.timesent.getTime()/1000 - messages.get(message.messagenumber - 1).messageObject.timesent.getTime()/1000) > timi)
+            {
+                chatItem.setShowDetail(true);
+            }
+            chatItem.updateDateTime();
+            messages.put(message.messagenumber, chatItem);
+            panelChat.add(ChatLayout.createChatItemBox(chatItem));
+            if (isFormShowing == 1 && panelChatScroll.getVerticalScrollBar().getValue() > panelChatScroll.getVerticalScrollBar().getMaximum() - 350 - chatItem.getSize().height)
+            {
+                panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
+            }
+            else if (isFormShowing == 0 && panelChatScroll.getVerticalScrollBar().getValue() > panelChatScroll.getVerticalScrollBar().getMaximum() - 2 * panelChat.getSize().height - chatItem.getSize().height )
+            {
+                panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
+            }
+            else if (chatItem.isMine){
+                panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
+            }
+            if (!chatItem.isMine && isFormShowing > 0){
+                // flash form
+
+                // play message sound
+                try {
+                    javax.sound.sampled.Clip clip = javax.sound.sampled.AudioSystem.getClip();
+                    clip.open(javax.sound.sampled.AudioSystem.getAudioInputStream(new java.io.File(PanelChat.class.getResource("ring tone - Kalimbist.wav").toURI().getPath())));
+                    clip.start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else if (!chatItem.isMine){
+                // play message sound
+                try {
+                    javax.sound.sampled.Clip clip = javax.sound.sampled.AudioSystem.getClip();
+                    clip.open(javax.sound.sampled.AudioSystem.getAudioInputStream(new java.io.File(PanelChat.class.getResource("ring tone - Kalimbist.wav").toURI().getPath())));
+                    clip.start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void loadMessages(MessageObject[] messageObjects) {
@@ -400,14 +523,25 @@ public class PanelChat extends javax.swing.JPanel{
         AFriendClient.queueCommand(("6475" + this.id + "0120").getBytes(StandardCharsets.UTF_16LE));
     }
 
+    public void addMessage(String text, boolean isMine, int position) {
+        
+        AFChatItem chatItem2 = new AFChatItem(text, isMine);
+        if (position <= 0) position = panelChat.getComponentCount();
+        panelChat.add(ChatLayout.createChatItemBox(chatItem2), position);
+        //panelChat.revalidate();
+    }
+
     public static void main(String[] args){
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 JFrame frame = new JFrame();
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setBounds(100, 100, 912, 681);;
-                frame.add(new PanelChat());
+                PanelChat p = new PanelChat();
+                frame.add(p);
                 frame.setVisible(true);
+                p.addMessage("Hello", true, 0);
+                p.addMessage("World", false, 1);
             }
         });
     }

@@ -26,12 +26,14 @@ import javax.swing.border.EmptyBorder;
 
 import com.mycompany.afriendjava.AFriendClient;
 import com.mycompany.afriendjava.MessageObject;
+import com.mycompany.afriendjava.Tools;
 
 import java.awt.Graphics;
 import java.awt.FlowLayout;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Component;
+import java.awt.image.BufferedImage;
 
 /**
  *
@@ -40,11 +42,41 @@ import java.awt.Component;
 public class AFChatItem extends javax.swing.JPanel {
     public static int DELETEICON_WIDTH = 40;
     public static int DELETEICON_HEIGHT = 40; 
-    private static String TESTSTRING = "Hum nay e chỉ làm thêm đc cái nút này @@...";
+    public static String TESTSTRING = "~ Testing \n Teasing \n Testing ~";
 
     public Image deleteIcon = (new ImageIcon(getClass().getResource("deleteIcon.png"))).getImage();
 
     public MessageObject messageObject;
+    public BufferedImage image;
+    private int maxMessageWidth = -1;
+
+
+    private boolean showDetail;
+    public boolean getShowDetail()  { return showDetail; }
+    public void setShowDetail(boolean showDetail) { 
+        this.showDetail = showDetail; 
+        topPanel.setVisible(showDetail);
+        if (showDetail){
+            this.setSize(this.getSize().width, 5 + topPanel.getSize().height + bottomPanel.getSize().height);
+            this.invalidate();
+        }
+        else{
+            this.setSize(this.getSize().width, 5 + bottomPanel.getSize().height);
+            this.invalidate();
+        }
+    }
+
+    public Color getBackgroundColor(){
+        return panelBody.backColor;
+    }
+    public void setBackgroundColor(Color color){
+        if (messageObject.type == 0 || messageObject.type == 3){
+            textBody.setBackground(color);
+        }
+        panelBody.backColor = color;
+        panelBody.repaint();
+    }
+
     public static void main(String[] args){
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -56,16 +88,20 @@ public class AFChatItem extends javax.swing.JPanel {
                 
                 JPanel panel = new JPanel();
                 panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
                 JScrollPane scroll = new JScrollPane(panel);
                 scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-                frame.add(scroll);
-                //AFChatItem chatItem = new AFChatItem("1234567890");
-                //panel.add(ChatLayout.createChatItemBox(chatItem));
+                
+                panel.add(Box.createVerticalGlue());
                 AFChatItem chatItem2 = new AFChatItem(TESTSTRING, true);
-                panel.add(ChatLayout.createChatItemBox(chatItem2), 0);
+                chatItem2.updateDateTime();
+                panel.add(ChatLayout.createChatItemBox(chatItem2));
                 AFChatItem chatItem3 = new AFChatItem(TESTSTRING, false);
-                panel.add(ChatLayout.createChatItemBox(chatItem3), 0);
-
+                panel.add(ChatLayout.createChatItemBox(chatItem3));
+                AFChatItem chatItem4 = new AFChatItem(TESTSTRING + "432", true);
+                panel.add(ChatLayout.createChatItemBox(chatItem4), 1);
+                
+                frame.add(scroll);
                 frame.setVisible(true);
             }
         });
@@ -80,6 +116,8 @@ public class AFChatItem extends javax.swing.JPanel {
         this.messageObject = messageObject;
         this.isMine = messageObject.sender? messageObject.id2 == AFriendClient.user.id : messageObject.id1 == AFriendClient.user.id;
         this.text = messageObject.message;
+
+        initComponents();
     }
     public AFChatItem(String text){
         this(text, false);
@@ -87,7 +125,9 @@ public class AFChatItem extends javax.swing.JPanel {
     public AFChatItem(String text, boolean isMine) {
         this.text = text;
         this.isMine = isMine;
+
         initComponents();
+        
     }
     public void setMessage(String mess)
     {
@@ -97,20 +137,18 @@ public class AFChatItem extends javax.swing.JPanel {
     String datetimeNow = new Timestamp(System.currentTimeMillis()).toString();
 
     private void initComponents() {
-        
-
         authorBody = new JTextArea();
         authorBody.setLineWrap(true);
         authorBody.setWrapStyleWord(true);
         authorBody.setEditable(false);
         authorBody.setFont(new Font("Arial", Font.PLAIN, 12));
         authorBody.setMargin(new Insets(0, 0, 0, 0));
-        authorBody.setOpaque(true);
-        authorBody.setBackground(Color.PINK);
+        authorBody.setOpaque(false);
+        //authorBody.setBackground(Color.PINK);
 
         topPanel = new JPanel();
-        topPanel.setBackground(Color.blue);
-        topPanel.setOpaque(true);
+        //topPanel.setBackground(Color.blue);
+        topPanel.setOpaque(false);
         topPanel.setBorder(null);
         if (isMine) {
             topPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
@@ -121,28 +159,64 @@ public class AFChatItem extends javax.swing.JPanel {
         }
         topPanel.add(authorBody);
 
-        textBody = new javax.swing.JTextArea();
-        textBody.setOpaque(false);
-        textBody.setBackground(new Color(0, 0, 0, 0));
-        textBody.setLineWrap(true);
-        textBody.setWrapStyleWord(true);
-        textBody.setFont(new Font("Arial", Font.PLAIN, 14));
-        textBody.setMargin(new Insets(5, 5, 5, 5));
-        textBody.setBorder(null);
-        textBody.setText(text);
+        if (this.messageObject != null && (this.messageObject.type == 0 || this.messageObject.type == 3)){
+            textBody = new javax.swing.JTextArea();
+            textBody.setOpaque(false);
+            textBody.setBackground(new Color(0, 0, 0, 0));
+            textBody.setLineWrap(true);
+            textBody.setWrapStyleWord(true);
+            textBody.setFont(new Font("Arial", Font.PLAIN, 14));
+            textBody.setMargin(new Insets(5, 5, 5, 5));
+            textBody.setBorder(null);
+            textBody.setText(this.messageObject.message);
 
-        scroll = new JScrollPane(textBody);
-        scroll.setBorder(null);
-        scroll.setOpaque(false);
-        scroll.setBackground(new Color(0, 0, 0, 0));
-        scroll.getViewport().setOpaque(false);
-        scroll.getViewport().setBackground(new Color(0, 0, 0, 0));
-        scroll.removeMouseWheelListener(scroll.getMouseWheelListeners()[0]);
+            scroll = new JScrollPane(textBody);
+            scroll.setBorder(null);
+            scroll.setOpaque(false);
+            scroll.setBackground(new Color(0, 0, 0, 0));
+            scroll.getViewport().setOpaque(false);
+            scroll.getViewport().setBackground(new Color(0, 0, 0, 0));
+            scroll.removeMouseWheelListener(scroll.getMouseWheelListeners()[0]);
 
-        panelBody = new MessagePanel();
-        panelBody.setBorder(new EmptyBorder(new Insets(5, 5, 5, 5)));
-        panelBody.setLayout(new java.awt.FlowLayout());
-        panelBody.add(scroll);
+            panelBody = new MessagePanel();
+            panelBody.setBorder(new EmptyBorder(new Insets(5, 5, 5, 5)));
+            panelBody.setLayout(new java.awt.FlowLayout());
+            panelBody.add(scroll);
+        }
+        else if (this.messageObject != null && this.messageObject.type == 1){
+            image = Tools.BASE64ToImage(this.messageObject.message);
+            panelBody = new MessagePanel(){
+                @Override
+                public void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    g.drawImage(image, 0, 0, panelBody.getWidth(), panelBody.getHeight(), panelBody);
+                }
+            };
+        }
+        else{
+            textBody = new javax.swing.JTextArea();
+            textBody.setOpaque(false);
+            textBody.setBackground(new Color(0, 0, 0, 0));
+            textBody.setLineWrap(true);
+            textBody.setWrapStyleWord(true);
+            textBody.setFont(new Font("Arial", Font.PLAIN, 14));
+            textBody.setMargin(new Insets(5, 5, 5, 5));
+            textBody.setBorder(null);
+            textBody.setText(text);
+
+            scroll = new JScrollPane(textBody);
+            scroll.setBorder(null);
+            scroll.setOpaque(false);
+            scroll.setBackground(new Color(0, 0, 0, 0));
+            scroll.getViewport().setOpaque(false);
+            scroll.getViewport().setBackground(new Color(0, 0, 0, 0));
+            scroll.removeMouseWheelListener(scroll.getMouseWheelListeners()[0]);
+
+            panelBody = new MessagePanel();
+            panelBody.setBorder(new EmptyBorder(new Insets(5, 5, 5, 5)));
+            panelBody.setLayout(new java.awt.FlowLayout());
+            panelBody.add(scroll);
+        }
         //panelBody.setAlignmentX(0f);
 
         buttonDelete = new javax.swing.JButton();
@@ -219,8 +293,9 @@ public class AFChatItem extends javax.swing.JPanel {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.add(topPanel);
         this.add(bottomPanel);
+        this.setOpaque(false);
         //this.add(panelBody);
-        this.setBackground(Color.RED);
+        //this.setBackground(Color.RED);
 
         this.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
@@ -247,48 +322,81 @@ public class AFChatItem extends javax.swing.JPanel {
         int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this message?", "Delete Message", JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
             // delete message
+            /*
             this.setVisible(false);
             this.removeAll();
             this.revalidate();
             this.repaint();
+            */
+            ((PanelChat)this.getParent().getParent()).removeMessage(this.getId());
         }
     }
 
+    public long getId(){
+        return this.messageObject.messagenumber;
+    }
+
     public void updateDateTime(){
-        
-        authorBody.setText("Author" + "\n" + datetimeNow);
+        if (this.messageObject != null && this.messageObject.timesent != null) {
+            this.authorBody.setText(this.messageObject.timesent.toString());
+        }
+        else authorBody.setText("Author" + "\n" + datetimeNow);
     }
 
     protected void chatItemMouseExited(MouseEvent evt) {
         // make buttonDelete invisible
         buttonDelete.setVisible(false);
-        //System.out.println(textBody.getSize().width);
-        //System.out.println(panelBody.getSize().width);
-
     }
 
     protected void chatItemMouseEntered(MouseEvent evt) {
         // make buttonDelete visible
         buttonDelete.setVisible(true);
-        //System.out.println(textBody.getSize().width);
-        //System.out.println(panelBody.getSize().width);
     }
 
     protected void chatItemComponentResized(ComponentEvent evt) {
         int width = this.getParent().getWidth()*3/5-20;
-        int height = textBody.getPreferredSize().height; 
-        Graphics g = textBody.getGraphics();
-        int textWidth = g.getFontMetrics(textBody.getFont()).stringWidth(textBody.getText());
-        //textBody.setSize(new java.awt.Dimension(this.getPreferredSize().width -20, textBody.getPreferredSize().height)); the original code
-        int newWidth = (textWidth + 20 < width)? textWidth : width - 20;
-        textBody.setSize(new java.awt.Dimension(newWidth + 10, height));
-        panelBody.setSize(new java.awt.Dimension(newWidth + 30, height + 20));
-
+            
+        Graphics ga = authorBody.getGraphics();
         int authorHeight = authorBody.getPreferredSize().height;
-        int authorWidth = g.getFontMetrics(authorBody.getFont()).stringWidth(authorBody.getText());
+        int authorWidth = ga.getFontMetrics(authorBody.getFont()).stringWidth(authorBody.getText());
         int newAuthorWidth = (authorWidth < width)? authorWidth : width ;
         authorBody.setSize(new java.awt.Dimension(newAuthorWidth , authorHeight));
-        topPanel.setSize(new java.awt.Dimension(newWidth + 40 + (buttonDelete.isVisible()? DELETEICON_WIDTH : 0), authorHeight + 10));
+        topPanel.setSize(new java.awt.Dimension(this.getSize().width, authorHeight + 10));
+
+        if (messageObject != null && (messageObject.type == 0 || messageObject.type == 3)) {
+            int height = textBody.getPreferredSize().height; 
+            Graphics g = textBody.getGraphics();
+            int textWidth = g.getFontMetrics(textBody.getFont()).stringWidth(textBody.getText());
+            //textBody.setSize(new java.awt.Dimension(this.getPreferredSize().width -20, textBody.getPreferredSize().height)); the original code
+            int newWidth = (textWidth + 20 < width)? textWidth : width - 20;
+            textBody.setSize(new java.awt.Dimension(newWidth + 10, height));
+            panelBody.setSize(new java.awt.Dimension(newWidth + 30, height + 20));
+        }
+        else if (messageObject != null && messageObject.type == 1) {
+            if (image.getWidth() > width){
+                panelBody.setSize(new Dimension(width, width * image.getHeight()/image.getWidth()));
+            }
+        }
+        else{
+            int height = textBody.getPreferredSize().height; 
+            if (maxMessageWidth == -1){
+                Graphics g = textBody.getGraphics();
+                String[] lines = text.split("\n");
+                int maxLineWidth = 0;
+                for (String line : lines) {
+                    int lineWidth = g.getFontMetrics().stringWidth(line);
+                    if (lineWidth > maxLineWidth) {
+                        maxLineWidth = lineWidth;
+                    }
+                }
+                maxMessageWidth = maxLineWidth;
+            }
+            int textWidth = maxMessageWidth;
+            int newWidth = (textWidth + 20 < width)? textWidth : width - 20;
+            textBody.setSize(new java.awt.Dimension(newWidth + 10, height));
+            panelBody.setSize(new java.awt.Dimension(newWidth + 30, height + 20));
+        }
+        
     }
 
     @Override
@@ -315,6 +423,7 @@ public class AFChatItem extends javax.swing.JPanel {
     private JButton buttonDelete;
     private JPanel topPanel;
     private JTextArea authorBody;
+    private JLabel imageLable;
     
     public void startTimer(String file, long size) {
         //TODO start timer

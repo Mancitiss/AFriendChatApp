@@ -1,5 +1,6 @@
 package com.mycompany.afriendjava;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,6 +8,9 @@ import java.io.IOException;
 import java.io.PushbackInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+
+import javax.imageio.ImageIO;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.Image;
@@ -322,6 +326,23 @@ public class Tools {
         }
         return result;
     }
+
+    public static BufferedImage BASE64ToImage(String string) {
+        BufferedImage result = null;
+        // check if string is empty
+        if (!string.isEmpty()){
+            try {
+                // convert from base64
+                byte[] imagebyte = Base64.getDecoder().decode(string);
+                // convert to image
+                result = ImageIO.read(new ByteArrayInputStream(imagebyte));
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+    
 
     /**
      * 
