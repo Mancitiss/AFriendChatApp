@@ -27,6 +27,7 @@ import javax.swing.border.EmptyBorder;
 import com.mycompany.afriendjava.AFriendClient;
 import com.mycompany.afriendjava.MessageObject;
 import com.mycompany.afriendjava.Tools;
+import com.mycompany.afriendjava.Utils;
 
 import java.awt.Graphics;
 import java.awt.FlowLayout;
@@ -78,6 +79,12 @@ public class AFChatItem extends javax.swing.JPanel {
     }
 
     public static void main(String[] args){
+        try{
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 JFrame frame = new JFrame();
@@ -192,6 +199,23 @@ public class AFChatItem extends javax.swing.JPanel {
                     g.drawImage(image, 0, 0, panelBody.getWidth(), panelBody.getHeight(), panelBody);
                 }
             };
+            // click event
+            panelBody.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getClickCount() == 2) {
+                        if (image != null) {
+                            JFrame frame = new JFrame();
+                            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                            frame.setBounds(100, 100, image.getWidth(), image.getHeight());
+                            frame.setLayout(new FlowLayout());
+                            JLabel label = new JLabel(new ImageIcon(image));
+                            frame.add(label);
+                            frame.setVisible(true);
+                        }
+                    }
+                }
+            });
         }
         else{
             textBody = new javax.swing.JTextArea();

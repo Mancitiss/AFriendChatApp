@@ -17,6 +17,7 @@ import java.awt.AlphaComposite;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -34,14 +35,18 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.event.ActionEvent;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.mycompany.afriendjava.AFriendClient;
 import com.mycompany.afriendjava.Account;
+import com.mycompany.afriendjava.MainUI;
 import com.mycompany.afriendjava.MessageObject;
 import com.mycompany.afriendjava.Program;
 import com.mycompany.afriendjava.Tools;
+import com.mycompany.afriendjava.Utils;
 
 import custom.CircleAvatar;
 
@@ -66,7 +71,10 @@ public class PanelChat extends javax.swing.JPanel{
     
     private java.util.Timer timerChat;
 
+    public Account account;
     private String id;
+    private long loadedmessagenumber = 0;
+    private byte state;
     private Color stateColor = Color.decode("#DCDCDC");
     private java.awt.BasicStroke stroke1 = new java.awt.BasicStroke(1.0f);
 
@@ -79,8 +87,16 @@ public class PanelChat extends javax.swing.JPanel{
     public Image sendFileIcon = (new ImageIcon(getClass().getResource("file_icon_207228.png"))).getImage();
 
     public int isFormShowing;
+    public boolean isShowing;
+    public boolean isLoadingOldMessages = false;
+    private int current_vertical_value = 0;
+    
+    public long currentmin = -1;
+    public long currentmax = -1;
 
     private static final String TEXT_SUBMIT = "text-submit";
+
+    protected int timi = 240; // this is the elapsed time (in second) between 2 message needed to show timer
 
     private void initializeComponent(){
         
@@ -234,6 +250,9 @@ public class PanelChat extends javax.swing.JPanel{
         KeyStroke shiftEnter = KeyStroke.getKeyStroke("shift ENTER");
         input.put(shiftEnter, "insert-break");  // input.get(enter)) = "insert-break"
         input.put(enter, TEXT_SUBMIT);
+        Action action = textboxWriting.getActionMap().get("paste-from-clipboard");
+        textboxWriting.getActionMap().put("paste-from-clipboard", new PasteAction(action));
+
 
         ActionMap actions = textboxWriting.getActionMap();
         actions.put(TEXT_SUBMIT, new AbstractAction() {
@@ -317,6 +336,18 @@ public class PanelChat extends javax.swing.JPanel{
                 panelChat_Resize(evt);
             }
         });
+        // load event
+        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                panelChat_Load(evt);
+            }
+        });
+    }
+
+    protected void panelChat_Load(ComponentEvent evt) {
+        // focus on textboxWriting
+        textboxWriting.requestFocus();
+
     }
 
     protected void submitText() {
@@ -355,6 +386,8 @@ public class PanelChat extends javax.swing.JPanel{
 
     Image currentBackgroundImage = null;
     BufferedImage currentBufferedImage = null;
+    private AFChatItem currentChatItem;
+    private boolean currentChatItemShowing;
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -397,6 +430,69 @@ public class PanelChat extends javax.swing.JPanel{
     }
 
     public PanelChat(Account acc) {
+        mustInit();
+        this.isFormShowing = 0;
+        this.isShowing = false;
+
+        this.account = acc;
+        this.setName("panelChat_" + account.id);
+        labelFriendName.setText(account.name);
+        this.id = account.id;
+        
+    }
+
+    public byte getState(){
+        return this.state;
+    }
+
+    public void setState(byte state){
+        if (this.state != state){
+            this.state = state;
+            if (state == 0){
+                stateColor = Color.decode("#DCDCDC");
+                labelState.setText("offline");
+                labelState.setForeground(stateColor);
+                panelTop.invalidate();
+            }
+            else if (state == 1){
+                stateColor = Color.decode("#00FF7F");
+                labelState.setText("online");
+                labelState.setForeground(stateColor);
+                panelTop.invalidate();
+            }
+            else {
+                stateColor = Color.decode("#FF0000");
+                labelState.setText("away");
+                labelState.setForeground(stateColor);
+                panelTop.invalidate();
+            }
+            this.invalidate();
+        }
+    }
+
+    public AFChatItem getCurrentChatItem(){
+        return this.currentChatItem;
+    }
+
+    public void setCurrentChatItem(AFChatItem chatItem){
+        if (currentChatItem == chatItem){
+            return;
+        }
+        System.out.println("set");
+        if (currentChatItem != null){
+            currentChatItem.setShowDetail(currentChatItemShowing);
+        }
+        currentChatItem = chatItem;
+        currentChatItemShowing = !chatItem.getShowDetail();
+    }
+
+    public Timestamp DateTimeOfLastMessage(){
+        if (messages.size() == 0){
+            return new Timestamp(System.currentTimeMillis());
+        }
+        else {
+            return messages.get(currentmax).messageObject.timesent;
+        }
     }
 
     public void removeMessage(Long messageNumber) {
@@ -417,9 +513,16 @@ public class PanelChat extends javax.swing.JPanel{
             String fileId = id1 + "_" + id2 + "_" + messageNumber;
             AFriendClient.filesOnCancel.put(fileId, true);
         }
+        AFriendClient.queueCommand(("2002"+this.id+Tools.data_with_unicode_byte(messageNumber.toString())).getBytes(StandardCharsets.UTF_16LE));
     }
 
-    protected int timi = 240; // this is the elapsed time (in second) between 2 message needed to show timer
+    public String getFirstMessage(){
+        if (messages.size() == 0){
+            return "";
+        }
+        evaluateMaxmin();
+        return messages.get(currentmin).messageObject.message;
+    }
 
     public String getLastMessage() {
         if (messages.size() == 0){
@@ -436,9 +539,6 @@ public class PanelChat extends javax.swing.JPanel{
         return "";
     }
 
-    public long currentmin = -1;
-    public long currentmax = -1;
-
     private void evaluateMaxmin() {
         if (messages.size() == 0) return;
         while (!messages.containsKey(currentmax)) currentmax -= 1;
@@ -447,6 +547,14 @@ public class PanelChat extends javax.swing.JPanel{
     }
 
     public boolean isLastMessageFromYou() {
+        if (panelChat.getComponentCount() == 0){
+            return true;
+        }
+        evaluateMaxmin();
+        AFChatItem message = messages.get(currentmax);
+        if (message.isMine){
+            return true;
+        }
         return false;
     }
 
@@ -458,6 +566,7 @@ public class PanelChat extends javax.swing.JPanel{
             }
             if (currentmin == -1 || currentmin > message.messagenumber) currentmin = message.messagenumber;
             if (currentmax == -1 || currentmax < message.messagenumber) currentmax = message.messagenumber;
+            this.loadedmessagenumber = message.messagenumber;
             AFChatItem chatItem = new AFChatItem(message);
             if (message.type == 3 || !messages.containsKey(message.messagenumber - 1) || messages.get(message.messagenumber - 1).messageObject.type == 3 || (message.timesent.getTime()/1000 - messages.get(message.messagenumber - 1).messageObject.timesent.getTime()/1000) > timi)
             {
@@ -479,7 +588,7 @@ public class PanelChat extends javax.swing.JPanel{
             }
             if (!chatItem.isMine && isFormShowing > 0){
                 // flash form
-
+                Utils.AlertOnWindow(MainUI.subForms.get(id));
                 // play message sound
                 try {
                     javax.sound.sampled.Clip clip = javax.sound.sampled.AudioSystem.getClip();
@@ -505,17 +614,61 @@ public class PanelChat extends javax.swing.JPanel{
         }
     }
 
-    public void loadMessages(MessageObject[] messageObjects) {
-        //TODO load messages
+    public void addMessageToTop(MessageObject message){
+        try{
+            if (messages.containsKey(message.messagenumber)){
+                System.out.println("Message already exists");
+                return;
+            }
+            if (currentmin == -1 || currentmin > message.messagenumber) currentmin = message.messagenumber;
+            if (currentmax == -1 || currentmax < message.messagenumber) currentmax = message.messagenumber;
+            this.loadedmessagenumber = message.messagenumber;
+            AFChatItem chatItem = new AFChatItem(message);
+            if (message.type == 3 || !messages.containsKey(message.messagenumber - 1) || messages.get(message.messagenumber - 1).messageObject.type == 3 || (message.timesent.getTime()/1000 - messages.get(message.messagenumber - 1).messageObject.timesent.getTime()/1000) > timi)
+            {
+                chatItem.setShowDetail(true);
+            }
+            chatItem.updateDateTime();
+            messages.put(message.messagenumber, chatItem);
+            panelChat.add(ChatLayout.createChatItemBox(chatItem), 1);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
-    public int DateTimeOfLastMessage() {
-        return 0;
+    public void loadMessages(List<MessageObject> messageObjects) {
+        isLoadingOldMessages = true;
+        long currentMinChat = currentmin;
+        for(MessageObject messageObject: messageObjects){
+            addMessageToTop(messageObject);
+        }
+        if (panelChat.getComponentCount() > messageObjects.size()){
+            Box currentBox = (Box)messages.get(currentMinChat).getParent();
+            // scroll panelChat to the top of the current box
+            panelChatScroll.getVerticalScrollBar().setValue(currentBox.getY());
+            current_vertical_value = panelChatScroll.getVerticalScrollBar().getValue();
+
+        }
+        isLoadingOldMessages = false;
+    }
+
+    public void removeMessagePassively(long messagenumber){
+        byte type = messages.get(messagenumber).messageObject.type;
+        panelChat.remove(messages.get(messagenumber).getParent());
+        messages.remove(messagenumber);
+        String id1 = AFriendClient.user.id;
+        String id2 = this.id;
+        if (type == 3){
+            // set filesOnCancel id1+"_"+id2+"_"+messageNumber to true
+            String fileId = id1 + "_" + id2 + "_" + messagenumber;
+            AFriendClient.filesOnCancel.put(fileId, true);
+        }
     }
 
     public void scrollToBottom() {
         if (panelChat.getComponentCount() > 0){
-        
+            panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
         }
     }
     

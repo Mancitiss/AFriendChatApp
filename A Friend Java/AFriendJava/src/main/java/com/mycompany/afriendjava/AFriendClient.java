@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -738,8 +739,10 @@ public class AFriendClient{
                     String json = Tools.receive_Unicode_Automatically(dis);
                     System.out.println("Old messages have arrived");
                     MessageObject[] messageObjects = Program.gson.fromJson(json, MessageObject[].class);
+                    // wrap messageObjects with list 
+
                     try{
-                        Program.mainform.panelChats.get(panelId).loadMessages(messageObjects);
+                        Program.mainform.panelChats.get(panelId).loadMessages(Arrays.asList(messageObjects));
                     }
                     catch (Exception e){
                         e.printStackTrace();

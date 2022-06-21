@@ -99,7 +99,7 @@ public class MainUI extends javax.swing.JFrame {
                     }
                     else
                     {
-                        if (panelChats.get(min).DateTimeOfLastMessage() > panelChats.get(keyValuePair.getValue()).DateTimeOfLastMessage()){
+                        if (panelChats.get(min).DateTimeOfLastMessage().getTime() > panelChats.get(keyValuePair.getValue()).DateTimeOfLastMessage().getTime()){
                             min = keyValuePair.getValue();
                         }
                     }

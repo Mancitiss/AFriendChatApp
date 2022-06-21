@@ -1,6 +1,7 @@
 package com.mycompany.afriendjava;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -317,6 +318,27 @@ public class Tools {
                 byte[] imagebyte = new byte[(int) imagefile.length()];
                 try(DataInputStream DIS = new DataInputStream(new FileInputStream(imagefile))){
                     DIS.readFully(imagebyte);
+                }
+                // convert to base64
+                result = Base64.getEncoder().encodeToString(imagebyte);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public static String ImageToBASE64(BufferedImage image){
+        String result = "";
+        // check if file exists
+        if (image != null){
+            try {
+                // read file
+                byte[] imagebyte = new byte[(int) image.getWidth() * image.getHeight() * 4];
+                try(ByteArrayOutputStream BOS = new ByteArrayOutputStream()){
+                    ImageIO.write(image, "png", BOS);
+                    BOS.flush();
+                    imagebyte = BOS.toByteArray();
                 }
                 // convert to base64
                 result = Base64.getEncoder().encodeToString(imagebyte);
