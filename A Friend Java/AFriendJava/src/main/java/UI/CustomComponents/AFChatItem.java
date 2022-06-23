@@ -9,13 +9,14 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
-import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -24,17 +25,21 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
+import com.mycompany.afriendjava.AFile;
 import com.mycompany.afriendjava.AFriendClient;
 import com.mycompany.afriendjava.MessageObject;
 import com.mycompany.afriendjava.Tools;
-import com.mycompany.afriendjava.Utils;
 
 import java.awt.Graphics;
 import java.awt.FlowLayout;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.Component;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  *
@@ -43,7 +48,7 @@ import java.awt.image.BufferedImage;
 public class AFChatItem extends javax.swing.JPanel {
     public static int DELETEICON_WIDTH = 40;
     public static int DELETEICON_HEIGHT = 40; 
-    public static String TESTSTRING = "~ Testing \n Teasing \n Testing ~";
+    public static String TESTSTRING = "\ud83d\udc36";
 
     public Image deleteIcon = (new ImageIcon(getClass().getResource("deleteIcon.png"))).getImage();
 
@@ -79,12 +84,6 @@ public class AFChatItem extends javax.swing.JPanel {
     }
 
     public static void main(String[] args){
-        try{
-
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 JFrame frame = new JFrame();
@@ -115,7 +114,45 @@ public class AFChatItem extends javax.swing.JPanel {
     }
 
     public void changeTextUpload(byte percent){
-        //TODO change text upload
+        authorBody.setText(percent + "%");
+        authorBody.setForeground(Color.blue);
+        if (percent == 100){
+            authorBody.setText("DONE");
+        }
+    }
+
+    private String originalFileName;
+    private long originalFileSize;
+    private Timer timer;
+    private String timetext;
+
+
+    public void startTimer(String file, long size){
+        originalFileName = file;
+        originalFileSize = size;
+        authorBody.setForeground(Color.green);
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try{
+                    long left = AFriendClient.files.get(originalFileName).size;
+                    authorBody.setText(100*(originalFileSize - left / 1048576) / originalFileSize + "%");
+                    if (left == 0){
+                        authorBody.setText("DONE");
+                        timer.cancel();
+                    }
+                }
+                catch (NullPointerException npe){
+                    authorBody.setText("DONE");
+                    timer.cancel();
+                }
+                catch(Exception e){
+                    authorBody.setText(timetext);
+                    timer.cancel();
+                }
+            }
+        }, 0, 1000);
     }
 
 
@@ -125,6 +162,65 @@ public class AFChatItem extends javax.swing.JPanel {
         this.text = messageObject.message;
 
         initComponents();
+
+        if (!this.isMine){
+            this.setBackground(new Color(215, 244, 241));
+        }
+
+        if (this.messageObject.type == 3){
+            textBody.setBackground(Color.decode("#FFFF00"));
+            textBody.setForeground(Color.decode("#000000"));
+            panelBody.setBackground(Color.decode("#FFFF00"));
+            //double click event on textBody
+            textBody.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    textBodyDoubleClick(evt);
+                }
+            });
+        }
+    }
+    protected void textBodyDoubleClick(MouseEvent evt) {
+        if (evt.getClickCount() == 2){
+            String partner_id = (messageObject.id1 == messageObject.id2) ? messageObject.id1 : (messageObject.id1 == AFriendClient.user.id) ? messageObject.id2 : messageObject.id1;
+            try{
+                JFileChooser fileChooser = new JFileChooser();
+                // fileChooser will be used to save the file
+                // set name of the file to be saved to textBody.text
+                fileChooser.setSelectedFile(new File(textBody.getText()));
+                int result = fileChooser.showSaveDialog(this);
+                if (result == JFileChooser.APPROVE_OPTION){
+                    File file = fileChooser.getSelectedFile();
+                    String fileName = file.getName();
+                    String filePath = file.getAbsolutePath();
+                    authorBody.setText("Try again later!");
+                    authorBody.setForeground(Color.red);
+                    // check if file exists
+                    if (file.exists()){
+                        int response = JOptionPane.showConfirmDialog(this, "File already exists. Overwrite?", "Overwrite?", JOptionPane.YES_NO_OPTION);
+                        if (response == JOptionPane.NO_OPTION){
+                            return;
+                        }
+                    }
+                    try{
+                        // delete file if it exists
+                        if (file.exists()){
+                            file.delete();
+                        }
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                        // show error message
+                        JOptionPane.showMessageDialog(this, "Error overwriting file", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    AFriendClient.queueCommand(Tools.combine(("1905" + partner_id).getBytes(StandardCharsets.UTF_16LE), Tools.data_with_ASCII_byte((Long.toString(messageObject.messagenumber))).getBytes(StandardCharsets.US_ASCII)));
+                    AFriendClient.files.put(messageObject.id1 + "_" + messageObject.id2 + "_" + messageObject.messagenumber + ".", new AFile(filePath, 0));
+                }
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+        }
     }
     public AFChatItem(String text){
         this(text, false);
@@ -135,10 +231,6 @@ public class AFChatItem extends javax.swing.JPanel {
 
         initComponents();
         
-    }
-    public void setMessage(String mess)
-    {
-
     }
 
     String datetimeNow = new Timestamp(System.currentTimeMillis()).toString();
@@ -172,7 +264,7 @@ public class AFChatItem extends javax.swing.JPanel {
             textBody.setBackground(new Color(0, 0, 0, 0));
             textBody.setLineWrap(true);
             textBody.setWrapStyleWord(true);
-            textBody.setFont(new Font("Arial", Font.PLAIN, 14));
+            textBody.setFont(Font.decode("Segoe UI Emoji-14"));
             textBody.setMargin(new Insets(5, 5, 5, 5));
             textBody.setBorder(null);
             textBody.setText(this.messageObject.message);
@@ -221,12 +313,13 @@ public class AFChatItem extends javax.swing.JPanel {
             textBody = new javax.swing.JTextArea();
             textBody.setOpaque(false);
             textBody.setBackground(new Color(0, 0, 0, 0));
+            //textBody.setForeground(new Color(255, 0, 0, 255));
             textBody.setLineWrap(true);
             textBody.setWrapStyleWord(true);
-            textBody.setFont(new Font("Arial", Font.PLAIN, 14));
+            textBody.setFont(Font.decode("Segoe UI Emoji-14"));
             textBody.setMargin(new Insets(5, 5, 5, 5));
             textBody.setBorder(null);
-            textBody.setText(text);
+            textBody.setText(this.text);
 
             scroll = new JScrollPane(textBody);
             scroll.setBorder(null);
@@ -346,13 +439,13 @@ public class AFChatItem extends javax.swing.JPanel {
         int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this message?", "Delete Message", JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
             // delete message
-            /*
+            /* 
             this.setVisible(false);
             this.removeAll();
             this.revalidate();
             this.repaint();
             */
-            ((PanelChat)this.getParent().getParent()).removeMessage(this.getId());
+            ((PanelChat)this.getParent().getParent().getParent().getParent().getParent()).removeMessage(this.getId());
         }
     }
 
@@ -361,10 +454,25 @@ public class AFChatItem extends javax.swing.JPanel {
     }
 
     public void updateDateTime(){
-        if (this.messageObject != null && this.messageObject.timesent != null) {
-            this.authorBody.setText(this.messageObject.timesent.toString());
+        if (isMine){
+            if (this.messageObject != null && this.messageObject.timesent != null) {
+                this.authorBody.setText(this.messageObject.timesent.toString());
+            }
+            else authorBody.setText("Author" + "\n" + datetimeNow);
         }
-        else authorBody.setText("Author" + "\n" + datetimeNow);
+        else if (this.getParent().getParent().getParent().getParent().getParent() instanceof PanelChat){
+            PanelChat parent = (PanelChat)this.getParent().getParent().getParent().getParent().getParent();
+            String author = parent.account.name;
+            // today is at 0 hours 0 minutes 0 seconds
+            java.time.ZonedDateTime today = java.time.ZonedDateTime.now();
+            if (this.messageObject.timesent.before(new Timestamp(today.toEpochSecond()))){
+                authorBody.setText(author + "\n" + this.messageObject.timesent.toLocalDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm")));
+            }
+            else {
+                authorBody.setText(author + "\n" + this.messageObject.timesent.toLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+            }
+        }
+        timetext = authorBody.getText();
     }
 
     protected void chatItemMouseExited(MouseEvent evt) {
@@ -447,9 +555,4 @@ public class AFChatItem extends javax.swing.JPanel {
     private JButton buttonDelete;
     private JPanel topPanel;
     private JTextArea authorBody;
-    private JLabel imageLable;
-    
-    public void startTimer(String file, long size) {
-        //TODO start timer
-    }
 }

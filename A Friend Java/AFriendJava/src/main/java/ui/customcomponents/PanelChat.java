@@ -14,6 +14,7 @@ import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.awt.AlphaComposite;
 
+import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.AbstractAction;
@@ -24,16 +25,20 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.event.ActionEvent;
-
+import java.awt.event.ActionListener;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -251,7 +256,7 @@ public class PanelChat extends javax.swing.JPanel{
         input.put(shiftEnter, "insert-break");  // input.get(enter)) = "insert-break"
         input.put(enter, TEXT_SUBMIT);
         Action action = textboxWriting.getActionMap().get("paste-from-clipboard");
-        textboxWriting.getActionMap().put("paste-from-clipboard", new PasteAction(action));
+        textboxWriting.getActionMap().put("paste-from-clipboard", new PasteAction(action, id));
 
 
         ActionMap actions = textboxWriting.getActionMap();
@@ -283,6 +288,13 @@ public class PanelChat extends javax.swing.JPanel{
         catch(Exception e){
             System.out.println("Error: " + e.getMessage());
         }
+        // click on buttonSend to submit text
+        buttonSend.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                submitText();
+            }
+        });
 
         sendImageButton = new JButton();
         sendImageButton.setOpaque(false);
@@ -296,6 +308,14 @@ public class PanelChat extends javax.swing.JPanel{
         catch(Exception e){
             System.out.println("Error: " + e.getMessage());
         }
+        // add click action to sendImageButton
+        sendImageButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // create new function
+                sendImage();
+            }
+        });
 
         sendFileButton = new JButton();
         sendFileButton.setOpaque(false);
@@ -309,6 +329,14 @@ public class PanelChat extends javax.swing.JPanel{
         catch(Exception e){
             System.out.println("Error: " + e.getMessage());
         }
+        // add click action to sendFileButton
+        sendFileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // create new function
+                sendFile();
+            }
+        });
 
         panelBottom.setLayout(null);
         panelBottom.setOpaque(false);
@@ -344,6 +372,72 @@ public class PanelChat extends javax.swing.JPanel{
         });
     }
 
+    protected void sendFile() {
+        try{
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+            // set all file types
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("All Files", "*.*");
+            fileChooser.setFileFilter(filter);
+            // multiple files
+            fileChooser.setMultiSelectionEnabled(true);
+            int result = fileChooser.showDialog(this, "Send Files");
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File[] files = fileChooser.getSelectedFiles();
+                for(File file : files){
+                    try{
+                        String fileName = file.getName();
+                        String fileSize = String.valueOf(file.length());
+                        AFriendClient.queueCommand(
+                            Tools.combine(
+                                ("1903" + id + Tools.data_with_unicode_byte(fileName)).getBytes(StandardCharsets.UTF_16LE),
+                                (Tools.data_with_ASCII_byte(fileSize)).getBytes(StandardCharsets.US_ASCII)
+                            )
+                        );
+                        filesToSend.add(file.getAbsolutePath());
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    protected void sendImage() {
+        try{
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+            // all image files types
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes());
+            fileChooser.addChoosableFileFilter(filter);
+            // can select multipe files at once
+            fileChooser.setMultiSelectionEnabled(true);
+            int result = fileChooser.showDialog(this, "Send Images");
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File[] files = fileChooser.getSelectedFiles();
+                for (File file : files) {
+                    try{
+                        // creare BufferedImage from file
+                        BufferedImage image = ImageIO.read(file);
+                        String base64Image = Tools.ImageToBASE64(image);
+                        // send image to server
+                        AFriendClient.queueCommand(Tools.combine(("1902"+id).getBytes(StandardCharsets.UTF_16LE), Tools.data_with_ASCII_byte(base64Image).getBytes(StandardCharsets.US_ASCII)));
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
     protected void panelChat_Load(ComponentEvent evt) {
         // focus on textboxWriting
         textboxWriting.requestFocus();
@@ -351,12 +445,17 @@ public class PanelChat extends javax.swing.JPanel{
     }
 
     protected void submitText() {
-        String text = textboxWriting.getText();
-        if(text != null && !text.isBlank()){
-            textboxWriting.setText("");
-            textboxWriting.requestFocus();
-            // send text
-            //sendText(text);
+        try{
+            String text = textboxWriting.getText();
+            if(text != null && !text.isBlank()){
+                String messageText = textboxWriting.getText().trim();
+                textboxWriting.setText("");
+                textboxWriting.requestFocus();
+                AFriendClient.sendToId(id, AFriendClient.user.id, messageText);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -438,7 +537,17 @@ public class PanelChat extends javax.swing.JPanel{
         this.setName("panelChat_" + account.id);
         labelFriendName.setText(account.name);
         this.id = account.id;
-        
+        this.setState(account.state);
+        // this click listener
+        this.addMouseListener(new java.awt.event.MouseAdapter(){
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e){
+                if(e.getButton() == java.awt.event.MouseEvent.BUTTON1){
+                    // focus on textboxWriting
+                    textboxWriting.requestFocus();
+                }
+            }
+        });
     }
 
     public byte getState(){
@@ -687,6 +796,11 @@ public class PanelChat extends javax.swing.JPanel{
     public static void main(String[] args){
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
+                try {
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                } catch (Exception ex) {
+                   ex.printStackTrace();
+                }
                 JFrame frame = new JFrame();
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setBounds(100, 100, 912, 681);;
