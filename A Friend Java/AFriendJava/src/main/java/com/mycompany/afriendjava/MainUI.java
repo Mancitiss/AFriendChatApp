@@ -240,13 +240,13 @@ public class MainUI extends javax.swing.JFrame {
                 contactItems.put(acc.id, ci);
                 PanelChat panelChat = new PanelChat(acc);
                 panelChats.put(acc.id, panelChat);
-
-                //panelChat.LoadMessage();
-                //panelChat.scrollToBottom();
                 System.out.println(ci.getVisibleRect().toString());
                 System.out.println(((Box)ci.getParent()).getVisibleRect().toString());
                 ContactList_Panel.revalidate();
                 ContactList_Panel.repaint();
+
+                panelChat.LoadMessage();
+                panelChat.scrollToBottom();
             }
         }
         catch (Exception e){
