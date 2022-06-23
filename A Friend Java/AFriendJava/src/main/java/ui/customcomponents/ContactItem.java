@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
+import java.awt.Dimension;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -263,6 +264,21 @@ public class ContactItem extends JComponent{
         }
         g.setColor(stateColor);
         g.drawOval(friendPicture.getX() - 1, friendPicture.getY() - 1 , friendPicture.getWidth() + 1 , friendPicture.getHeight() + 1);
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(300, 65);
+    }
+
+    @Override
+    public Dimension getMinimumSize() {
+        return new Dimension(300, 65);
+    }
+
+    @Override
+    public Dimension getMaximumSize() {
+        return new Dimension(300, 65);
     }
 
     protected void itemMouseEntered(MouseEvent evt) {
