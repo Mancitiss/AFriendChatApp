@@ -77,7 +77,7 @@ public class PanelChat extends javax.swing.JPanel{
     private java.util.Timer timerChat;
 
     public Account account;
-    private String id;
+    public String id;
     private long loadedmessagenumber = 0;
     private byte state;
     private Color stateColor = Color.decode("#DCDCDC");
@@ -529,14 +529,14 @@ public class PanelChat extends javax.swing.JPanel{
     }
 
     public PanelChat(Account acc) {
+        this.account = acc;
+        this.id = account.id;
         mustInit();
         this.isFormShowing = 0;
         this.isShowing = false;
 
-        this.account = acc;
         this.setName("panelChat_" + account.id);
         labelFriendName.setText(account.name);
-        this.id = account.id;
         this.setState(account.state);
         // this click listener
         this.addMouseListener(new java.awt.event.MouseAdapter(){
@@ -677,13 +677,13 @@ public class PanelChat extends javax.swing.JPanel{
             if (currentmax == -1 || currentmax < message.messagenumber) currentmax = message.messagenumber;
             this.loadedmessagenumber = message.messagenumber;
             AFChatItem chatItem = new AFChatItem(message);
+            messages.put(message.messagenumber, chatItem);
+            panelChat.add(ChatLayout.createChatItemBox(chatItem));
             if (message.type == 3 || !messages.containsKey(message.messagenumber - 1) || messages.get(message.messagenumber - 1).messageObject.type == 3 || (message.timesent.getTime()/1000 - messages.get(message.messagenumber - 1).messageObject.timesent.getTime()/1000) > timi)
             {
                 chatItem.setShowDetail(true);
             }
             chatItem.updateDateTime();
-            messages.put(message.messagenumber, chatItem);
-            panelChat.add(ChatLayout.createChatItemBox(chatItem));
             if (isFormShowing == 1 && panelChatScroll.getVerticalScrollBar().getValue() > panelChatScroll.getVerticalScrollBar().getMaximum() - 350 - chatItem.getSize().height)
             {
                 panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
@@ -733,13 +733,14 @@ public class PanelChat extends javax.swing.JPanel{
             if (currentmax == -1 || currentmax < message.messagenumber) currentmax = message.messagenumber;
             this.loadedmessagenumber = message.messagenumber;
             AFChatItem chatItem = new AFChatItem(message);
+            messages.put(message.messagenumber, chatItem);
+            panelChat.add(ChatLayout.createChatItemBox(chatItem), 1);
+            
             if (message.type == 3 || !messages.containsKey(message.messagenumber - 1) || messages.get(message.messagenumber - 1).messageObject.type == 3 || (message.timesent.getTime()/1000 - messages.get(message.messagenumber - 1).messageObject.timesent.getTime()/1000) > timi)
             {
                 chatItem.setShowDetail(true);
             }
             chatItem.updateDateTime();
-            messages.put(message.messagenumber, chatItem);
-            panelChat.add(ChatLayout.createChatItemBox(chatItem), 1);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -811,5 +812,10 @@ public class PanelChat extends javax.swing.JPanel{
                 p.addMessage("World", false, 1);
             }
         });
+    }
+
+    public void setAvatar(Image img) {
+        this.avatar = img;
+        this.friendPicture.setImage(new ImageIcon(this.avatar.getScaledInstance(friendPicture.getWidth(), friendPicture.getHeight(), Image.SCALE_SMOOTH)));
     }
 }

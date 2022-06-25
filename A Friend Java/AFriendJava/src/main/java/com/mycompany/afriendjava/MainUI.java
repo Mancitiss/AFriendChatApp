@@ -10,8 +10,10 @@ import java.awt.Toolkit;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeMap;
@@ -64,6 +66,7 @@ public class MainUI extends javax.swing.JFrame {
     private String searchText = "";
     public boolean loaded = false;
     private boolean priv = false;
+    private boolean logout = false;
 
     // forms
     // private FormContactRemoved formContactRemoved = new FormContactRemoved();
@@ -74,12 +77,35 @@ public class MainUI extends javax.swing.JFrame {
     public JPanel panelLoading = new JPanel();
 
     // initialization    
-    public Image appIcon = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/logo.ico"))).getImage();
+    public Image appIcon = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/logo.png"))).getImage();
+    Image trayIconImage = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/logo.png"))).getImage();
     Image addIcon = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/Add.png"))).getImage();
     Image settingIcon = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/Cogs.png"))).getImage();
     Image logoutIcon = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/sign-out-option.png"))).getImage();
 
+    final TrayIcon trayIcon = new TrayIcon(trayIconImage, "A Friend");
+    final PopupMenu popup = new PopupMenu();
+    SystemTray tray = null;
+
+    private WindowAdapter closeAdapter = new WindowAdapter() {
+        @Override
+        public void windowClosing(WindowEvent e) {
+            if (SystemTray.isSupported()){
+                try 
+                {
+                    tray.add(trayIcon);
+                } catch (AWTException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            else{
+                MainUI.this.dispatchEvent(new WindowEvent(MainUI.this, WindowEvent.WINDOW_ICONIFIED));
+            }
+        }
+    };
+
     private JPanel ContactList_Panel;
+    private JPanel ContactList_Panel2;
     private JPanel panelLeft;
     private JPanel panelRight;
     private JPanel panelRight2;
@@ -128,8 +154,13 @@ public class MainUI extends javax.swing.JFrame {
             }
 
             for(Entry<Integer, String> keyValuePair1: orderOfContactItems.entrySet()){
-                ContactList_Panel.add(contactItems.get(keyValuePair1.getValue()));
+                ContactList_Panel.add(ContactLayout.createContactItemBox(contactItems.get(keyValuePair1.getValue())), ContactList_Panel.getComponentCount() - 1);
             }
+
+            ContactList_Panel.revalidate();
+            ContactList_Panel.repaint();
+            ContactList_ScrollPanel.revalidate();
+            ContactList_ScrollPanel.repaint();
 
             loaded = true;
 
@@ -143,6 +174,7 @@ public class MainUI extends javax.swing.JFrame {
                 panelChats.get(orderOfContactItems.lastEntry().getValue()).scrollToBottom();
                 this.currentContactItem = contactItems.get(orderOfContactItems.lastEntry().getValue());
                 this.currentContactItem.clicked = true;
+                this.currentContactItem.repaint();
             }
             else {
                 // clear controls of chat panel
@@ -168,7 +200,7 @@ public class MainUI extends javax.swing.JFrame {
 
         if (key != -1){
             orderOfContactItems.remove(key);
-            orderOfContactItems.put(orderOfContactItems.size(), id);
+            orderOfContactItems.put(orderOfContactItems.lastKey() + 1, id);
         }
 
         if (loaded){
@@ -181,8 +213,9 @@ public class MainUI extends javax.swing.JFrame {
     }
     public synchronized void setAvatar(String id, Image img){
         if(panelChats.containsKey(id)){
-            panelChats.get(id).avatar = img;
-            contactItems.get(id).avatar = img;
+            panelChats.get(id).setAvatar(img);
+            contactItems.get(id).setAvatar(img);
+            contactItems.get(id).repaint();
         }
     }
     public synchronized void showLogin(){
@@ -206,24 +239,58 @@ public class MainUI extends javax.swing.JFrame {
         ui.customcomponents.PanelChat item = panelChats.get(id);
         if (panelRight.getComponentCount() == 0)
         {
-            /* 
-            if (force || (getCurrentPanelChatId() == "") || !()){
-
-            }*/
+            if (force || (getCurrentPanelChatId() == "" || !(panelRight2.getComponent(0) instanceof PanelChat) || ((PanelChat) panelRight2.getComponent(0)).id != id)){
+                panelRight.add(item, BorderLayout.CENTER);
+                //item.setSize(panelRight.getSize());
+                panelRight.setVisible(true);
+                panelRight2.setVisible(false);
+                panelRight2.removeAll();
+                panelRight.revalidate();
+                panelRight.repaint();
+                panelRight2.revalidate();
+                panelRight2.repaint();
+                System.out.println("panelRight displaying" + id);
+            }
         }
+        else{
+            if (force || (getCurrentPanelChatId() == "" || !(panelRight.getComponent(0) instanceof PanelChat) || ((PanelChat) panelRight.getComponent(0)).id != id)){
+                panelRight2.add(item, BorderLayout.CENTER);
+                //item.setSize(panelRight2.getSize());
+                panelRight2.setVisible(true);
+                panelRight.setVisible(false);
+                panelRight.removeAll();
+                panelRight.revalidate();
+                panelRight.repaint();
+                panelRight2.revalidate();
+                panelRight2.repaint();
+                System.out.println("panelRight2 displaying" + id);
+            }
+        }
+        currentID = id;
+        currentPanelChat = item;
+    }
+    private String getCurrentPanelChatId(){
+        if (panelRight.getComponentCount() > 0){
+            if (panelRight.getComponent(0) instanceof PanelChat){
+                return ((PanelChat) panelRight.getComponent(0)).id;
+            }
+        }
+        if (panelRight2.getComponentCount() > 0){
+            if (panelRight2.getComponent(0) instanceof PanelChat){
+                return ((PanelChat) panelRight2.getComponent(0)).id;
+            }
+        }
+        
+        return "";
     }
     public synchronized void addContactItem(Account acc){
         try{
             if (!panelChats.containsKey(acc.id)){
                 System.out.println("add contact item");
-                ContactItem ci = new ContactItem("Ai cũng đc", "ê thg kia", true);
-                //ci.setUnread(true);
+                ContactItem ci = new ContactItem(acc);
+                ci.setUnread(true);
                 if (loaded){
                     ContactList_Panel.add(ContactLayout.createContactItemBox(ci), ContactList_Panel.getComponentCount() - 1);
-                }
-                else{
-                    ContactList_Panel.add(ContactLayout.createContactItemBox(ci), ContactList_Panel.getComponentCount() - 1);
-                    System.out.println("unread");
                 }
                 System.out.println("added");
                 if (orderOfContactItems.size() == 0){
@@ -240,13 +307,50 @@ public class MainUI extends javax.swing.JFrame {
                 contactItems.put(acc.id, ci);
                 PanelChat panelChat = new PanelChat(acc);
                 panelChats.put(acc.id, panelChat);
-                System.out.println(ci.getVisibleRect().toString());
-                System.out.println(((Box)ci.getParent()).getVisibleRect().toString());
+                //System.out.println(ci.getVisibleRect().toString());
+                //System.out.println(((Box)ci.getParent()).getVisibleRect().toString());
                 ContactList_Panel.revalidate();
                 ContactList_Panel.repaint();
 
                 panelChat.LoadMessage();
                 panelChat.scrollToBottom();
+
+                ci.setLastMessage(panelChat.getLastMessage());
+                panelChat.addContainerListener(new ContainerAdapter() {
+                    @Override
+                    public void componentAdded(ContainerEvent e) {
+                        if (panelChat.getComponentCount() > 1){
+                            ci.setLastMessage(panelChat.getLastMessage());
+                        }
+                        if (loaded && !panelChat.isLastMessageFromYou()){
+                            ci.setUnread(true);
+                        }
+                        if (ci.id != orderOfContactItems.lastEntry().getValue()){
+                            if (!panelChat.isLoadingOldMessages){
+                                bringContactItemToTop(panelChat.id);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void componentRemoved(ContainerEvent e) {
+                        ci.setLastMessage(panelChat.getLastMessage());
+                    }
+                });
+
+                ci.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getButton() == MouseEvent.BUTTON1){
+                            if (e.getClickCount() == 1){
+                                if (!MainUI.subForms.containsKey(panelChat.id)){
+                                    showPanelChat(acc.id, false);
+                                    System.out.println("Clicked");
+                                }
+                            }
+                        }
+                    }
+                });
             }
         }
         catch (Exception e){
@@ -254,85 +358,21 @@ public class MainUI extends javax.swing.JFrame {
             throw e;
         }
     }
-    public synchronized void addMessageItem(String str, boolean left){
-        //TODO add message item
-    }
     public synchronized void turnContactActiveState(String id, byte state){
-        //TODO turn contact active state
-    }
-    
-    private void formWindowStateChanged(java.awt.event.WindowEvent evt) {   
-        int SetHeight = getHeight();
-        int SetWidth = getWidth();
-        Button_Panel.setLocation(0, SetHeight - 98);
-        ContactList_ScrollPanel.setSize(350,SetHeight - 158);
-    }  
-    
-    private void TestMouseClicked(java.awt.event.MouseEvent evt) {                                      
-        Button_Panel.setBackground(Color.white);
-    }
-    
-    private void formComponentHidden(java.awt.event.ComponentEvent evt) 
-    {                                     
-        TrayIcon trayIcon = null;
-        if (SystemTray.isSupported()) 
-        {
-            // get the SystemTray instance
-            SystemTray tray = SystemTray.getSystemTray();
-            // load an image
-            Image image = Toolkit.getDefaultToolkit().getImage("src/com/mycompany/afriendjava/Resources/sign-out-option.png");
-            // create a action listener to listen for default action executed on the tray icon
-            ActionListener listener = new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    // execute default action of the application
-                    // ...
-                }
-            };
-            // create a popup menu
-            PopupMenu popup = new PopupMenu();
-            // create menu item for the default action
-            MenuItem defaultItem = new MenuItem("Hello");
-            defaultItem.addActionListener(listener);
-            popup.add(defaultItem);
-            /// ... add other items
-            // construct a TrayIcon
-            trayIcon = new TrayIcon(image, "Tray Demo", popup);
-            // set the TrayIcon properties
-            trayIcon.addActionListener(listener);
-            // ...
-            // add the tray image
-            try 
-            {
-                tray.add(trayIcon);
-            } catch (AWTException e) {
-                System.err.println(e);
-            }
-            // ...
-        } 
-        else {
-            System.out.println("System tray not supported");
-            
+        if (panelChats.containsKey(id)){
+            panelChats.get(id).setState(state);
         }
-        // disable tray option in your application or
-        // perform other actions
-            
-        //}
-        // ...
-        // some time later
-        // the application state has changed - update the image
-            
-        if (trayIcon != null) {
-            //trayIcon.setImage(updatedImage);
+
+        if (contactItems.containsKey(id)){
+            contactItems.get(id).setState(state);
         }
-        // ...*/
-                
     }
     /**
      * Creates new form Main
      */
     public MainUI() {
         initComponents();
+        initSubPanels();
 
     	setTitle("A Friend Chat App");
     	setIconImage(appIcon);
@@ -345,10 +385,21 @@ public class MainUI extends javax.swing.JFrame {
 
         //getContentPane().setBackground(new Color(0, 205, 205));
 
-        panelRight = new JPanel();
-
     }
 
+    private void initSubPanels() {
+        /*
+        ContactList_Panel2 = new JPanel();
+        ContactList_Panel2.setLayout(new BoxLayout(ContactList_Panel2, BoxLayout.Y_AXIS));
+        ContactList_Panel2.setBackground(ContactList_Panel.getBackground());
+        ContactList_Panel2.setBorder(ContactList_Panel.getBorder());
+        ContactList_Panel2.setVisible(false);
+        ContactList_Panel2.setMinimumSize(ContactList_Panel.getMinimumSize());
+        ContactList_Panel2.setSize(ContactList_Panel.getSize());
+        ContactList_Panel2.setLocation(ContactList_Panel.getLocation());
+        this.add(ContactList_Panel2);
+        */
+    }
     private void initComponents(){
 
         AddFriend_Button = new JButton();
@@ -529,56 +580,93 @@ public class MainUI extends javax.swing.JFrame {
             public void componentResized(ComponentEvent e) {
                 int height = e.getComponent().getHeight();
                 int width = e.getComponent().getWidth();
-                ContactList_ScrollPanel.setSize(width, height - panelTopLeft.getHeight() - Button_Panel.getHeight() - panelAdd.getHeight());
+                ContactList_ScrollPanel.setSize(width, height - panelTopLeft.getHeight() - Button_Panel.getHeight() - (panelAdd.isVisible()?panelAdd.getHeight():0));
                 panelAdd.setLocation(0, ContactList_ScrollPanel.getY() + ContactList_ScrollPanel.getHeight());
-                Button_Panel.setLocation(0, panelAdd.getY() + panelAdd.getHeight());
+                Button_Panel.setLocation(0, height - Button_Panel.getHeight());
+                e.getComponent().revalidate();
+                e.getComponent().repaint();
             }
         });
         
         panelRight = new JPanel();        
         panelRight.setLocation(350,0);
-        panelRight.setBackground(Color.red);
-        panelRight.setSize(getWidth() - 350, getHeight());
-        panelRight.setMinimumSize(new Dimension(0, 0));
+        panelRight.setBackground(Color.white);
+        panelRight.setSize(getWidth() - 300, getHeight());
+        // set layout so that this panelRight's content is always fill the panelRight's space
+        panelRight.setLayout(new java.awt.BorderLayout());
         panelRight.setVisible(true);
+
+        panelRight2 = new JPanel();
+        panelRight2.setLocation(panelRight.getLocation());
+        panelRight2.setSize(panelRight.getSize());
+        panelRight2.setBackground(panelRight.getBackground());
+        panelRight2.setLayout(new java.awt.BorderLayout());
+        panelRight2.setVisible(false);
         
         this.setLayout(null);
         this.setMinimumSize(new Dimension(900,450));
         this.add(panelLeft);
         this.add(panelRight);
+        this.add(panelRight2);
+        this.setIconImage(appIcon);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         //event
         addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentResized(java.awt.event.ComponentEvent evt) {                                       
-                int width = evt.getComponent().getWidth();
+                int width = evt.getComponent().getWidth() - ((MainUI)evt.getComponent()).getInsets().right - ((MainUI)evt.getComponent()).getInsets().left;
                 // height without frame's title bar
-                int height = evt.getComponent().getHeight() - ((MainUI)evt.getComponent()).getInsets().top;
+                int height = evt.getComponent().getHeight() - ((MainUI)evt.getComponent()).getInsets().top - ((MainUI)evt.getComponent()).getInsets().bottom;
                 panelLeft.setBounds(0, 0, 300, height);
                 panelRight.setBounds(300, 0, width - 300, height);
+                panelRight2.setBounds(300, 0, width - 300, height);
             }         
         });
-        /* 
-        AddGroup_Button.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                TestMouseClicked(evt);
-            }
-        });
-        addWindowStateListener(new java.awt.event.WindowStateListener() {
-            @Override
-            public void windowStateChanged(java.awt.event.WindowEvent evt) {
-                formWindowStateChanged(evt);
-            }
-        });
-        addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentHidden(java.awt.event.ComponentEvent evt) {
-                formComponentHidden(evt);
-            }
-        });
-        */
-        
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // tray
+        if (SystemTray.isSupported()){
+            setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            tray = SystemTray.getSystemTray();
+            // create menu item for the default action
+            MenuItem defaultItem = new MenuItem("Main menu");
+            defaultItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    MainUI.this.setVisible(true);
+                    // remove tray
+                    tray.remove(trayIcon);
+                }
+            });
+            popup.add(defaultItem);
+            MenuItem quitItem = new MenuItem("Quit");
+            quitItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    MainUI.this.removeWindowListener(MainUI.this.closeAdapter);
+                    MainUI.this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    MainUI.this.dispatchEvent(new WindowEvent(MainUI.this, WindowEvent.WINDOW_CLOSING));
+                }
+            });
+            popup.add(quitItem);
+            /// ... add other items
+            // construct a TrayIcon
+            trayIcon.setImageAutoSize(true);
+            trayIcon.setPopupMenu(popup);
+            // set the TrayIcon properties
+            trayIcon.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    MainUI.this.setVisible(true);
+                    tray.remove(trayIcon);
+                }
+            });
+            addWindowListener(closeAdapter);
+        }
+        else {
+            setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            addWindowListener(closeAdapter);
+        }
     }
 
     protected void addNewUser(KeyEvent e) {
@@ -591,14 +679,37 @@ public class MainUI extends javax.swing.JFrame {
         }
     }
     protected void search(DocumentEvent e) {
+        String text = SearchBar.getText();
+
     }
     protected void logout(ActionEvent e) {
+        AFriendClient.queueCommand(("2004").getBytes(StandardCharsets.UTF_16LE));
+        for(JFrame f : subForms.values()){
+            // for each component of the frame, dispose it out of memory
+            f.dispose();
+        }
+        this.logout = true;
+        this.dispose();
     }
     protected void setting(ActionEvent e) {
+        // show Settings Jframe dialog
+        Settings settings = new Settings();
+        settings.setVisible(true);
+
     }
     protected void addFriend(ActionEvent e) {
-        if (ContactList_ScrollPanel.getSize().height == Button_Panel.getY() - (ContactList_ScrollPanel.getY() + ContactList_ScrollPanel.getHeight())) {
-            ContactList_ScrollPanel.setSize(ContactList_ScrollPanel.getWidth(), ContactList_ScrollPanel.getHeight() - panelTopLeft.getHeight());
+        if (ContactList_ScrollPanel.getSize().height == Button_Panel.getY() - (ContactList_ScrollPanel.getY())) {
+            ContactList_ScrollPanel.setSize(ContactList_ScrollPanel.getWidth(), ContactList_ScrollPanel.getHeight() - panelAdd.getHeight());
+            panelAdd.setLocation(ContactList_ScrollPanel.getX(), ContactList_ScrollPanel.getY() + ContactList_ScrollPanel.getHeight());
+            panelAdd.setVisible(true);
+            panelAdd.revalidate();
+            panelAdd.repaint();
+        }
+        else {
+            ContactList_ScrollPanel.setSize(ContactList_ScrollPanel.getWidth(), ContactList_ScrollPanel.getHeight() + panelAdd.getHeight());
+            panelAdd.setVisible(false);
+            panelAdd.revalidate();
+            panelAdd.repaint();
         }
     }
     /**
@@ -625,8 +736,7 @@ public class MainUI extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
             	JFrame f = new MainUI();
-                f.setVisible(true);       
-                f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                f.setVisible(true);
             }
         });
     }

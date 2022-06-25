@@ -3,17 +3,19 @@ package com.mycompany.afriendjava;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class Program {
 
     public static ExecutorService executor = Executors.newCachedThreadPool();
     public static MainUI mainform;
     public static int[] thisversion = {3, 2, 1, 2};
-    public static Gson gson = new Gson();
+    public static Gson gson = new GsonBuilder().registerTypeAdapter(Timestamp.class, new TimestampAdapter()).create();
     public static void main(String[] args) {
         try{
             boolean newv = false;

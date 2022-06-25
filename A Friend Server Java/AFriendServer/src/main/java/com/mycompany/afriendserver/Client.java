@@ -58,6 +58,7 @@ public class Client {
                     byte[] command = commands.poll();
                     stream.write(command);
                     stream.flush();
+                    System.out.println("Sent command");
                 }
             }
             catch (Exception se)

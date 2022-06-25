@@ -10,6 +10,11 @@ import java.awt.Insets;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import javax.swing.Box;
@@ -64,11 +69,11 @@ public class AFChatItem extends javax.swing.JPanel {
         topPanel.setVisible(showDetail);
         if (showDetail){
             this.setSize(this.getSize().width, 5 + topPanel.getSize().height + bottomPanel.getSize().height);
-            this.invalidate();
+            //this.invalidate();
         }
         else{
             this.setSize(this.getSize().width, 5 + bottomPanel.getSize().height);
-            this.invalidate();
+            //this.invalidate();
         }
     }
 
@@ -158,7 +163,8 @@ public class AFChatItem extends javax.swing.JPanel {
 
     public AFChatItem(MessageObject messageObject){
         this.messageObject = messageObject;
-        this.isMine = messageObject.sender? messageObject.id2 == AFriendClient.user.id : messageObject.id1 == AFriendClient.user.id;
+        this.isMine = messageObject.sender? messageObject.id2.equals(AFriendClient.user.id) : messageObject.id1.equals(AFriendClient.user.id);
+        //System.out.println(this.isMine);
         this.text = messageObject.message;
 
         initComponents();
@@ -264,10 +270,30 @@ public class AFChatItem extends javax.swing.JPanel {
             textBody.setBackground(new Color(0, 0, 0, 0));
             textBody.setLineWrap(true);
             textBody.setWrapStyleWord(true);
-            textBody.setFont(Font.decode("Segoe UI Emoji-14"));
+            textBody.setFont(Font.decode("Arial-14"));
             textBody.setMargin(new Insets(5, 5, 5, 5));
             textBody.setBorder(null);
             textBody.setText(this.messageObject.message);
+            
+        
+            // make textBody readonly but display cursor when mouse hover
+            // start copilot code
+            textBody.setEditable(false);
+            textBody.setFocusable(true);
+            textBody.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+            textBody.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    textBody.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+                    buttonDelete.setVisible(true);
+                }
+                @Override
+                public void mouseExited(java.awt.event.MouseEvent evt) {
+                    textBody.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+                    buttonDelete.setVisible(false);
+                }
+            });
+            // end copilot code
 
             scroll = new JScrollPane(textBody);
             scroll.setBorder(null);
@@ -316,10 +342,29 @@ public class AFChatItem extends javax.swing.JPanel {
             //textBody.setForeground(new Color(255, 0, 0, 255));
             textBody.setLineWrap(true);
             textBody.setWrapStyleWord(true);
-            textBody.setFont(Font.decode("Segoe UI Emoji-14"));
+            textBody.setFont(Font.decode("Arial-14"));
             textBody.setMargin(new Insets(5, 5, 5, 5));
             textBody.setBorder(null);
             textBody.setText(this.text);
+        
+            // make textBody readonly but display cursor when mouse hover
+            // start copilot code
+            textBody.setEditable(false);
+            textBody.setFocusable(true);
+            textBody.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+            textBody.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    textBody.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+                    buttonDelete.setVisible(true);
+                }
+                @Override
+                public void mouseExited(java.awt.event.MouseEvent evt) {
+                    textBody.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+                    buttonDelete.setVisible(false);
+                }
+            });
+            // end copilot code
 
             scroll = new JScrollPane(textBody);
             scroll.setBorder(null);
@@ -373,25 +418,6 @@ public class AFChatItem extends javax.swing.JPanel {
         catch(Exception e){
             System.out.println("Error: " + e.getMessage());
         }
-        
-        // make textBody readonly but display cursor when mouse hover
-        // start copilot code
-        textBody.setEditable(false);
-        textBody.setFocusable(true);
-        textBody.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
-        textBody.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                textBody.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
-                buttonDelete.setVisible(true);
-            }
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                textBody.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-                buttonDelete.setVisible(false);
-            }
-        });
-        // end copilot code
 
 
         if (isMine) {
@@ -455,24 +481,39 @@ public class AFChatItem extends javax.swing.JPanel {
 
     public void updateDateTime(){
         if (isMine){
-            if (this.messageObject != null && this.messageObject.timesent != null) {
-                this.authorBody.setText(this.messageObject.timesent.toString());
+            java.time.ZonedDateTime today = java.time.ZonedDateTime.now();
+            // set today to 0 hours 0 minutes 0 seconds
+            today = today.withHour(0).withMinute(0).withSecond(0).withNano(0);
+            Instant instant = Instant.ofEpochMilli(this.messageObject.timesent.getTime());
+            LocalDateTime datetime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+            if (this.messageObject.timesent.before(new Timestamp(today.toEpochSecond()*1000))){
+                authorBody.setText(datetime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy\nHH:mm")));
+                //System.out.println("1");
             }
-            else authorBody.setText("Author" + "\n" + datetimeNow);
+            else {
+                authorBody.setText(datetime.format(DateTimeFormatter.ofPattern("HH:mm")));
+                //System.out.println(2);
+            }
         }
         else if (this.getParent().getParent().getParent().getParent().getParent() instanceof PanelChat){
             PanelChat parent = (PanelChat)this.getParent().getParent().getParent().getParent().getParent();
             String author = parent.account.name;
-            // today is at 0 hours 0 minutes 0 seconds
             java.time.ZonedDateTime today = java.time.ZonedDateTime.now();
-            if (this.messageObject.timesent.before(new Timestamp(today.toEpochSecond()))){
-                authorBody.setText(author + "\n" + this.messageObject.timesent.toLocalDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm")));
+            // set today to 0 hours 0 minutes 0 seconds
+            today = today.withHour(0).withMinute(0).withSecond(0).withNano(0);
+            Instant instant = Instant.ofEpochMilli(this.messageObject.timesent.getTime());
+            LocalDateTime datetime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+            if (this.messageObject.timesent.before(new Timestamp(today.toEpochSecond()*1000))){
+                authorBody.setText(author + "\n" + datetime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy\nHH:mm")));
+                //System.out.println(3);
             }
             else {
-                authorBody.setText(author + "\n" + this.messageObject.timesent.toLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+                authorBody.setText(author + "\n" + datetime.format(DateTimeFormatter.ofPattern("HH:mm")));
+                //System.out.println(4);
             }
         }
         timetext = authorBody.getText();
+        //System.out.println(timetext);
     }
 
     protected void chatItemMouseExited(MouseEvent evt) {
@@ -487,14 +528,17 @@ public class AFChatItem extends javax.swing.JPanel {
 
     protected void chatItemComponentResized(ComponentEvent evt) {
         int width = this.getParent().getWidth()*3/5-20;
-            
-        Graphics ga = authorBody.getGraphics();
-        int authorHeight = authorBody.getPreferredSize().height;
-        int authorWidth = ga.getFontMetrics(authorBody.getFont()).stringWidth(authorBody.getText());
-        int newAuthorWidth = (authorWidth < width)? authorWidth : width ;
-        authorBody.setSize(new java.awt.Dimension(newAuthorWidth , authorHeight));
-        topPanel.setSize(new java.awt.Dimension(this.getSize().width, authorHeight + 10));
-
+          
+        if (authorBody != null){
+            Graphics ga = authorBody.getGraphics();
+            if (ga == null) return;
+            int authorHeight = authorBody.getPreferredSize().height;
+            int authorWidth = ga.getFontMetrics(authorBody.getFont()).stringWidth(authorBody.getText());
+            int newAuthorWidth = (authorWidth < width)? authorWidth : width ;
+            authorBody.setSize(new java.awt.Dimension(newAuthorWidth , authorHeight));
+            topPanel.setSize(new java.awt.Dimension(this.getSize().width, authorHeight + 10));
+        }
+        
         if (messageObject != null && (messageObject.type == 0 || messageObject.type == 3)) {
             int height = textBody.getPreferredSize().height; 
             Graphics g = textBody.getGraphics();
@@ -507,6 +551,7 @@ public class AFChatItem extends javax.swing.JPanel {
         else if (messageObject != null && messageObject.type == 1) {
             if (image.getWidth() > width){
                 panelBody.setSize(new Dimension(width, width * image.getHeight()/image.getWidth()));
+                panelBody.setPreferredSize(new Dimension(width, width * image.getHeight()/image.getWidth()));
             }
         }
         else{

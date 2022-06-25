@@ -32,7 +32,7 @@ public class ContactItem extends JComponent{
     public Image avatar;
     public Image defaultFriendPicture = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/newUser.png"))).getImage();
 
-    private String id;
+    public String id;
     private JLabel labelLastMessage;
     private JLabel labelName;
     private custom.CircleAvatar friendPicture;
@@ -91,7 +91,8 @@ public class ContactItem extends JComponent{
         this.setFriendName(account.name);
         this.id = account.id;
         this.setState(account.state);
-
+        this.revalidate();
+        this.repaint();
         //TODO double click event
     }
 
@@ -249,7 +250,7 @@ public class ContactItem extends JComponent{
 
     protected void labelLastMessageComponentResized(ComponentEvent evt) {
         // print
-        System.out.println("labelLastMessage ComponentResized");
+        //System.out.println("labelLastMessage ComponentResized");
     }
     @Override
     protected void paintComponent(java.awt.Graphics g){
@@ -284,27 +285,28 @@ public class ContactItem extends JComponent{
     protected void itemMouseEntered(MouseEvent evt) {
         mouseOn = true;
         repaint();
-        System.out.println("item mouse entered");
+        //System.out.println("item mouse entered");
     }
 
     protected void itemMouseExited(MouseEvent evt) {
         mouseOn = false;
         repaint();
         // print
-        System.out.println("item Mouse exited");
+        //System.out.println("item Mouse exited");
     }
 
     protected void itemMouseClicked(MouseEvent evt) {
         clicked = true;
         repaint();
-        if (this.getParent().getParent().getParent() instanceof MainUI){
-            MainUI parent = (MainUI) this.getParent().getParent().getParent();
+        if (this.getParent().getParent().getParent().getParent().getParent().getParent().getParent().getParent().getParent() instanceof MainUI){
+            MainUI parent = (MainUI) this.getParent().getParent().getParent().getParent().getParent().getParent().getParent().getParent().getParent();
             if (parent.currentContactItem != null && parent.currentContactItem != this){
                 parent.currentContactItem.clicked = false;
                 parent.currentContactItem.repaint();
             }
+            parent.currentContactItem = this;
         }
-        System.out.println("item clicked");
+
     }
 
     protected void friendPictureMouseExited(MouseEvent evt) {
@@ -355,5 +357,9 @@ public class ContactItem extends JComponent{
     protected void labelLastMessageMouseClicked(MouseEvent evt) {
         // print
         System.out.println("label last message clicked");
+    }
+    public void setAvatar(Image img) {
+        this.avatar = img;
+        this.friendPicture.setImage(new ImageIcon(img.getScaledInstance(this.friendPicture.getWidth(), this.friendPicture.getHeight(), Image.SCALE_SMOOTH)));
     }
 }

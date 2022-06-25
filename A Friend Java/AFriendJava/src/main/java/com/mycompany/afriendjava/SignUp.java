@@ -3,6 +3,8 @@ package com.mycompany.afriendjava;
 import java.awt.Color;
 import javax.swing.JTextField;
 
+import ui.customcomponents.TextPrompt;
+
 public class SignUp extends javax.swing.JFrame {
 
     public SignUp() {
@@ -30,7 +32,7 @@ public class SignUp extends javax.swing.JFrame {
     }
 
     private boolean MatchPassword() {
-        if (pFieldPassword.getPassword().toString().equals(pFieldConfirmPassword.getPassword().toString())) {
+        if ((new String(pFieldPassword.getPassword())).equals(new String(pFieldConfirmPassword.getPassword()))) {
             return true;
         } else {
             return false;
@@ -59,39 +61,16 @@ public class SignUp extends javax.swing.JFrame {
         labelTitle.setText("Sign Up");
 
         textFieldUsername.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
-        textFieldUsername.setText("Username");
-        textFieldUsername.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                textFieldUsernameFocusGained(evt);
-            }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                textFieldUsernameFocusLost(evt);
-            }
-        });
+        textFieldUsername.setText("");
+        TextPrompt placeholder = new TextPrompt("Username", textFieldUsername);
 
         pFieldPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
-        pFieldPassword.setText("Password");
-        pFieldPassword.setEchoChar('\u0000');
-        pFieldPassword.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                pFieldPasswordFocusGained(evt);
-            }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                pFieldPasswordFocusLost(evt);
-            }
-        });
+        pFieldPassword.setEchoChar('*');
+        TextPrompt password = new TextPrompt("Password", pFieldPassword);
 
         pFieldConfirmPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
-        pFieldConfirmPassword.setText("Confirm Password");
-        pFieldConfirmPassword.setEchoChar('\u0000');
-        pFieldConfirmPassword.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                pFieldConfirmPasswordFocusGained(evt);
-            }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                pFieldConfirmPasswordFocusLost(evt);
-            }
-        });
+        pFieldConfirmPassword.setEchoChar('*');
+        TextPrompt confirmPassword = new TextPrompt("Confirm Password", pFieldConfirmPassword);
 
         buttonSignUp.setBackground(new java.awt.Color(121, 241, 214));
         buttonSignUp.setFont(new java.awt.Font("Microsoft Sans Serif", 1, 18)); // NOI18N
@@ -172,66 +151,28 @@ public class SignUp extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void textFieldUsernameFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFieldUsernameFocusGained
-        if (textFieldUsername.getText().equals("Username")) {
-            textFieldUsername.setText(null);
-            textFieldUsername.requestFocus();
-            removePlaceholderStyle(textFieldUsername);
-        }
-    }//GEN-LAST:event_textFieldUsernameFocusGained
-
-    private void textFieldUsernameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFieldUsernameFocusLost
-        if (textFieldUsername.getText().length() == 0) {
-            addPlaceholderStyle(textFieldUsername);
-            textFieldUsername.setText("Username");
-        }
-    }//GEN-LAST:event_textFieldUsernameFocusLost
-
-    private void pFieldPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusGained
-        if (pFieldPassword.getPassword().toString().equals("Password")) {
-            pFieldPassword.setText(null);
-            pFieldPassword.requestFocus();
-            pFieldPassword.setEchoChar('\u25CF');
-            removePlaceholderStyle(pFieldPassword);
-        }
-    }//GEN-LAST:event_pFieldPasswordFocusGained
-
-    private void pFieldPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldPasswordFocusLost
-        if (pFieldPassword.getPassword().toString().length() == 0) {
-            addPlaceholderStyle(pFieldPassword);
-            pFieldPassword.setText("Password");
-            pFieldPassword.setEchoChar('\u0000');
-        }
-    }//GEN-LAST:event_pFieldPasswordFocusLost
-
-    private void pFieldConfirmPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusGained
-        if (pFieldConfirmPassword.getPassword().toString().equals("Confirm Password")) {
-            pFieldConfirmPassword.setText(null);
-            pFieldConfirmPassword.requestFocus();
-            pFieldConfirmPassword.setEchoChar('\u25CF');
-            removePlaceholderStyle(pFieldConfirmPassword);
-        }
-    }//GEN-LAST:event_pFieldConfirmPasswordFocusGained
-
-    private void pFieldConfirmPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusLost
-        if (pFieldConfirmPassword.getPassword().toString().length() == 0) {
-            addPlaceholderStyle(pFieldConfirmPassword);
-            pFieldConfirmPassword.setText("Confirm Password");
-            pFieldConfirmPassword.setEchoChar('\u0000');
-        }
-    }//GEN-LAST:event_pFieldConfirmPasswordFocusLost
-
     private void buttonSignUpMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonSignUpMouseClicked
         labelWarning.setHorizontalAlignment(JTextField.CENTER);
         if (IsEmptyTextField())
         labelWarning.setText("Please complete your sign up information.");
         else if (!MatchPassword())
-        labelWarning.setText("Passwords do NOT match.");
-        else {
-            dispose();
+        labelWarning.setText("Passwords are NOT match.");
+        else if (usernameExist()){
+            labelWarning.setText("username Existed");
 
         }
+        else{
+            labelWarning.setText("Account created successfully.");
+            labelWarning.setForeground(Color.GREEN);
+            Login login = new Login();
+            login.setVisible(true);
+            this.dispose();
+        }
     }//GEN-LAST:event_buttonSignUpMouseClicked
+
+    private boolean usernameExist() {
+        return !AFriendClient.signedUp(textFieldUsername.getText(), pFieldPassword.getPassword().toString());
+    }
 
     private void buttonExitMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonExitMouseClicked
         dispose();

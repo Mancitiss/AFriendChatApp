@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -27,6 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import javax.swing.SwingUtilities;
 
 public class AFriendClient{
     public static final String SERVER_ADDRESS = "mancitiss.duckdns.org";
@@ -301,15 +303,21 @@ public class AFriendClient{
     }
 
     public static void ping(){
-        try{
-            try(SSLSocket client = (SSLSocket)ssf.createSocket(SERVER_ADDRESS, SERVER_PORT)){
-                client.getOutputStream().write(Tools.combine("0012".getBytes(StandardCharsets.UTF_16LE), user.id.getBytes(StandardCharsets.US_ASCII)));
-                System.out.println("Pinged");
+        Thread thread = new Thread(new Runnable(){
+            @Override
+            public void run(){
+                try{
+                    try(SSLSocket client = (SSLSocket)ssf.createSocket(SERVER_ADDRESS, SERVER_PORT)){
+                        client.getOutputStream().write(Tools.combine("0012".getBytes(StandardCharsets.UTF_16LE), user.id.getBytes(StandardCharsets.US_ASCII)));
+                        System.out.println("Pinged");
+                    }
+                }
+                catch (Exception e){
+                    //e.printStackTrace();
+                }
             }
-        }
-        catch (Exception e){
-            //e.printStackTrace();
-        }
+        });
+        thread.start();
     }
 
     private static void logOut(){
@@ -430,6 +438,7 @@ public class AFriendClient{
                     user = new Account();
                     System.out.println(user == null);
                     user.id = Tools.receive_unicode(dis, 38);
+                    System.out.println("ID: "+ user.id);
                     user.name = Tools.receive_Unicode_Automatically(dis);
                     String priv = Tools.receive_unicode(dis, 10);
                     user.priv = Boolean.parseBoolean(priv);
@@ -438,7 +447,13 @@ public class AFriendClient{
                     // or not, if you don't have to
                     try{
                         // this method is synchronized, its parameters must be volatile
-                        Program.mainform.formSettings.changeIncognitoMode(user.priv);
+                        SwingUtilities.invokeLater(new Runnable(){
+                            @Override
+                            public void run(){
+                                Program.mainform.formSettings.changeIncognitoMode(user.priv);
+
+                            }
+                        });
                     }
                     catch (Exception e){
                         e.printStackTrace();
@@ -450,7 +465,12 @@ public class AFriendClient{
                     String offline_id = Tools.receive_unicode(dis, 38);
                     try{
                         // this method is synchronized, its parameters must be volatile
-                        Program.mainform.turnContactActiveState(offline_id, (byte)0);
+                        SwingUtilities.invokeLater(new Runnable(){
+                            @Override
+                            public void run(){
+                            Program.mainform.turnContactActiveState(offline_id, (byte)0);
+                            }
+                        });
                     }
                     catch (Exception e){
                         e.printStackTrace();
@@ -466,32 +486,41 @@ public class AFriendClient{
                 case "0708":{
                     String id = Tools.receive_unicode(dis, 38);
                     String boolStr = Tools.receive_unicode(dis, 2);
-                    if (boolStr.equals("0") && Program.mainform.panelChats.get(id).isLastMessageFromYou()){
-                        // this method is synchronized, its parameters must be volatile
-                        Program.mainform.contactItems.get(id).setUnread(false);
-                    }
-                    else if (boolStr.equals("0") && !Program.mainform.panelChats.get(id).isLastMessageFromYou()){
-                        // this method is synchronized, its parameters must be volatile
-                        Program.mainform.contactItems.get(id).setUnread(true);
-                    }
-                    else{
-                        // this method is synchronized, its parameters must be volatile
-                        Program.mainform.contactItems.get(id).setUnread(false);
-                    }
+                    SwingUtilities.invokeLater(new Runnable(){
+                        @Override
+                        public void run(){
+                            if (boolStr.equals("0") && Program.mainform.panelChats.get(id).isLastMessageFromYou()){
+                                // this method is synchronized, its parameters must be volatile
+                                Program.mainform.contactItems.get(id).setUnread(false);
+                            }
+                            else if (boolStr.equals("0") && !Program.mainform.panelChats.get(id).isLastMessageFromYou()){
+                                // this method is synchronized, its parameters must be volatile
+                                Program.mainform.contactItems.get(id).setUnread(true);
+                            }
+                            else{
+                                // this method is synchronized, its parameters must be volatile
+                                Program.mainform.contactItems.get(id).setUnread(false);
+                            }
+                        }
+                    });
                 } break;
 
                 // new account created successfully
                 case "1011":{
                     System.out.println("new account created");
+                    AFriendClient.instruction = "1011";
                 } break;
 
                 // name changed successfully
                 case "1012":{
                     System.out.println("name changed");
                     changeName();
-                    
+                    SwingUtilities.invokeLater(new Runnable(){
+                        @Override
+                        public void run(){
+                        Program.mainform.formSettings.changeSettingsWarning("Name changed successfully!", new Color(37, 75, 133));
+                    }});
                     // this method is synchronized, its parameters must be volatile
-                    Program.mainform.formSettings.changeSettingsWarning("Name changed successfully!", new Color(37, 75, 133));
                 } break;
 
                 case "1060":{
@@ -501,8 +530,13 @@ public class AFriendClient{
                         byte[] avatar = Base64.getDecoder().decode(friendAvatar);
                         BufferedImage img = ImageIO.read(new ByteArrayInputStream(avatar));
                         
+                        SwingUtilities.invokeLater(new Runnable(){
+                            @Override
+                            public void run(){
+                                Program.mainform.setAvatar(panelId, img);   
+                            }
+                        });
                         // this method is synchronized, its parameters must be volatile
-                        Program.mainform.setAvatar(panelId, img);
                     }
                 } break;
 
@@ -516,25 +550,31 @@ public class AFriendClient{
                     String data_found = Tools.receive_Unicode_Automatically(dis);
                     String[] found = data_found.split(" ");
                     System.out.println(String.join(" ", found));
-                    String name = "";
-                    for (int i = 2; i < found.length; i++){
-                        name += found[i] + " ";
-                    }
-                    name = name.trim();
                     try{
-                        byte state = Byte.parseByte(found[found.length - 1]);
-                        // this method is synchronized, its parameters must be volatile
-                        Program.mainform.formAddContact.changeWarningLabel("New contact added!", new Color(143, 228, 185));
-                        
-                        // this method is synchronized, its parameters must be volatile
-                        Program.mainform.addContactItem(new Account(found[1], name, found[0], state));
-                        if (first.containsKey(found[0])){
-                            for(MessageObject msgobj: first.get(found[0])){
+                        SwingUtilities.invokeLater(new Runnable(){
+                            @Override
+                            public void run(){
+                                
+                                String name = "";
+                                for (int i = 2; i < found.length - 1; i++){
+                                    name += found[i] + " ";
+                                }
+                                name = name.trim();
+                                byte state = Byte.parseByte(found[found.length - 1]);
                                 // this method is synchronized, its parameters must be volatile
-                                Program.mainform.panelChats.get(found[0]).addMessage(msgobj);
+                                Program.mainform.formAddContact.changeWarningLabel("New contact added!", new Color(143, 228, 185));
+                                
+                                // this method is synchronized, its parameters must be volatile
+                                Program.mainform.addContactItem(new Account(found[1], name, found[0], state));
+                                if (first.containsKey(found[0])){
+                                    for(MessageObject msgobj: first.get(found[0])){
+                                        // this method is synchronized, its parameters must be volatile
+                                        Program.mainform.panelChats.get(found[0]).addMessage(msgobj);
+                                    }
+                                    first.remove(found[0]);
+                                }
                             }
-                            first.remove(found[0]);
-                        }
+                        });
                     }
                     catch(Exception e){
                         e.printStackTrace();
@@ -547,13 +587,18 @@ public class AFriendClient{
                     String json = Tools.receive_Unicode_Automatically(dis);
                     MessageObject msgobj = Program.gson.fromJson(json, MessageObject.class);
                     String sender = msgobj.id1;
-                    if (user.id == msgobj.id2){ // if me = user2 add user1
+                    if (user.id.equals(msgobj.id2)){ // if me = user2 add user1
                         if (Program.mainform.isThisPersonAdded(msgobj.id1)){
-                            Program.mainform.panelChats.get(msgobj.id1).addMessage(msgobj);
-                            if (!msgobj.sender){
-                                // this method is synchronized, its parameters must be volatile
-                                Program.mainform.turnContactActiveState(msgobj.id1, (byte)1);
-                            }
+                            SwingUtilities.invokeLater(new Runnable(){
+                                @Override
+                                public void run(){
+                                Program.mainform.panelChats.get(msgobj.id1).addMessage(msgobj);
+                                if (!msgobj.sender){
+                                    // this method is synchronized, its parameters must be volatile
+                                    Program.mainform.turnContactActiveState(msgobj.id1, (byte)1);
+                                }
+                                }
+                            });
                         }
                         else {
                             if (first.containsKey(sender)){
@@ -569,13 +614,17 @@ public class AFriendClient{
                             }
                         }
                     }
-                    else if (user.id == msgobj.id1){
+                    else if (user.id.equals(msgobj.id1)){
                         if (Program.mainform.isThisPersonAdded(msgobj.id2)){
-                            Program.mainform.panelChats.get(msgobj.id2).addMessage(msgobj);
-                            if (!msgobj.sender){
-                                // this method is synchronized, its parameters must be volatile
-                                Program.mainform.turnContactActiveState(msgobj.id2, (byte)1);
-                            }
+                            SwingUtilities.invokeLater(new Runnable(){
+                                @Override
+                                public void run(){
+                                Program.mainform.panelChats.get(msgobj.id2).addMessage(msgobj);
+                                if (!msgobj.sender){
+                                    // this method is synchronized, its parameters must be volatile
+                                    Program.mainform.turnContactActiveState(msgobj.id2, (byte)1);
+                                }}
+                            });
                         }
                         else {
                             if (first.containsKey(sender)){
@@ -635,7 +684,7 @@ public class AFriendClient{
                                 catch (Exception e){}
                                 String file = files.get(filename).name;
                                 files.remove(filename);
-                                Files.delete(Paths.get(file));
+                                Files.delete(Path.of(file));
                             }
                             catch (Exception e){
                                 e.printStackTrace();
@@ -685,7 +734,11 @@ public class AFriendClient{
                     String file = id1 + "_" + id2 + "_" + numStr + ".";
                     if (files.containsKey(file)){
                         files.get(file).size += size;
-                        Program.mainform.panelChats.get(receiverId).messages.get(Long.parseLong(numStr)).startTimer(file, size);
+                        SwingUtilities.invokeLater(new Runnable(){
+                            @Override
+                            public void run(){
+                            Program.mainform.panelChats.get(receiverId).messages.get(Long.parseLong(numStr)).startTimer(file, size);
+                        }});
                         if (files.get(file).size == 0){
                             files.remove(file);
                         }
@@ -698,39 +751,67 @@ public class AFriendClient{
                     Long messageNumber = Long.parseLong(messageNumberStr);
                     if (Program.mainform.panelChats.containsKey(panelId)){
                         System.out.println("deleting: " + messageNumber);
-                        Program.mainform.panelChats.get(panelId).removeMessage(messageNumber);
+                        SwingUtilities.invokeLater(new Runnable(){
+                            @Override
+                            public void run(){
+                            Program.mainform.panelChats.get(panelId).removeMessage(messageNumber);
+
+                        }});
                     }
                 } break;
 
                 case "2004":{
                     System.out.println("You are logged in from another device");
                     user.state = 0;
-                    Program.mainform.showLogin();
+                    SwingUtilities.invokeLater(new Runnable(){
+                        @Override
+                        public void run(){
+                            Program.mainform.showLogin();
+                    }});
                 } break;
 
                 // this id is online
                 case "2211":{
                     String id = Tools.receive_unicode(dis, 38);
-                    Program.mainform.turnContactActiveState(id, (byte)1);
+                    SwingUtilities.invokeLater(new Runnable(){
+                        @Override
+                        public void run(){
+                        Program.mainform.turnContactActiveState(id, (byte)1);
+                }});
                     
                 } break;
 
                 // sort contact list
                 case "2411":{
-                    Program.mainform.formLoading.showProgress(100);
-                    Program.mainform.sortContactItems();
+                    SwingUtilities.invokeLater(new Runnable(){
+                        @Override
+                        public void run(){
+
+                        Program.mainform.formLoading.showProgress(100);
+                        Program.mainform.sortContactItems();
+                }});
                 } break;
 
                 // add contact failed
                 case "2609":{
                     String id = Tools.receive_unicode(dis, 38);
-                    Program.mainform.formAddContact.changeWarningLabel("That ID doesn't exist", new Color(255, 0, 0));
+                    SwingUtilities.invokeLater(new Runnable(){
+                        @Override
+                        public void run(){
+                        Program.mainform.formAddContact.changeWarningLabel("That ID doesn't exist", new Color(255, 0, 0));
+                        }
+                    });
                 } break;
 
                 // change password successfully
                 case "4269":{
                     System.out.println("Change password successfully");
-                    Program.mainform.formSettings.changeSettingsWarning("Change password successfully", new Color(143, 228, 185));
+                    SwingUtilities.invokeLater(new Runnable(){
+                        @Override
+                        public void run(){
+
+                            Program.mainform.formSettings.changeSettingsWarning("Change password successfully", new Color(143, 228, 185));                        }
+                    });
                 } break;
 
                 // load messages
@@ -742,7 +823,13 @@ public class AFriendClient{
                     // wrap messageObjects with list 
 
                     try{
-                        Program.mainform.panelChats.get(panelId).loadMessages(Arrays.asList(messageObjects));
+                        SwingUtilities.invokeLater(new Runnable(){
+                            @Override
+                            public void run(){
+                                Program.mainform.panelChats.get(panelId).loadMessages(Arrays.asList(messageObjects));
+
+                            }
+                        });
                     }
                     catch (Exception e){
                         e.printStackTrace();
@@ -759,7 +846,13 @@ public class AFriendClient{
                 // old password is not correct
                 case "9624":{
                     System.out.println("Old password is not correct");
-                    Program.mainform.formSettings.changeSettingsWarning("Old password is not correct", new Color(213, 54, 41));
+                    SwingUtilities.invokeLater(new Runnable(){
+                        @Override
+                        public void run(){
+                            Program.mainform.formSettings.changeSettingsWarning("Old password is not correct", new Color(213, 54, 41));
+
+                        }
+                    });
                 } break;
 
                 default:{
@@ -783,10 +876,10 @@ public class AFriendClient{
             dos = new DataOutputStream(client.getOutputStream());
             queueCommand(("0011"+Tools.data_with_unicode_byte(username) + Tools.data_with_unicode_byte(pw)).getBytes(StandardCharsets.UTF_16LE));
             receiveFromId(client);
-            if (instruction == "1011"){
+            if (instruction.equals("1011")){
                 success = true;
             }
-            else if (instruction == "1111"){
+            else if (instruction.equals("1111")){
                 
             }
             queueCommand("2004".getBytes(StandardCharsets.UTF_16LE));

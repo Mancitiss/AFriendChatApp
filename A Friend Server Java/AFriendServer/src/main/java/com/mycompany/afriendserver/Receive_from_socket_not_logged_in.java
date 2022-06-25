@@ -289,7 +289,7 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                 id_string = "0" + id_string;
                             }
                             // insert into account values (id, username, name, pw, state, private, number_of_contacts, avatar)
-                            try(PreparedStatement command = Program.sql.prepareStatement("insert into account values (?, ?, ?, ?, ?, ?, ?, ?)")){
+                            try(PreparedStatement command = Program.sql.prepareStatement("insert into account values (?, ?, ?, ?, ?, ?, ?, ?, ?)")){
                                 command.setLong(1, randomid);
                                 command.setString(2, lst_str[0]);
                                 command.setString(3, lst_str[0]);
@@ -299,6 +299,7 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                 command.setBoolean(6, false);
                                 command.setInt(7, 0);
                                 command.setNull(8, Types.VARCHAR);
+                                command.setNull(9, Types.NVARCHAR);
                                 command.executeUpdate();
                             }
                             DOS.write("1011".getBytes(StandardCharsets.UTF_16LE));

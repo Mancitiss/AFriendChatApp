@@ -41,6 +41,7 @@ public class PasteAction extends AbstractAction {
                             BufferedImage img = (BufferedImage) content.getTransferData(DataFlavor.imageFlavor);
                             String imgString = Tools.ImageToBASE64(img);
                             try{
+                                //System.out.println("1902"+id+Tools.data_with_ASCII_byte(imgString));
                                 AFriendClient.queueCommand(Tools.combine(("1902" + id).getBytes(StandardCharsets.UTF_16LE), Tools.data_with_ASCII_byte(imgString).getBytes(StandardCharsets.US_ASCII)));
                             }
                             catch(Exception ex){
