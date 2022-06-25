@@ -73,7 +73,7 @@ public class Program {
             try {
                 while (true) {
                     SSLSocket client = (SSLSocket) ss.accept();
-                    
+                    System.out.println("Client connected: " + client.getInetAddress());
                     try {
                         // translate below line of code from C#
                         // ThreadPool.QueueUserWorkItem(Receive_from_socket_not_logged_in, client);

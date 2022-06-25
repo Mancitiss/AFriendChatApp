@@ -31,8 +31,8 @@ public class Receive_message implements Runnable {
             do {
                 data = Tools.receive_unicode(s, 8);
 
-                if (data != null && !data.isBlank()) {
-                    //if (data!=null && data!="1904") System.out.println("Work: " + data);
+                if (data != null && !data.isEmpty()) {
+                    if (data!=null && data!="1904") System.out.println("Work: " + data);
                     // if (!data.equals("1904"))
 
                     String instruction = data;
@@ -115,7 +115,7 @@ public class Receive_message implements Runnable {
                                                                 rs1.getBoolean("sender"),
                                                                 rs1.getString("message"), rs1.getByte("type")));
                                                     } else if (rs1.getByte("type") == 1 && (new File(
-                                                            Program.img_path + p[0] + "_" + p[1] + num + ".png"))
+                                                            Program.img_path + p[0] + "_" + p[1] + "_" + num + ".png"))
                                                             .exists()) {
                                                         messages.add(
                                                                 new MessageObject(rs1.getString("id1"),
@@ -142,7 +142,7 @@ public class Receive_message implements Runnable {
                                             .Queue_command(("6475" + receiver_id + Tools.data_with_unicode_byte(json))
                                                     .getBytes(StandardCharsets.UTF_16LE));
                                     // old messages sent
-
+                                    System.out.println("6475 sent");
                                     if (Program.sessions.containsKey(ID)) {
                                         if (Program.sessions.get(ID).loaded > 1) {
                                             Program.sessions.get(ID).loaded -= 1;
@@ -150,7 +150,7 @@ public class Receive_message implements Runnable {
                                             Program.sessions.get(ID)
                                                     .Queue_command("2411".getBytes(StandardCharsets.UTF_16LE));
                                             Program.sessions.get(ID).loaded -= 1;
-
+                                            System.out.println("Sent 2411");
                                         }
                                     }
                                 }
@@ -271,6 +271,7 @@ public class Receive_message implements Runnable {
                         }
                             break;
                         case "1902": {
+                            System.out.println("Receiving image");
                             String receiver_id = Tools.receive_unicode(s, 38);
                             data = Tools.receive_ASCII_Automatically(s);
                             String[] p = Tools.compareIDs(ID, receiver_id);
@@ -284,13 +285,14 @@ public class Receive_message implements Runnable {
                                     // get a random negative number between -1000000000 and 0 (inclusive)
                                     ps.setLong(3, -Program.rand.nextInt(1000000000));
                                     ps.setString(4, now.toInstant().toString());
-                                    ps.setBoolean(5, true);
+                                    ps.setBoolean(5, ID.equals(p[1]));
                                     ps.setString(6, "");
                                     ps.setByte(7, (byte) 1);
                                     if (ps.executeUpdate() >= 1) {
                                         success = true;
                                     }
                                 }
+                                //System.out.println(success);
                                 if (success) {
                                     try (PreparedStatement another_ps = Program.sql.prepareStatement(
                                             "select top 1 * from message where id1=? and id2=? and timesent=? and sender=?")) {
@@ -308,6 +310,7 @@ public class Receive_message implements Runnable {
                                                             new FileOutputStream(temp))) {
                                                         fos.write(java.util.Base64.getDecoder().decode(img_message));
                                                     }
+                                                    //System.out.println("Creating object");
                                                     MessageObject msgobj = new MessageObject(
                                                             Tools.padleft(rs.getString("id1"), 19, '0'),
                                                             Tools.padleft(rs.getString("id2"), 19, '0'),
@@ -315,16 +318,19 @@ public class Receive_message implements Runnable {
                                                             rs.getTimestamp("timesent", Program.tzCal).getTime(),
                                                             rs.getBoolean("sender"), img_message,
                                                             rs.getByte("type"));
+                                                    //System.out.println("Sending image");
                                                     if (!ID.equals(receiver_id))
                                                         Program.sendToID(ID, msgobj);
                                                     if (!Program.sendToID(receiver_id, msgobj)) {
                                                         Program.sessions.get(ID).Queue_command(
                                                                 ("0404" + receiver_id)
                                                                         .getBytes(StandardCharsets.UTF_16LE));
+                                                        System.out.println("0404");
                                                     } else {
                                                         Program.sessions.get(ID).Queue_command(
                                                                 ("2211" + receiver_id)
                                                                         .getBytes(StandardCharsets.UTF_16LE));
+                                                        System.out.println("2211");
                                                     }
 
                                                 } catch (Exception e) {
@@ -354,7 +360,7 @@ public class Receive_message implements Runnable {
                                     ps.setString(2, p[1]);
                                     ps.setLong(3, -Program.rand.nextInt(1000000000));
                                     ps.setString(4, now.toInstant().toString());
-                                    ps.setBoolean(5, true);
+                                    ps.setBoolean(5, ID.equals(p[1]));
                                     ps.setString(6, file);
                                     if (ps.executeUpdate() >= 1) {
                                         success = true;
@@ -613,36 +619,34 @@ public class Receive_message implements Runnable {
                             }
                         }
                             break;
-                        /*
-                         * case "0610":
-                         * {
-                         * String receiver_id = Tools.receive_unicode(s, 38);
-                         * try(PreparedStatement ps = Program.sql.
-                         * prepareStatement("select top 1 id, username, name from account where id=? and private=0"
-                         * )){
-                         * ps.setLong(1, Long.parseLong(receiver_id));
-                         * try(ResultSet rs = ps.executeQuery()){
-                         * if(rs.next()){
-                         * int state = Program.sessions.containsKey(rs.getString("id"))?1:0;
-                         * Program.sessions.get(ID).Queue_command(
-                         * Tools.combine(
-                         * "1610".getBytes(StandardCharsets.UTF_16LE),
-                         * Tools.data_with_unicode_byte(Tools.padleft(String.valueOf(rs.getLong("id")),
-                         * 19, '0') + " " + rs.getNString("username") + " " + rs.getNString("name") +
-                         * " " + state).getBytes(StandardCharsets.UTF_16LE)
-                         * )
-                         * );
-                         * }
-                         * else {
-                         * Program.sessions.get(ID).Queue_command(
-                         * "2609".getBytes(StandardCharsets.UTF_16LE)
-                         * );
-                         * }
-                         * }
-                         * }
-                         * }
-                         * break;
-                         */
+                        case "0610":
+                        {
+                            String receiver_username = Tools.receive_Unicode_Automatically(s);
+                            try(PreparedStatement ps = Program.sql.prepareStatement("select top 1 id, username, name from account where username=? and private=0"
+                            )){
+                                ps.setString(1, receiver_username);
+                                try(ResultSet rs = ps.executeQuery()){
+                                    if(rs.next()){
+                                        int state = Program.sessions.containsKey(rs.getString("id"))?1:0;
+                                        Program.sessions.get(ID).Queue_command(
+                                            Tools.combine(
+                                                "1610".getBytes(StandardCharsets.UTF_16LE),
+                                                Tools.data_with_unicode_byte(Tools.padleft(String.valueOf(rs.getLong("id")),
+                                                19, '0') + " " + rs.getNString("username") + " " + rs.getNString("name") +
+                                                " " + state).getBytes(StandardCharsets.UTF_16LE
+                                                )
+                                            )
+                                        );
+                                    }
+                                    else {
+                                        Program.sessions.get(ID).Queue_command(
+                                        "2609".getBytes(StandardCharsets.UTF_16LE)
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                        break;
                         case "1060": {
                             String receiver_id = Tools.receive_unicode(s, 38);
                             String path = Program.avatar_path + receiver_id + ".png";
