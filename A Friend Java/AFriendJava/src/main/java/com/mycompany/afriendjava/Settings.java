@@ -41,6 +41,36 @@ public class Settings extends javax.swing.JFrame {
         changeIncognitoMode(AFriendClient.user.priv);
     }
 
+    public Settings(String id) {
+        initComponents();
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowOpened(java.awt.event.WindowEvent windowEvent) {
+                load(id);
+            }
+        });
+        setLocationRelativeTo(null);
+        panelChangeName.setVisible(false);
+        panelChangePassword.setVisible(false);
+        addPlaceholderStyle(pFieldCurrentPassword);
+        addPlaceholderStyle(pFieldNewPassword);
+        addPlaceholderStyle(pFieldConfirmPassword);
+        addPlaceholderStyle(textFieldNewUsername);
+        changeIncognitoMode(AFriendClient.user.priv);
+    }
+
+    private void load(String id) {
+        if (Program.mainform.panelChats.get(id).avatar != null){
+            this.circleAvatar1.setImage(new ImageIcon(Program.mainform.panelChats.get(id).avatar.getScaledInstance(this.circleAvatar1.getWidth(), this.circleAvatar1.getHeight(), Image.SCALE_SMOOTH)));
+        }
+        buttonAvatar.setIcon(new ImageIcon(cameraIcon.getScaledInstance(buttonAvatar.getWidth(), buttonAvatar.getHeight(), Image.SCALE_SMOOTH)));
+        this.toggleButton1.setEnabled(Program.mainform.panelChats.get(id).account.state == 1);
+        this.labelUsername.setText(Program.mainform.panelChats.get(id).account.name);
+        this.labelID.setText(Program.mainform.panelChats.get(id).account.id);
+        panelChangeName.setVisible(false);
+        panelChangePassword.setVisible(false);
+    }
+
     private void load() {
         if (!AFriendClient.imgString.isBlank()){
             this.circleAvatar1.setImage(new ImageIcon(Tools.BASE64ToImage(AFriendClient.imgString)));
@@ -51,7 +81,6 @@ public class Settings extends javax.swing.JFrame {
         this.labelID.setText(AFriendClient.user.id);
         panelChangeName.setVisible(false);
         panelChangePassword.setVisible(false);
-        // togglebutton1 event set enable
 
     }
 

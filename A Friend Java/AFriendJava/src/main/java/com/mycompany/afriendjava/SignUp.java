@@ -185,7 +185,7 @@ public class SignUp extends javax.swing.JFrame {
 
     private boolean validUserName() {
         for(int i = 0; i < textFieldUsername.getText().length(); i++){
-            if(!Character.isLetterOrDigit(textFieldUsername.getText().charAt(i)) || !(textFieldUsername.getText().charAt(i) == '_')){
+            if(!Character.isLetterOrDigit(textFieldUsername.getText().charAt(i)) && !(textFieldUsername.getText().charAt(i) == '_')){
                 return false;
             }
         }

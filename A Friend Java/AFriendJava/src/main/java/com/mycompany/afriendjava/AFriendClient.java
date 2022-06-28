@@ -615,7 +615,7 @@ public class AFriendClient{
                                 }
                                 name = name.trim();
                                 byte state = Byte.parseByte(found[found.length - 1]);
-                                byte type = 0;
+                                byte type = Byte.parseByte(found[found.length - 1]);
                                 // this method is synchronized, its parameters must be volatile
                                 Program.mainform.changeWarning("New contact added!", new Color(143, 228, 185));
                                 

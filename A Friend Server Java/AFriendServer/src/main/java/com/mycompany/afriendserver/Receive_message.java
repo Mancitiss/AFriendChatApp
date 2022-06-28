@@ -676,7 +676,6 @@ public class Receive_message implements Runnable {
                                     command.setLong(1, randomid);
                                     command.setNull(2, Types.NVARCHAR);
                                     command.setNString(3, "Group of " + name);
-                                    // setNstring 4 to BCrypt hash password
                                     command.setNull(4, Types.NVARCHAR);
                                     command.setByte(5, (byte)1);
                                     command.setBoolean(6, false);
@@ -686,10 +685,13 @@ public class Receive_message implements Runnable {
                                     command.setByte(10, (byte)1 );
                                     if (command.executeUpdate() > 0){
                                         Program.sessions.get(ID).Queue_command(
-                                                Tools.combine(
-                                                        "1611".getBytes(StandardCharsets.UTF_16LE),
-                                                        Tools.data_with_unicode_byte(id_string).getBytes(StandardCharsets.UTF_16LE))
-                                        );
+                                            Tools.combine(
+                                                "1609".getBytes(StandardCharsets.UTF_16LE),
+                                                Tools.data_with_unicode_byte(
+                                                    Tools.padleft(String.valueOf(randomid), 19, '0')
+                                                    + " " + randomid + " "
+                                                    + "Group of " + name + " " + 1 + " " + 1)
+                                                .getBytes(StandardCharsets.UTF_16LE)));
                                     }
                                 }
                             }                           

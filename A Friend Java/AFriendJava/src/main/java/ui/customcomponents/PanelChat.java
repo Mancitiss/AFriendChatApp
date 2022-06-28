@@ -94,6 +94,7 @@ public class PanelChat extends javax.swing.JPanel{
     public Image sendIcon = (new ImageIcon(getClass().getResource("paper-plane-regular.png"))).getImage();
     public Image sendImageIcon = (new ImageIcon(getClass().getResource("camera-outline.png"))).getImage();
     public Image sendFileIcon = (new ImageIcon(getClass().getResource("file_icon_207228.png"))).getImage();
+    public Image settingIcon = (new ImageIcon(getClass().getResource("Cogs.png"))).getImage();
 
     public int isFormShowing;
     public boolean isShowing;
@@ -256,7 +257,7 @@ public class PanelChat extends javax.swing.JPanel{
             public void adjustmentValueChanged(AdjustmentEvent e) {
                 if(e.getValue() == panelChatScroll.getVerticalScrollBar().getMinimum()){
                     if (isLoadingOldMessages) panelChatScroll.getVerticalScrollBar().setValue(current_vertical_value);
-                    if (panelChatScroll.getVerticalScrollBar().getValue() == panelChatScroll.getVerticalScrollBar().getMinimum() && !locking ){
+                    if (panelChatScroll.getVerticalScrollBar().getValue() == panelChatScroll.getVerticalScrollBar().getMinimum() && !locking && !isLoadingOldMessages) {
                         long num = loadedmessagenumber - 1;
                         if (num > 1){
                             String datasend = num + "";
@@ -503,7 +504,7 @@ public class PanelChat extends javax.swing.JPanel{
 
     protected void panelTopComponentResized(ComponentEvent evt) {
         buttonDelete.setLocation(panelTop.getSize().width - 52, 10);
-        labelFriendName.setSize(buttonDelete.getLocation().x - labelFriendName.getLocation().x - 50, 18);
+        labelFriendName.setSize(buttonDelete.getLocation().x - labelFriendName.getLocation().x - 60, 18);
     }
 
     private void panelChat_Resize(java.awt.event.ComponentEvent evt) {
@@ -566,6 +567,7 @@ public class PanelChat extends javax.swing.JPanel{
     }
 
     public byte type;
+    private JButton buttonSettings;
 
     public PanelChat(Account acc) {
         this.account = acc;
@@ -588,6 +590,29 @@ public class PanelChat extends javax.swing.JPanel{
                 }
             }
         });
+
+        // if type == 1 (group chat)
+        if (type == 1){
+            buttonSettings = new JButton("Settings");
+            buttonSettings.setSize(40, 40);
+            try{
+                buttonSettings.setIcon(new ImageIcon(settingIcon.getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+            buttonSettings.setLocation(panelTop.getSize().width - 100, 10);
+            buttonSettings.setVisible(true);
+            panelTop.add(buttonSettings);
+            // add panelTop resize event listener
+            panelTop.addComponentListener(new java.awt.event.ComponentAdapter() {
+                @Override
+                public void componentResized(ComponentEvent evt) {
+                    buttonSettings.setLocation(panelTop.getSize().width - 102, 10);
+                    
+                }
+            });
+        }
     }
 
     public byte getState(){
@@ -843,18 +868,23 @@ public class PanelChat extends javax.swing.JPanel{
 
     public void loadMessages(List<MessageObject> messageObjects) {
         isLoadingOldMessages = true;
-        long currentMinChat = currentmin;
-        for(MessageObject messageObject: messageObjects){
-            addMessageToTop(messageObject);
-        }
-        if (panelChat.getComponentCount() > messageObjects.size()){
-            Box currentBox = (Box)messages.get(currentMinChat).getParent();
-            // scroll panelChat to the top of the current box
-            panelChatScroll.getVerticalScrollBar().setValue(currentBox.getY() + 10);
-            current_vertical_value = panelChatScroll.getVerticalScrollBar().getValue();
+        try{
+            long currentMinChat = currentmin;
+            for(MessageObject messageObject: messageObjects){
+                addMessageToTop(messageObject);
+            }
+            if (panelChat.getComponentCount() > messageObjects.size()){
+                Box currentBox = (Box)messages.get(currentMinChat).getParent();
+                // scroll panelChat to the top of the current box
+                panelChatScroll.getVerticalScrollBar().setValue(currentBox.getY() + 10);
+                current_vertical_value = panelChatScroll.getVerticalScrollBar().getValue();
 
+            }
         }
-        isLoadingOldMessages = false;
+        catch (Exception e){}
+        finally{
+            isLoadingOldMessages = false;
+        }
     }
 
     public void removeMessagePassively(long messagenumber){

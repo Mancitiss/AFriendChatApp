@@ -179,9 +179,9 @@ public class MainUI extends javax.swing.JFrame {
             panelLoading.setVisible(false);
 
             if(panelChats.size() > 0){
-                showPanelChat(orderOfContactItems.lastEntry().getValue(), false);
-                panelChats.get(orderOfContactItems.lastEntry().getValue()).scrollToBottom();
-                this.currentContactItem = contactItems.get(orderOfContactItems.lastEntry().getValue());
+                showPanelChat(orderOfContactItems.firstEntry().getValue(), false);
+                panelChats.get(orderOfContactItems.firstEntry().getValue()).scrollToBottom();
+                this.currentContactItem = contactItems.get(orderOfContactItems.firstEntry().getValue());
                 this.currentContactItem.clicked = true;
                 this.currentContactItem.repaint();
             }
@@ -751,7 +751,7 @@ public class MainUI extends javax.swing.JFrame {
     }
 
     protected void addGroup(ActionEvent e) {
-        AFriendClient.queueCommand("".getBytes(StandardCharsets.UTF_16LE));
+        AFriendClient.queueCommand("0611".getBytes(StandardCharsets.UTF_16LE));
     }
     protected void addNewUser(KeyEvent e) {
         String text = txtNewUser.getText();
