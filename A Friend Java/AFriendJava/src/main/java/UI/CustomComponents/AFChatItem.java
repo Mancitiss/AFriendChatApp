@@ -17,6 +17,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
+import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -36,6 +37,8 @@ import com.mycompany.afriendjava.MessageObject;
 import com.mycompany.afriendjava.Tools;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.FlowLayout;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -45,6 +48,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 /**
  *
@@ -67,6 +71,9 @@ public class AFChatItem extends javax.swing.JPanel {
     public void setShowDetail(boolean showDetail) { 
         this.showDetail = showDetail; 
         topPanel.setVisible(showDetail);
+        this.revalidate();
+        this.repaint();
+        /* 
         if (showDetail){
             this.setSize(this.getSize().width, 5 + topPanel.getSize().height + bottomPanel.getSize().height);
             //this.invalidate();
@@ -74,7 +81,7 @@ public class AFChatItem extends javax.swing.JPanel {
         else{
             this.setSize(this.getSize().width, 5 + bottomPanel.getSize().height);
             //this.invalidate();
-        }
+        }*/
     }
 
     public Color getBackgroundColor(){
@@ -184,10 +191,11 @@ public class AFChatItem extends javax.swing.JPanel {
                 }
             });
         }
+        this.setDoubleBuffered(true);
     }
     protected void textBodyDoubleClick(MouseEvent evt) {
         if (evt.getClickCount() == 2){
-            String partner_id = (messageObject.id1 == messageObject.id2) ? messageObject.id1 : (messageObject.id1 == AFriendClient.user.id) ? messageObject.id2 : messageObject.id1;
+            String partner_id = (messageObject.id1.equals(messageObject.id2)) ? messageObject.id1 : (messageObject.id1.equals(AFriendClient.user.id)) ? messageObject.id2 : messageObject.id1;
             try{
                 JFileChooser fileChooser = new JFileChooser();
                 // fileChooser will be used to save the file
@@ -219,7 +227,7 @@ public class AFChatItem extends javax.swing.JPanel {
                         JOptionPane.showMessageDialog(this, "Error overwriting file", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    AFriendClient.queueCommand(Tools.combine(("1905" + partner_id).getBytes(StandardCharsets.UTF_16LE), Tools.data_with_ASCII_byte((Long.toString(messageObject.messagenumber))).getBytes(StandardCharsets.US_ASCII)));
+                    AFriendClient.queueCommand(Tools.combine(("1905" + partner_id).getBytes(StandardCharsets.UTF_16LE), Tools.data_with_ASCII_byte(this.messageObject.messagenumber+"").getBytes(StandardCharsets.US_ASCII)));
                     AFriendClient.files.put(messageObject.id1 + "_" + messageObject.id2 + "_" + messageObject.messagenumber + ".", new AFile(filePath, 0));
                 }
             }
@@ -314,7 +322,11 @@ public class AFChatItem extends javax.swing.JPanel {
                 @Override
                 public void paintComponent(Graphics g) {
                     super.paintComponent(g);
-                    g.drawImage(image, 0, 0, panelBody.getWidth(), panelBody.getHeight(), panelBody);
+                    Graphics2D g2d = (Graphics2D) g.create();
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                    g2d.drawImage(image, 0, 0, panelBody.getWidth(), panelBody.getHeight(), panelBody);
                 }
             };
             // click event
@@ -323,13 +335,22 @@ public class AFChatItem extends javax.swing.JPanel {
                 public void mouseClicked(MouseEvent e) {
                     if (e.getClickCount() == 2) {
                         if (image != null) {
-                            JFrame frame = new JFrame();
-                            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                            frame.setBounds(100, 100, image.getWidth(), image.getHeight());
-                            frame.setLayout(new FlowLayout());
-                            JLabel label = new JLabel(new ImageIcon(image));
-                            frame.add(label);
-                            frame.setVisible(true);
+                            try{
+                                File file = File.createTempFile(UUID.randomUUID().toString(), ".png");
+                                ImageIO.write(image, "png", file);
+                                java.awt.Desktop.getDesktop().open(file);
+                            } 
+                            catch(Exception ee){
+                                ee.printStackTrace();
+                                
+                                JFrame frame = new JFrame();
+                                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                frame.setBounds(100, 100, image.getWidth(), image.getHeight());
+                                frame.setLayout(new FlowLayout());
+                                JLabel label = new JLabel(new ImageIcon(image));
+                                frame.add(label);
+                                frame.setVisible(true);
+                            }
                         }
                     }
                 }
@@ -547,11 +568,16 @@ public class AFChatItem extends javax.swing.JPanel {
             int newWidth = (textWidth + 20 < width)? textWidth : width - 20;
             textBody.setSize(new java.awt.Dimension(newWidth + 10, height));
             panelBody.setSize(new java.awt.Dimension(newWidth + 30, height + 20));
+            //panelBody.setPreferredSize(new java.awt.Dimension(newWidth + 30, height + 20));
         }
         else if (messageObject != null && messageObject.type == 1) {
             if (image.getWidth() > width){
                 panelBody.setSize(new Dimension(width, width * image.getHeight()/image.getWidth()));
                 panelBody.setPreferredSize(new Dimension(width, width * image.getHeight()/image.getWidth()));
+            }
+            else{
+                panelBody.setSize(new Dimension(image.getWidth(), image.getHeight()));
+                panelBody.setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
             }
         }
         else{
@@ -588,7 +614,7 @@ public class AFChatItem extends javax.swing.JPanel {
 
     @Override
     public java.awt.Dimension getPreferredSize(){
-        return new java.awt.Dimension(this.getParent().getWidth()*3/5 + (buttonDelete.isVisible()? DELETEICON_WIDTH : 0), panelBody.getPreferredSize().height + panelBody.getInsets().top + panelBody.getInsets().bottom + topPanel.getSize().height);
+        return new java.awt.Dimension(this.getParent().getWidth()*3/5 + (buttonDelete.isVisible()? DELETEICON_WIDTH : 0), panelBody.getPreferredSize().height + panelBody.getInsets().top + panelBody.getInsets().bottom + (showDetail? topPanel.getSize().height : 0));
     }
 
     private String text;

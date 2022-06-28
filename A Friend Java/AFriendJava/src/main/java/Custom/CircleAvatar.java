@@ -42,8 +42,8 @@ public class CircleAvatar extends JComponent {
     }
 
     private Icon image;
-    private int borderSize = 5;
-    private Color borderColor = new Color(60, 60, 60);
+    private int borderSize = 3;
+    private Color borderColor = Color.decode("#DCDCDC");
 
     @Override
     public void paint(Graphics g) {

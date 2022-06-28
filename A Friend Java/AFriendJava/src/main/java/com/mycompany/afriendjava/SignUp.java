@@ -154,13 +154,15 @@ public class SignUp extends javax.swing.JFrame {
     private void buttonSignUpMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonSignUpMouseClicked
         labelWarning.setHorizontalAlignment(JTextField.CENTER);
         if (IsEmptyTextField())
-        labelWarning.setText("Please complete your sign up information.");
+            labelWarning.setText("Please complete your sign up information.");
         else if (!MatchPassword())
-        labelWarning.setText("Passwords are NOT match.");
-        else if (usernameExist()){
+            labelWarning.setText("Passwords are NOT match.");
+        else if (!validUserName())
+            labelWarning.setText("Username contains invalid characters.");
+        else if (!validPassword())
+            labelWarning.setText("Password contains invalid characters.");
+        else if (usernameExist())
             labelWarning.setText("username Existed");
-
-        }
         else{
             labelWarning.setText("Account created successfully.");
             labelWarning.setForeground(Color.GREEN);
@@ -170,8 +172,34 @@ public class SignUp extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_buttonSignUpMouseClicked
 
+    private boolean validPassword() {
+        char[] p = pFieldPassword.getPassword();
+        for(int i = 0; i<p.length; i++){
+            if (!(i == 33 || i > 34 && i < 38 || i >= 42 && i <= 43 || i == 45 || i >= 48 && i <= 57 || i >= 64 && i <= 90 || i == 94 || i == 95 || i >= 97 && i <= 122))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean validUserName() {
+        for(int i = 0; i < textFieldUsername.getText().length(); i++){
+            if(!Character.isLetterOrDigit(textFieldUsername.getText().charAt(i)) || !(textFieldUsername.getText().charAt(i) == '_')){
+                return false;
+            }
+        }
+        // check if username has at lease 1 character not number
+        for(int i = 0; i < textFieldUsername.getText().length(); i++){
+            if(!Character.isLetter(textFieldUsername.getText().charAt(i))){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean usernameExist() {
-        return !AFriendClient.signedUp(textFieldUsername.getText(), pFieldPassword.getPassword().toString());
+        return !AFriendClient.signedUp(textFieldUsername.getText(), new String(pFieldPassword.getPassword()));
     }
 
     private void buttonExitMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonExitMouseClicked

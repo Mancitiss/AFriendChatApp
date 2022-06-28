@@ -163,12 +163,13 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                                         friendid = friendResult.getLong("id2");
                                                     }
 
-                                                    try(PreparedStatement friendCommand2 = Program.sql.prepareStatement("select top 1 id, name from account where id=?")){
+                                                    try(PreparedStatement friendCommand2 = Program.sql.prepareStatement("select top 1 id, name, type from account where id=?")){
                                                         friendCommand2.setLong(1, friendid);
                                                         try(ResultSet friendResult2 = friendCommand2.executeQuery()){
                                                             if (friendResult2.next()){
                                                                 int state = Program.sessions.containsKey(friendResult2.getString("id")) ? 1 : 0;
-                                                                String datasend = Tools.padleft(friendResult2.getString("id"), 19, '0') + " " + friendResult2.getString("id") + " " + friendResult2.getString("name") + " " + state;
+                                                                byte type = friendResult2.getByte("type");
+                                                                String datasend = Tools.padleft(friendResult2.getString("id"), 19, '0') + " " + friendResult2.getString("id") + " " + friendResult2.getString("name") + " " + state + " " + type;
                                                                 DOS.write(
                                                                         Tools.combine(
                                                                             "1609".getBytes(StandardCharsets.UTF_16LE),
@@ -275,7 +276,7 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                 } else if (instruction.equals("0011")){
                     try{
                         String[] lst_str = new String[2];
-                        lst_str[0] = Tools.receive_Unicode_Automatically(DIS);;
+                        lst_str[0] = Tools.receive_Unicode_Automatically(DIS);
                         
                         lst_str[1] = Tools.receive_Unicode_Automatically(DIS);
                         
@@ -289,17 +290,18 @@ public class Receive_from_socket_not_logged_in implements Runnable {
                                 id_string = "0" + id_string;
                             }
                             // insert into account values (id, username, name, pw, state, private, number_of_contacts, avatar)
-                            try(PreparedStatement command = Program.sql.prepareStatement("insert into account values (?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+                            try(PreparedStatement command = Program.sql.prepareStatement("insert into account values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
                                 command.setLong(1, randomid);
-                                command.setString(2, lst_str[0]);
-                                command.setString(3, lst_str[0]);
-                                // setstring 4 to BCrypt hash password
-                                command.setString(4, BCrypt.hashpw(lst_str[1], BCrypt.gensalt()));
+                                command.setNString(2, lst_str[0]);
+                                command.setNString(3, lst_str[0]);
+                                // setNstring 4 to BCrypt hash password
+                                command.setNString(4, BCrypt.hashpw(lst_str[1], BCrypt.gensalt()));
                                 command.setByte(5, (byte)1);
                                 command.setBoolean(6, false);
                                 command.setInt(7, 0);
                                 command.setNull(8, Types.VARCHAR);
                                 command.setNull(9, Types.NVARCHAR);
+                                command.setByte(10, (byte) 0);
                                 command.executeUpdate();
                             }
                             DOS.write("1011".getBytes(StandardCharsets.UTF_16LE));

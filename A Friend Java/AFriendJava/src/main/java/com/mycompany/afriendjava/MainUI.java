@@ -1,6 +1,7 @@
 package com.mycompany.afriendjava;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -26,6 +27,7 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -46,6 +48,7 @@ import java.awt.TrayIcon;
 import ui.customcomponents.*;
 
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 
 public class MainUI extends javax.swing.JFrame {
     
@@ -72,8 +75,8 @@ public class MainUI extends javax.swing.JFrame {
     // private FormContactRemoved formContactRemoved = new FormContactRemoved();
     // private FormGetStarted formGetStarted = new FormGetStarted();
     public Loading formLoading = new Loading();
-    public Settings formSettings = new Settings();
-    public FormAddContact formAddContact = new FormAddContact();
+    public Settings formSettings = null;
+    //public FormAddContact formAddContact = new FormAddContact();
     public JPanel panelLoading = new JPanel();
 
     // initialization    
@@ -82,6 +85,7 @@ public class MainUI extends javax.swing.JFrame {
     Image addIcon = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/Add.png"))).getImage();
     Image settingIcon = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/Cogs.png"))).getImage();
     Image logoutIcon = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/sign-out-option.png"))).getImage();
+    Image addGroupIcon = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/plus_add_insert_icon_1779051.png"))).getImage();
 
     final TrayIcon trayIcon = new TrayIcon(trayIconImage, "A Friend");
     final PopupMenu popup = new PopupMenu();
@@ -164,6 +168,11 @@ public class MainUI extends javax.swing.JFrame {
 
             loaded = true;
 
+            formLoading.stopSpinning();
+            formLoading.setVisible(false);
+            formLoading.dispose();
+            this.setVisible(true);
+
             //panelLoading.toBack(); //how?
             formLoading.stopSpinning();
             formLoading.dispose();
@@ -186,7 +195,7 @@ public class MainUI extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
-    private void bringContactItemToTop(String id) {
+    public void bringContactItemToTop(String id) {
         if (orderOfContactItems.size() <= 1){
             return;
         }
@@ -206,8 +215,9 @@ public class MainUI extends javax.swing.JFrame {
         if (loaded){
             ui.customcomponents.ContactItem item = contactItems.get(id);
             if (searchText == ""){
-                ContactList_Panel.remove(item);
-                ContactList_Panel.add(item);
+                System.out.println(ContactList_Panel.getComponentZOrder(item.getParent()));
+                ContactList_Panel.remove(item.getParent());
+                ContactList_Panel.add(item.getParent(), ContactList_Panel.getComponentCount() -1);
             }
         }
     }
@@ -268,6 +278,7 @@ public class MainUI extends javax.swing.JFrame {
         }
         currentID = id;
         currentPanelChat = item;
+        item.scrollToBottom();
     }
     private String getCurrentPanelChatId(){
         if (panelRight.getComponentCount() > 0){
@@ -283,6 +294,56 @@ public class MainUI extends javax.swing.JFrame {
         
         return "";
     }
+    public synchronized void removeContact(String id){
+        if (!panelChats.containsKey(id) || !contactItems.containsKey(id))
+            return;
+        ContactList_Panel.remove(contactItems.get(id).getParent());
+        ContactList_Panel.revalidate();
+        ContactList_Panel2.remove(contactItems.get(id).getParent());
+        ContactList_Panel2.revalidate();
+
+        if (panelRight.getComponent(0) == panelChats.get(id)){
+            panelRight.removeAll();
+            panelRight.setVisible(false);
+            panelRight.revalidate();
+            panelRight.repaint();
+            panelRight2.setVisible(true);
+            if (panelRight2.getComponentCount() > 0){
+                currentPanelChat = (PanelChat) panelRight2.getComponent(0);
+                currentID = currentPanelChat.id;
+                currentContactItem = contactItems.get(currentID);
+                currentContactItem.clicked = true;
+                currentContactItem.repaint();
+            }
+            panelRight2.revalidate();
+            panelRight2.repaint();
+        }
+        else if (panelRight2.getComponent(0) == panelChats.get(id)){
+            panelRight2.removeAll();
+            panelRight2.setVisible(false);
+            panelRight2.revalidate();
+            panelRight2.repaint();
+            panelRight.setVisible(true);
+            if (panelRight.getComponentCount() > 0){
+                currentPanelChat = (PanelChat) panelRight.getComponent(0);
+                currentID = currentPanelChat.id;
+                currentContactItem = contactItems.get(currentID);
+                currentContactItem.clicked = true;
+                currentContactItem.repaint();
+            }
+            panelRight.revalidate();
+            panelRight.repaint();
+        }
+
+        panelChats.remove(id);
+        contactItems.remove(id);
+        for(Entry<Integer, String> entry: orderOfContactItems.entrySet()){
+            if (entry.getValue().equals(id)){
+                orderOfContactItems.remove(entry.getKey());
+                break;
+            }
+        }
+    }
     public synchronized void addContactItem(Account acc){
         try{
             if (!panelChats.containsKey(acc.id)){
@@ -290,7 +351,7 @@ public class MainUI extends javax.swing.JFrame {
                 ContactItem ci = new ContactItem(acc);
                 ci.setUnread(true);
                 if (loaded){
-                    ContactList_Panel.add(ContactLayout.createContactItemBox(ci), ContactList_Panel.getComponentCount() - 1);
+                    ContactList_Panel.add(ContactLayout.createContactItemBox(ci), 0);
                 }
                 System.out.println("added");
                 if (orderOfContactItems.size() == 0){
@@ -311,15 +372,10 @@ public class MainUI extends javax.swing.JFrame {
                 //System.out.println(((Box)ci.getParent()).getVisibleRect().toString());
                 ContactList_Panel.revalidate();
                 ContactList_Panel.repaint();
-
-                panelChat.LoadMessage();
-                panelChat.scrollToBottom();
-
-                ci.setLastMessage(panelChat.getLastMessage());
-                panelChat.addContainerListener(new ContainerAdapter() {
+                panelChat.panelChat.addContainerListener(new ContainerAdapter() {
                     @Override
                     public void componentAdded(ContainerEvent e) {
-                        if (panelChat.getComponentCount() > 1){
+                        if (panelChat.panelChat.getComponentCount() > 1){
                             ci.setLastMessage(panelChat.getLastMessage());
                         }
                         if (loaded && !panelChat.isLastMessageFromYou()){
@@ -351,6 +407,11 @@ public class MainUI extends javax.swing.JFrame {
                         }
                     }
                 });
+
+                panelChat.LoadMessage();
+                panelChat.scrollToBottom();
+
+                //ci.setLastMessage(panelChat.getLastMessage());
             }
         }
         catch (Exception e){
@@ -367,10 +428,20 @@ public class MainUI extends javax.swing.JFrame {
             contactItems.get(id).setState(state);
         }
     }
+
+    public synchronized void changeWarning(String text, Color color){
+        labelWarning.setText(text);
+        labelWarning.setForeground(color);
+    }
     /**
      * Creates new form Main
      */
     public MainUI() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ex) {
+           ex.printStackTrace();
+        }
         initComponents();
         initSubPanels();
 
@@ -382,23 +453,26 @@ public class MainUI extends javax.swing.JFrame {
         int width = screenSize.width;
         int height = screenSize.height;
         this.setBounds(width/4, height/4, width/2, height/2);
-
+        formLoading.setBounds(width/4, height/4, width/2, height/2);
+        formLoading.setVisible(true);
+        this.AddFriend_Button.doClick();
         //getContentPane().setBackground(new Color(0, 205, 205));
 
     }
 
     private void initSubPanels() {
-        /*
+        
         ContactList_Panel2 = new JPanel();
         ContactList_Panel2.setLayout(new BoxLayout(ContactList_Panel2, BoxLayout.Y_AXIS));
         ContactList_Panel2.setBackground(ContactList_Panel.getBackground());
         ContactList_Panel2.setBorder(ContactList_Panel.getBorder());
-        ContactList_Panel2.setVisible(false);
-        ContactList_Panel2.setMinimumSize(ContactList_Panel.getMinimumSize());
-        ContactList_Panel2.setSize(ContactList_Panel.getSize());
-        ContactList_Panel2.setLocation(ContactList_Panel.getLocation());
-        this.add(ContactList_Panel2);
-        */
+        //ContactList_Panel2.setVisible(false);
+        ContactList_Panel2.setMinimumSize(new Dimension(ContactList_Panel.getMinimumSize().width, ContactList_Panel.getMinimumSize().height));
+        ContactList_Panel2.setSize(ContactList_Panel.getWidth(), ContactList_Panel.getHeight());
+        ContactList_Panel2.setLocation(0, 0);
+        //this.add(ContactList_Panel2);
+        
+
     }
     private void initComponents(){
 
@@ -444,17 +518,23 @@ public class MainUI extends javax.swing.JFrame {
             }
         });
 
-        /*
+        
         
         AddGroup_Button = new JButton("");
         AddGroup_Button.setMinimumSize(new Dimension(40, 40));
         AddGroup_Button.setMaximumSize(new Dimension(40, 40));
-        AddGroup_Button.setLocation(170, 10);
+        AddGroup_Button.setLocation(160, 10);
         AddGroup_Button.setSize(40, 40);
-        AddGroup_Button.setIcon(null);
+        AddGroup_Button.setIcon(new ImageIcon(addGroupIcon.getScaledInstance(AddGroup_Button.getWidth(), AddGroup_Button.getHeight(), Image.SCALE_SMOOTH)));
         AddGroup_Button.setVisible(true);
+        AddGroup_Button.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addGroup(e);
+            }
+        });
 
-        */
+        
         SearchBar = new JTextField();
         SearchBar.setBackground(Color.WHITE);
         SearchBar.setLocation(22, 9);
@@ -669,18 +749,58 @@ public class MainUI extends javax.swing.JFrame {
         }
     }
 
+    protected void addGroup(ActionEvent e) {
+        AFriendClient.queueCommand("".getBytes(StandardCharsets.UTF_16LE));
+    }
     protected void addNewUser(KeyEvent e) {
-        try{
-            System.out.println("adding");
-            addContactItem(new Account("123", "123", txtNewUser.getText(), (byte)0));
+        String text = txtNewUser.getText();
+        if (text.equals("")){
+            changeWarning("Please enter username or ID", Color.RED);
+            return;
         }
-        catch(Exception ex){
-            ex.printStackTrace();
+        boolean isId = true;
+        if (text.length() == 19){
+            // check if text only contains numbers
+            for (int i = 0; i < text.length(); i++){
+                if (!Character.isDigit(text.charAt(i))){
+                    isId = false;
+                    break;
+                }
+            }
+        }
+        else{
+            isId = false;
+        }
+        if (isId){
+            AFriendClient.queueCommand(("0609" + text).getBytes(StandardCharsets.UTF_16LE));
+        }
+        else {
+            AFriendClient.queueCommand(("0610" + Tools.data_with_unicode_byte(text)).getBytes(StandardCharsets.UTF_16LE));
         }
     }
     protected void search(DocumentEvent e) {
-        String text = SearchBar.getText();
-
+        String text = SearchBar.getText().trim();
+        if (text == searchText) return;
+        searchText = text;
+        if (searchText.equals("") || searchText.length() == 0){
+            ContactList_Panel2.removeAll();
+            ContactList_Panel.removeAll();
+            ContactList_Panel.add(Box.createVerticalGlue());
+            for( Entry <Integer, String> i : orderOfContactItems.entrySet()){
+                ContactList_Panel.add(contactItems.get(i.getValue()).getParent(), ContactList_Panel.getComponentCount() - 1);
+            }
+            ContactList_ScrollPanel.setViewportView(ContactList_Panel);
+        }
+        else {
+            ContactList_Panel2.removeAll();
+            ContactList_Panel2.add(Box.createVerticalGlue());
+            for(ContactItem contactItem: contactItems.values()){
+                if (contactItem.getFriendName().toLowerCase().contains(searchText.toLowerCase())){
+                    ContactList_Panel2.add(contactItem.getParent(), ContactList_Panel2.getComponentCount() - 1);
+                }
+            }
+            ContactList_ScrollPanel.setViewportView(ContactList_Panel2);
+        }
     }
     protected void logout(ActionEvent e) {
         AFriendClient.queueCommand(("2004").getBytes(StandardCharsets.UTF_16LE));
@@ -689,12 +809,25 @@ public class MainUI extends javax.swing.JFrame {
             f.dispose();
         }
         this.logout = true;
+        panelChats.clear();
+        Login lg = new Login();
+        lg.setVisible(true);
+        Program.mainform = null;
+        try{
+            if (AFriendClient.user != null){
+                AFriendClient.user.state = 0;
+            }
+        }
+        catch (Exception ex){
+            System.out.println(ex.getMessage());
+        }
         this.dispose();
+
     }
     protected void setting(ActionEvent e) {
         // show Settings Jframe dialog
-        Settings settings = new Settings();
-        settings.setVisible(true);
+        formSettings = new Settings();
+        formSettings.setVisible(true);
 
     }
     protected void addFriend(ActionEvent e) {

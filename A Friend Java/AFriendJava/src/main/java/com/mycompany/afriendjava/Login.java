@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import ui.customcomponents.*;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 
 import com.google.inject.spi.RequireAtInjectOnConstructorsOption;
 
@@ -19,6 +20,13 @@ public class Login extends javax.swing.JFrame {
     private TextPrompt passwordPrompt;
 
     public Login() {
+        // set look and feel
+        try {
+            // set look and feel to java default look and feel
+            UIManager.setLookAndFeel(UIManager.getInstalledLookAndFeels()[0].getClassName());
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
         initComponents();
         setLocationRelativeTo(null);
         addPlaceholderStyle(textFieldUsername);
@@ -225,12 +233,14 @@ public class Login extends javax.swing.JFrame {
 
     private void timerClosing_Tick(){
         MainUI frm = new MainUI();
+        /*
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         int width = gd.getDisplayMode().getWidth();
         int height = gd.getDisplayMode().getHeight();
         frm.setLocation(width / 4, height / 4);
+        */
         this.ResetTexts();
-        frm.setVisible(true);
+        //frm.setVisible(true);
         this.setVisible(false);
         Program.mainform = frm;
         Thread thread = new Thread(new Runnable(){

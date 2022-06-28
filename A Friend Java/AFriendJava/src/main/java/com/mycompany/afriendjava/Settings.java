@@ -1,13 +1,36 @@
 package com.mycompany.afriendjava;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.AlphaComposite;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import ui.customcomponents.TextPrompt;
 
 public class Settings extends javax.swing.JFrame {
+    Image cameraIcon = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/camera-outline.png"))).getImage();
 
     public Settings() {
         initComponents();
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowOpened(java.awt.event.WindowEvent windowEvent) {
+                load();
+            }
+        });
         setLocationRelativeTo(null);
         panelChangeName.setVisible(false);
         panelChangePassword.setVisible(false);
@@ -15,6 +38,21 @@ public class Settings extends javax.swing.JFrame {
         addPlaceholderStyle(pFieldNewPassword);
         addPlaceholderStyle(pFieldConfirmPassword);
         addPlaceholderStyle(textFieldNewUsername);
+        changeIncognitoMode(AFriendClient.user.priv);
+    }
+
+    private void load() {
+        if (!AFriendClient.imgString.isBlank()){
+            this.circleAvatar1.setImage(new ImageIcon(Tools.BASE64ToImage(AFriendClient.imgString)));
+        }
+        buttonAvatar.setIcon(new ImageIcon(cameraIcon.getScaledInstance(buttonAvatar.getWidth(), buttonAvatar.getHeight(), Image.SCALE_SMOOTH)));
+        this.toggleButton1.setEnabled(AFriendClient.user.priv);
+        this.labelUsername.setText(AFriendClient.user.name);
+        this.labelID.setText(AFriendClient.user.id);
+        panelChangeName.setVisible(false);
+        panelChangePassword.setVisible(false);
+        // togglebutton1 event set enable
+
     }
 
     public void addPlaceholderStyle(JTextField textField) {
@@ -26,7 +64,7 @@ public class Settings extends javax.swing.JFrame {
     }
 
     private boolean IsEmptyTextField() {
-        if (textFieldNewUsername.getText().length() == 0 || textFieldNewUsername.getText().equals("New Name")) {
+        if (textFieldNewUsername.getText().trim().length() == 0) {
             return true;
         } else {
             return false;
@@ -102,23 +140,15 @@ public class Settings extends javax.swing.JFrame {
         labelWarning1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
         textFieldNewUsername.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
-        textFieldNewUsername.setText("New Name");
-        textFieldNewUsername.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                textFieldNewUsernameFocusGained(evt);
-            }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                textFieldNewUsernameFocusLost(evt);
-            }
-        });
+        TextPrompt tp = new TextPrompt("New name", textFieldNewUsername);
 
         buttonSaveName.setBackground(new java.awt.Color(37, 75, 113));
         buttonSaveName.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
         buttonSaveName.setForeground(new java.awt.Color(255, 255, 255));
         buttonSaveName.setText("Save name");
-        buttonSaveName.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                buttonSaveNameMouseClicked(evt);
+        buttonSaveName.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonSaveNameActionPerformed(evt);
             }
         });
 
@@ -149,9 +179,8 @@ public class Settings extends javax.swing.JFrame {
 
         circleAvatar1.setBorderColor(new java.awt.Color(153, 153, 153));
         circleAvatar1.setBorderSize(2);
-        circleAvatar1.setImage(new javax.swing.ImageIcon("C:\\Users\\Phuong Quyen\\project_nhom_10_LTTQ_UIT_2021-2022\\A Friend\\A Friend\\Resources\\newUser.png")); // NOI18N
+        //circleAvatar1.setImage(new javax.swing.ImageIcon("C:\\Users\\Phuong Quyen\\project_nhom_10_LTTQ_UIT_2021-2022\\A Friend\\A Friend\\Resources\\newUser.png")); // NOI18N
 
-        buttonAvatar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Phuong Quyen\\Downloads\\camera-icon-35 (2).png")); // NOI18N
         buttonAvatar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 buttonAvatarMouseClicked(evt);
@@ -219,50 +248,26 @@ public class Settings extends javax.swing.JFrame {
         jTabbedPane2.addTab("Profile", jPanel1);
 
         pFieldNewPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
-        pFieldNewPassword.setText("New Password");
         pFieldNewPassword.setEchoChar('\u0000');
-        pFieldNewPassword.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                pFieldNewPasswordFocusGained(evt);
-            }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                pFieldNewPasswordFocusLost(evt);
-            }
-        });
+        TextPrompt tpNewPassword = new TextPrompt("New password", pFieldNewPassword); // NOI18N
 
         pFieldConfirmPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
-        pFieldConfirmPassword.setText("Confirm Password");
         pFieldConfirmPassword.setEchoChar('\u0000');
-        pFieldConfirmPassword.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                pFieldConfirmPasswordFocusGained(evt);
-            }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                pFieldConfirmPasswordFocusLost(evt);
-            }
-        });
+        TextPrompt tpConfirmPassword = new TextPrompt("Confirm password", pFieldConfirmPassword); // NOI18N
 
         buttonSavePassword.setBackground(new java.awt.Color(90, 198, 140));
         buttonSavePassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
         buttonSavePassword.setForeground(new java.awt.Color(255, 255, 255));
         buttonSavePassword.setText("Save password");
-        buttonSavePassword.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                buttonSavePasswordMouseClicked(evt);
+        buttonSavePassword.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonSavePasswordActionPerformed(evt);
             }
         });
 
         pFieldCurrentPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
-        pFieldCurrentPassword.setText("Current Password");
         pFieldCurrentPassword.setEchoChar('\u0000');
-        pFieldCurrentPassword.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                pFieldCurrentPasswordFocusGained(evt);
-            }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                pFieldCurrentPasswordFocusLost(evt);
-            }
-        });
+        TextPrompt tpCurrentPassword = new TextPrompt("Current password", pFieldCurrentPassword); // NOI18N
 
         javax.swing.GroupLayout panelChangePasswordLayout = new javax.swing.GroupLayout(panelChangePassword);
         panelChangePassword.setLayout(panelChangePasswordLayout);
@@ -389,89 +394,67 @@ public class Settings extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void textFieldNewUsernameFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFieldNewUsernameFocusGained
-        if (textFieldNewUsername.getText().equals("New Name")) {
-            textFieldNewUsername.setText(null);
-            textFieldNewUsername.requestFocus();
-            removePlaceholderStyle(textFieldNewUsername);
-        }
-    }//GEN-LAST:event_textFieldNewUsernameFocusGained
-
-    private void textFieldNewUsernameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textFieldNewUsernameFocusLost
-        if (textFieldNewUsername.getText().length() == 0) {
-            addPlaceholderStyle(textFieldNewUsername);
-            textFieldNewUsername.setText("New Username");
-        }
-    }//GEN-LAST:event_textFieldNewUsernameFocusLost
-
     private void labelChangeUsernameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelChangeUsernameMouseClicked
         panelChangeName.setVisible(true);
     }//GEN-LAST:event_labelChangeUsernameMouseClicked
 
-    private void pFieldNewPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldNewPasswordFocusGained
-        if (pFieldNewPassword.getPassword().toString().equals("New Password")) {
-            pFieldNewPassword.setText(null);
-            pFieldNewPassword.requestFocus();
-            pFieldNewPassword.setEchoChar('\u25CF');
-            removePlaceholderStyle(pFieldNewPassword);
-        }
-    }//GEN-LAST:event_pFieldNewPasswordFocusGained
-
-    private void pFieldNewPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldNewPasswordFocusLost
-        if (pFieldNewPassword.getPassword().toString().length() == 0) {
-            addPlaceholderStyle(pFieldNewPassword);
-            pFieldNewPassword.setText("New Password");
-            pFieldNewPassword.setEchoChar('\u0000');
-        }
-    }//GEN-LAST:event_pFieldNewPasswordFocusLost
-
-    private void pFieldConfirmPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusGained
-        if (pFieldConfirmPassword.getPassword().toString().equals("Confirm Password")) {
-            pFieldConfirmPassword.setText(null);
-            pFieldConfirmPassword.requestFocus();
-            pFieldConfirmPassword.setEchoChar('\u25CF');
-            removePlaceholderStyle(pFieldConfirmPassword);
-        }
-    }//GEN-LAST:event_pFieldConfirmPasswordFocusGained
-
-    private void pFieldConfirmPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldConfirmPasswordFocusLost
-        if (pFieldConfirmPassword.getPassword().toString().length() == 0) {
-            addPlaceholderStyle(pFieldConfirmPassword);
-            pFieldConfirmPassword.setText("Confirm Password");
-            pFieldConfirmPassword.setEchoChar('\u0000');
-        }
-    }//GEN-LAST:event_pFieldConfirmPasswordFocusLost
-
-    private void pFieldCurrentPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldCurrentPasswordFocusGained
-        if (pFieldCurrentPassword.getPassword().toString().equals("Current Password")) {
-            pFieldCurrentPassword.setText(null);
-            pFieldCurrentPassword.requestFocus();
-            pFieldCurrentPassword.setEchoChar('\u25CF');
-            removePlaceholderStyle(pFieldCurrentPassword);
-        }
-    }//GEN-LAST:event_pFieldCurrentPasswordFocusGained
-
-    private void pFieldCurrentPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pFieldCurrentPasswordFocusLost
-        if (pFieldCurrentPassword.getPassword().toString().length() == 0) {
-            addPlaceholderStyle(pFieldCurrentPassword);
-            pFieldCurrentPassword.setText("Current Password");
-            pFieldCurrentPassword.setEchoChar('\u0000');
-        }
-    }//GEN-LAST:event_pFieldCurrentPasswordFocusLost
-
     private void buttonAvatarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonAvatarMouseClicked
-        // TODO add your handling code here:
+        this.labelWarning1.setText("");
+        this.labelWarning2.setText("");
+        JFileChooser chooser = new JFileChooser();
+        // filter get all images types
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes());
+        chooser.setFileFilter(filter);
+        int returnVal = chooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            BufferedImage image = null;
+            try {
+                image = ImageIO.read(file);
+            }
+            catch (IOException e) {
+                this.labelWarning1.setText("Invalid image file");
+                return;
+            }
+            try{
+                int width = circleAvatar1.getWidth() * 2;
+                // resize image
+                BufferedImage resizedImage = new BufferedImage(width, width*image.getHeight()/image.getWidth(), BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g = resizedImage.createGraphics();
+                g.setComposite(AlphaComposite.Src);
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g.drawImage(image, 0, 0, width, width*image.getHeight()/image.getWidth(), null);
+                g.dispose();
+                String base64 = Tools.ImageToBASE64(resizedImage);
+                if (base64.length() < 28000000){
+                    AFriendClient.queueCommand(Tools.combine("0601".getBytes(StandardCharsets.UTF_16LE), Tools.data_with_ASCII_byte(base64.trim()).getBytes(StandardCharsets.UTF_16LE)));
+                    AFriendClient.imgString = base64.trim();
+                    circleAvatar1.setImage(new ImageIcon(Tools.BASE64ToImage(AFriendClient.imgString)));
+                }
+                else {
+                    this.labelWarning1.setText("Image too large");
+                }
+            }
+            catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }//GEN-LAST:event_buttonAvatarMouseClicked
 
-    private void buttonSaveNameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonSaveNameMouseClicked
+    private void buttonSaveNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSaveNameMouseClicked
         if (IsEmptyTextField())
             labelWarning1.setText("Please enter your new name.");
+        else if (textFieldNewUsername.getText().trim().length() >= 64)
+            labelWarning1.setText("Name too long.");
         else {
+            AFriendClient.queueCommand(("1012" + Tools.data_with_unicode_byte(textFieldNewUsername.getText().trim())).getBytes(StandardCharsets.UTF_16LE));
             panelChangeName.setVisible(false);
             labelWarning1.setText("");
-            labelUsername.setText(textFieldNewUsername.getText());
+            labelUsername.setText(textFieldNewUsername.getText().trim());
         }
-    }//GEN-LAST:event_buttonSaveNameMouseClicked
+    }//GEN-LAST:event_buttonSaveNameActionPerformed
 
     private void buttonExitMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonExitMouseClicked
         dispose();
@@ -481,16 +464,17 @@ public class Settings extends javax.swing.JFrame {
         panelChangePassword.setVisible(true);
     }//GEN-LAST:event_labelChangePassword1MouseClicked
 
-    private void buttonSavePasswordMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonSavePasswordMouseClicked
+    private void buttonSavePasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSavePasswordMouseClicked
         if (IsEmptyPasswordField())
             labelWarning2.setText("Please complete your password.");
         else if (!MatchPassword())
-            labelWarning2.setText("Passwords do NOT match.");
+            labelWarning2.setText("Passwords are NOT match.");
         else {
+            AFriendClient.queueCommand(("4269"+Tools.data_with_unicode_byte(pFieldCurrentPassword.getPassword().toString())+Tools.data_with_unicode_byte(pFieldNewPassword.getPassword().toString())).getBytes(StandardCharsets.UTF_16LE));
             panelChangePassword.setVisible(false);
             labelWarning2.setText("");
         }
-    }//GEN-LAST:event_buttonSavePasswordMouseClicked
+    }//GEN-LAST:event_buttonSavePasswordActionPerformed
 
     /**
      * @param args the command line arguments
@@ -554,10 +538,13 @@ public class Settings extends javax.swing.JFrame {
     private custom.ToggleButton toggleButton1;
     // End of variables declaration//GEN-END:variables
     public void changeIncognitoMode(boolean priv) {
-        //TODO change incognito mode
+        toggleButton1.setEnabled(true);
     }
 
     public void changeSettingsWarning(String string, Color color) {
-        //TODO change settings warning
+        labelWarning1.setText(string);
+        labelWarning1.setForeground(color);
+        labelWarning2.setText(string);
+        labelWarning2.setForeground(color);
     }
 }

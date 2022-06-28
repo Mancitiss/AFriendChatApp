@@ -5,6 +5,8 @@ import java.awt.Image;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -39,9 +41,11 @@ public class ContactItem extends JComponent{
     public boolean clicked;
     private boolean mouseOn;
     private byte state;
-    private Color stateColor = Color.decode("#FF0000");
+    private Color stateColor = Color.decode("#DCDCDC");
     private boolean unread;
     private Account account;
+
+    
 
     public byte getState(){ return state; }
     public void setState(byte state){ 
@@ -57,7 +61,11 @@ public class ContactItem extends JComponent{
             else{
                 this.stateColor = Color.decode("#FF0000");
             }
-            this.invalidate();
+            this.friendPicture.setBorderColor(stateColor);
+            this.friendPicture.revalidate();
+            this.friendPicture.repaint();
+            this.revalidate();
+            this.repaint();
         }
      }
 
@@ -98,6 +106,8 @@ public class ContactItem extends JComponent{
 
     public void setLastMessage(String message){
         labelLastMessage.setText(message);
+        labelLastMessage.revalidate();
+        labelLastMessage.repaint();
     }
 
     public ContactItem(String name, String lastmessage, boolean unread){
@@ -196,8 +206,8 @@ public class ContactItem extends JComponent{
 
         // friend picture
         friendPicture.setBackground(new Color(0f, 0f, 0f, 1f));
-        friendPicture.setBorderColor(new Color(180, 236, 180));
-        friendPicture.setBorderSize(0);
+        friendPicture.setBorderColor(Color.decode("#DCDCDC"));
+        friendPicture.setBorderSize(2);
         friendPicture.setLocation(20, 20);
         friendPicture.setSize(45, 45);
         friendPicture.setImage(new ImageIcon(defaultFriendPicture.getScaledInstance(45, 45, Image.SCALE_SMOOTH)));
@@ -254,17 +264,21 @@ public class ContactItem extends JComponent{
     }
     @Override
     protected void paintComponent(java.awt.Graphics g){
+        Graphics2D g2d = (Graphics2D) g.create();
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        //g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        //g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         if (clicked){
-            g.setColor(new Color(255, 202, 152, 95));
-            g.fillRect(10, 2, this.getWidth() - 20, this.getHeight() - 4);
+            g2d.setColor(new Color(255, 202, 152, 95));
+            g2d.fillRect(10, 2, this.getWidth() - 20, this.getHeight() - 4);
 
         }
         else if (mouseOn){
-            g.setColor(new Color(255, 202, 152, 50));
-            g.fillRect(10, 2, this.getWidth() - 20, this.getHeight() - 4);
+            g2d.setColor(new Color(255, 202, 152, 50));
+            g2d.fillRect(10, 2, this.getWidth() - 20, this.getHeight() - 4);
         }
-        g.setColor(stateColor);
-        g.drawOval(friendPicture.getX() - 1, friendPicture.getY() - 1 , friendPicture.getWidth() + 1 , friendPicture.getHeight() + 1);
+        //g2d.setColor(stateColor);
+        //g2d.drawOval(friendPicture.getX() - 1, friendPicture.getY() - 1 , friendPicture.getWidth() + 1 , friendPicture.getHeight() + 1);
     }
 
     @Override

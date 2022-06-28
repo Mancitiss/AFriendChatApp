@@ -81,7 +81,7 @@ public class PanelChat extends javax.swing.JPanel{
     private long loadedmessagenumber = 0;
     private byte state;
     private Color stateColor = Color.decode("#DCDCDC");
-    private java.awt.BasicStroke stroke1 = new java.awt.BasicStroke(1.0f);
+    private java.awt.BasicStroke stroke1 = new java.awt.BasicStroke(1f);
 
     public ConcurrentLinkedQueue<String> filesToSend = new ConcurrentLinkedQueue<String>();
     public HashMap<Long, AFChatItem> messages = new HashMap<Long, AFChatItem>();
@@ -149,16 +149,8 @@ public class PanelChat extends javax.swing.JPanel{
         };
 
         friendPicture.setBounds(18, 7, 45, 45);
-        friendPicture.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                System.out.println("entered");
-            }
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                System.out.println("exited");
-            }
-        });
+        this.friendPicture.setImage(new ImageIcon(this.avatar.getScaledInstance(friendPicture.getWidth(), friendPicture.getHeight(), Image.SCALE_SMOOTH)));
+        this.friendPicture.repaint();
 
         labelFriendName.setBounds(72, 10, 80, 18);
         labelFriendName.setFont(new java.awt.Font("Arial", 0, 12));
@@ -179,6 +171,21 @@ public class PanelChat extends javax.swing.JPanel{
         catch(Exception e){
             System.out.println("Error: " + e.getMessage());
         }
+        buttonDelete.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                // yes no dialog
+                int n = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this conversation?", "Delete Conversation", JOptionPane.YES_NO_OPTION);
+                if(n == 0){
+                    // yes no dialog
+                    int n2 = JOptionPane.showConfirmDialog(null, "This action will DELETE ALL YOUR MESSAGES with THIS PERSON! Think twice! Are you serious?", "Delete Conversation", JOptionPane.YES_NO_OPTION);
+                    if (n2 == 0){
+                        AFriendClient.queueCommand(("5859" + id).getBytes(StandardCharsets.UTF_16LE));
+                        
+                    }
+                }
+            }
+        });
 
 
         panelTop = new JPanel(){
@@ -205,8 +212,8 @@ public class PanelChat extends javax.swing.JPanel{
                 //set thickness of the stroke
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2d.setStroke(stroke1);
-                g2d.setColor(stateColor);
-                g2d.drawOval(friendPicture.getLocation().x - 1, friendPicture.getLocation().y - 1, friendPicture.getWidth() + 1, friendPicture.getHeight() + 1);
+                //g2d.setColor(stateColor);
+                //g2d.drawOval(friendPicture.getLocation().x - 1, friendPicture.getLocation().y - 1, friendPicture.getWidth() + 1, friendPicture.getHeight() + 1);
                 g2d.setColor(Color.gray);
                 g2d.drawLine(0, panelTop.getSize().height - 1, panelTop.getSize().width, panelTop.getSize().height - 1);
                 g2d.drawLine(0, panelTop.getSize().height, 0, 0);
@@ -235,8 +242,8 @@ public class PanelChat extends javax.swing.JPanel{
         panelChatScroll.setOpaque(false);
         panelChatScroll.setBorder(null);
         panelChatScroll.setBounds(0, 0, 912, 474);
-        panelChatScroll.getVerticalScrollBar().setUnitIncrement(16);
-        panelChatScroll.getVerticalScrollBar().setBlockIncrement(16);
+        panelChatScroll.getVerticalScrollBar().setUnitIncrement(30);
+        panelChatScroll.getVerticalScrollBar().setBlockIncrement(30);
         panelChatScroll.setWheelScrollingEnabled(true);
         panelChatScroll.getViewport().setOpaque(false);
 
@@ -376,9 +383,11 @@ public class PanelChat extends javax.swing.JPanel{
         try{
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+            /* 
             // set all file types
             FileNameExtensionFilter filter = new FileNameExtensionFilter("All Files", "*.*");
             fileChooser.setFileFilter(filter);
+            */
             // multiple files
             fileChooser.setMultiSelectionEnabled(true);
             int result = fileChooser.showDialog(this, "Send Files");
@@ -528,9 +537,12 @@ public class PanelChat extends javax.swing.JPanel{
         mustInit();
     }
 
+    public byte type;
+
     public PanelChat(Account acc) {
         this.account = acc;
         this.id = account.id;
+        this.type = account.type;
         mustInit();
         this.isFormShowing = 0;
         this.isShowing = false;
@@ -561,21 +573,34 @@ public class PanelChat extends javax.swing.JPanel{
                 stateColor = Color.decode("#DCDCDC");
                 labelState.setText("offline");
                 labelState.setForeground(stateColor);
-                panelTop.invalidate();
+                friendPicture.setBorderColor(stateColor);
+                friendPicture.revalidate();
+                friendPicture.repaint();
+                //panelTop.revalidate();
+                //panelTop.repaint();
             }
             else if (state == 1){
                 stateColor = Color.decode("#00FF7F");
                 labelState.setText("online");
                 labelState.setForeground(stateColor);
-                panelTop.invalidate();
+                friendPicture.setBorderColor(stateColor);
+                friendPicture.revalidate();
+                friendPicture.repaint();
+                //panelTop.revalidate();
+                //panelTop.repaint();
             }
             else {
                 stateColor = Color.decode("#FF0000");
                 labelState.setText("away");
                 labelState.setForeground(stateColor);
-                panelTop.invalidate();
+                friendPicture.setBorderColor(stateColor);
+                friendPicture.revalidate();
+                friendPicture.repaint();
+                //panelTop.revalidate();
+                //panelTop.repaint();
             }
-            this.invalidate();
+            //this.revalidate();
+            //this.repaint();
         }
     }
 
@@ -597,9 +622,11 @@ public class PanelChat extends javax.swing.JPanel{
 
     public Timestamp DateTimeOfLastMessage(){
         if (messages.size() == 0){
+            System.out.println(new Timestamp(System.currentTimeMillis()));
             return new Timestamp(System.currentTimeMillis());
         }
         else {
+            System.out.println("MO " + messages.get(currentmax).messageObject.timesent);
             return messages.get(currentmax).messageObject.timesent;
         }
     }
@@ -635,16 +662,20 @@ public class PanelChat extends javax.swing.JPanel{
 
     public String getLastMessage() {
         if (messages.size() == 0){
+            System.out.println("New conversation!");
             return "New conversation!";
         }
         this.evaluateMaxmin();
         MessageObject messageObject = messages.get(currentmax).messageObject;
         if (messageObject.type == 0){
+            System.out.println(messageObject.message);
             return messageObject.message;
         }
         else if (messageObject.type == 1){
+            System.out.println("Image");
             return "<Photo>";
         }
+        System.out.println("null");
         return "";
     }
 
@@ -652,11 +683,11 @@ public class PanelChat extends javax.swing.JPanel{
         if (messages.size() == 0) return;
         while (!messages.containsKey(currentmax)) currentmax -= 1;
         while (!messages.containsKey(currentmin)) currentmin += 1;
-
+        System.out.println(currentmax + " " + currentmin);
     }
 
     public boolean isLastMessageFromYou() {
-        if (panelChat.getComponentCount() == 0){
+        if (panelChat.getComponentCount() == 1){
             return true;
         }
         evaluateMaxmin();
@@ -679,6 +710,7 @@ public class PanelChat extends javax.swing.JPanel{
             AFChatItem chatItem = new AFChatItem(message);
             messages.put(message.messagenumber, chatItem);
             panelChat.add(ChatLayout.createChatItemBox(chatItem));
+            chatItem.setShowDetail(false);
             if (message.type == 3 || !messages.containsKey(message.messagenumber - 1) || messages.get(message.messagenumber - 1).messageObject.type == 3 || (message.timesent.getTime()/1000 - messages.get(message.messagenumber - 1).messageObject.timesent.getTime()/1000) > timi)
             {
                 chatItem.setShowDetail(true);
@@ -735,12 +767,18 @@ public class PanelChat extends javax.swing.JPanel{
             AFChatItem chatItem = new AFChatItem(message);
             messages.put(message.messagenumber, chatItem);
             panelChat.add(ChatLayout.createChatItemBox(chatItem), 1);
+            chatItem.setShowDetail(false);
+            chatItem.updateDateTime();
             
             if (message.type == 3 || !messages.containsKey(message.messagenumber - 1) || messages.get(message.messagenumber - 1).messageObject.type == 3 || (message.timesent.getTime()/1000 - messages.get(message.messagenumber - 1).messageObject.timesent.getTime()/1000) > timi)
             {
                 chatItem.setShowDetail(true);
+                if (messages.containsKey(message.messagenumber + 1)){
+                    if (messages.get(message.messagenumber + 1).messageObject.type == 3 || (messages.get(message.messagenumber - 1).messageObject.timesent.getTime()/1000 - message.timesent.getTime()/1000 ) > timi){
+                        messages.get(message.messagenumber + 1).setShowDetail(false);
+                    }
+                }
             }
-            chatItem.updateDateTime();
         }
         catch (Exception e){
             e.printStackTrace();
@@ -777,8 +815,8 @@ public class PanelChat extends javax.swing.JPanel{
     }
 
     public void scrollToBottom() {
-        if (panelChat.getComponentCount() > 0){
-            panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
+        if (this.panelChat.getComponentCount() > 1){
+            this.panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
         }
     }
     
@@ -817,5 +855,6 @@ public class PanelChat extends javax.swing.JPanel{
     public void setAvatar(Image img) {
         this.avatar = img;
         this.friendPicture.setImage(new ImageIcon(this.avatar.getScaledInstance(friendPicture.getWidth(), friendPicture.getHeight(), Image.SCALE_SMOOTH)));
+        this.friendPicture.repaint();
     }
 }
