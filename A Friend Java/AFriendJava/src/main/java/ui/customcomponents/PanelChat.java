@@ -54,6 +54,7 @@ import com.mycompany.afriendjava.Account;
 import com.mycompany.afriendjava.MainUI;
 import com.mycompany.afriendjava.MessageObject;
 import com.mycompany.afriendjava.Program;
+import com.mycompany.afriendjava.Settings;
 import com.mycompany.afriendjava.Tools;
 import com.mycompany.afriendjava.Utils;
 
@@ -612,7 +613,16 @@ public class PanelChat extends javax.swing.JPanel{
                     
                 }
             });
+            buttonSettings.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Settings setting = new Settings(account.id);
+                    setting.setVisible(true);
+                }
+            });
         }
+
+        System.out.println("PanelChat created");
     }
 
     public byte getState(){
@@ -916,6 +926,7 @@ public class PanelChat extends javax.swing.JPanel{
     
     public void LoadMessage(){
         AFriendClient.queueCommand(("6475" + this.id + "0120").getBytes(StandardCharsets.UTF_16LE));
+        System.out.println(this.id);
     }
 
     public void addMessage(String text, boolean isMine, int position) {

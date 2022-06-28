@@ -86,8 +86,8 @@ public class Receive_message implements Runnable {
                             break;
                         case "6475": {
                             String receiver_id = Tools.receive_unicode(s, 38);
-                            String[] p = Tools.compareIDs(ID, receiver_id);
                             data = Tools.receive_Unicode_Automatically(s);
+                            String[] p = Tools.compareIDs(ID, receiver_id);
                             long num = Long.parseLong(data);
                             if (num == 0) {
                                 try (PreparedStatement ps = Program.sql.prepareStatement(
@@ -696,6 +696,7 @@ public class Receive_message implements Runnable {
                                 }
                             }                           
                         }
+                        break;
                         case "1060": {
                             String receiver_id = Tools.receive_unicode(s, 38);
                             String path = Program.avatar_path + receiver_id + ".png";
@@ -794,7 +795,7 @@ public class Receive_message implements Runnable {
                             break;
                         default: {
                             keepreading = false;
-                            Program.shutdown(ID);
+                            //Program.shutdown(ID);
                         }
                             break;
                     }

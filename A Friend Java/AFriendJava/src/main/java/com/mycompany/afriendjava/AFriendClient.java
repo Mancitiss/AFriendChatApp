@@ -289,6 +289,7 @@ public class AFriendClient{
                     try{
                         while(!commands.isEmpty()){
                             byte[] command = commands.poll();
+                            System.out.println("COMMAND: " + new String(command, StandardCharsets.UTF_16LE));
                             dos.write(command);
                             ping();
                         }
@@ -441,7 +442,7 @@ public class AFriendClient{
     private static void receiveFromId(SSLSocket client){
         try{
             String instruction = Tools.receive_unicode(dis, 8);
-            System.out.println(instruction);
+            if (instruction != "") System.out.println(instruction);
             switch(instruction){
                 // log in failed
                 case "-200":{
@@ -565,6 +566,7 @@ public class AFriendClient{
                 case "1609":{
                     String data_found = Tools.receive_Unicode_Automatically(dis);
                     String[] found = data_found.split(" ");
+                    String id = found[0];
                     System.out.println(String.join(" ", found));
                     for (String s : found){
                         System.out.println(s);
@@ -585,13 +587,13 @@ public class AFriendClient{
                                 Program.mainform.changeWarning("New contact added!", new Color(143, 228, 185));
                                 
                                 // this method is synchronized, its parameters must be volatile
-                                Program.mainform.addContactItem(new Account(found[1], name, found[0], state, type));
-                                if (first.containsKey(found[0])){
-                                    for(MessageObject msgobj: first.get(found[0])){
+                                Program.mainform.addContactItem(new Account(found[1], name, id, state, type));
+                                if (first.containsKey(id)){
+                                    for(MessageObject msgobj: first.get(id)){
                                         // this method is synchronized, its parameters must be volatile
-                                        Program.mainform.panelChats.get(found[0]).addMessage(msgobj);
+                                        Program.mainform.panelChats.get(id).addMessage(msgobj);
                                     }
-                                    first.remove(found[0]);
+                                    first.remove(id);
                                 }
                             }
                         });
@@ -599,7 +601,8 @@ public class AFriendClient{
                     catch(Exception e){
                         e.printStackTrace();
                     }
-                    queueCommand(("1060" + found[0]).getBytes(StandardCharsets.UTF_16LE));
+                    System.out.println(id);
+                    queueCommand(("1060" + id).getBytes(StandardCharsets.UTF_16LE));
                 }
                 break;
 
@@ -914,7 +917,7 @@ public class AFriendClient{
                 } break;
 
                 default:{
-                    System.out.println("command not found");
+                    //System.out.println("command not found");
                 }
                 break;
             }

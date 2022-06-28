@@ -413,6 +413,7 @@ public class MainUI extends javax.swing.JFrame {
                 panelChat.scrollToBottom();
 
                 //ci.setLastMessage(panelChat.getLastMessage());
+                System.out.println("added contact item");
             }
         }
         catch (Exception e){

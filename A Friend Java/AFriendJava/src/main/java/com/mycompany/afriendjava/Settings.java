@@ -24,7 +24,9 @@ public class Settings extends javax.swing.JFrame {
     Image cameraIcon = (new ImageIcon(getClass().getResource("/com/mycompany/afriendjava/Resources/camera-outline.png"))).getImage();
 
     public Settings() {
-        initComponents();
+        initComponents();       
+        buttonAvatar.setIcon(new ImageIcon(cameraIcon.getScaledInstance(buttonAvatar.getWidth(), buttonAvatar.getHeight(), Image.SCALE_SMOOTH)));
+
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowOpened(java.awt.event.WindowEvent windowEvent) {
@@ -49,6 +51,8 @@ public class Settings extends javax.swing.JFrame {
 
     public Settings(String id) {
         initComponents();
+        buttonAvatar.setIcon(new ImageIcon(cameraIcon.getScaledInstance(buttonAvatar.getWidth(), buttonAvatar.getHeight(), Image.SCALE_SMOOTH)));
+
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowOpened(java.awt.event.WindowEvent windowEvent) {
@@ -69,7 +73,6 @@ public class Settings extends javax.swing.JFrame {
         if (Program.mainform.panelChats.get(id).avatar != null){
             this.circleAvatar1.setImage(new ImageIcon(Program.mainform.panelChats.get(id).avatar.getScaledInstance(this.circleAvatar1.getWidth(), this.circleAvatar1.getHeight(), Image.SCALE_SMOOTH)));
         }
-        buttonAvatar.setIcon(new ImageIcon(cameraIcon.getScaledInstance(buttonAvatar.getWidth(), buttonAvatar.getHeight(), Image.SCALE_SMOOTH)));
         this.toggleButton1.setEnabled(Program.mainform.panelChats.get(id).account.state == 1);
         this.labelUsername.setText(Program.mainform.panelChats.get(id).account.name);
         this.labelID.setText(Program.mainform.panelChats.get(id).account.id);
