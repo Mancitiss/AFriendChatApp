@@ -191,7 +191,7 @@ public class SignUp extends javax.swing.JFrame {
         }
         // check if username has at lease 1 character not number
         for(int i = 0; i < textFieldUsername.getText().length(); i++){
-            if(!Character.isLetter(textFieldUsername.getText().charAt(i))){
+            if(!Character.isDigit(textFieldUsername.getText().charAt(i))){
                 return true;
             }
         }

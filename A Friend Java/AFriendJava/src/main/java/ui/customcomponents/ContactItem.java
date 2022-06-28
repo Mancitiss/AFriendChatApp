@@ -102,7 +102,6 @@ public class ContactItem extends JComponent{
         this.setState(account.state);
         this.revalidate();
         this.repaint();
-        //TODO double click event
 
         // double click
         this.addMouseListener(new java.awt.event.MouseAdapter() {

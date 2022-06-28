@@ -566,6 +566,9 @@ public class AFriendClient{
                     String data_found = Tools.receive_Unicode_Automatically(dis);
                     String[] found = data_found.split(" ");
                     System.out.println(String.join(" ", found));
+                    for (String s : found){
+                        System.out.println(s);
+                    }
                     try{
                         SwingUtilities.invokeLater(new Runnable(){
                             @Override
