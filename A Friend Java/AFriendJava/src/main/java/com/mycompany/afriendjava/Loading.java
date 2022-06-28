@@ -1,9 +1,6 @@
 package com.mycompany.afriendjava;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 
 public class Loading extends javax.swing.JFrame {
 
@@ -58,12 +55,27 @@ public class Loading extends javax.swing.JFrame {
             @Override
             public void run() {
                 for (int i = 1; i <= 100; i++) {
-                    progress.UpdateProgess(i);
+                    final int in = i;
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            progress.UpdateProgess(in);
+                            progress.repaint();
+                        }
+                    });
+                    //progress.UpdateProgess(i);
                     try {
                         Thread.sleep(50);
-                        progress.repaint();
+                        /* 
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                progress.repaint();
+                            }
+                        });*/
+                        //progress.repaint();
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(Loading.class.getName()).log(Level.SEVERE, null, ex);
+                        ex.printStackTrace();
                     }
                 }
             }

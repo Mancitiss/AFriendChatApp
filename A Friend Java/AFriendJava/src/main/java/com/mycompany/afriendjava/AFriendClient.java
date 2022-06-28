@@ -62,7 +62,7 @@ public class AFriendClient{
     private static void addWriteThread(){
         if (writeFileAdded.getAndSet(1) == 0){
             try{
-                new Thread(new Runnable(){
+                Thread thread = new Thread(new Runnable(){
                     @Override
                     public void run() {
                         try{
@@ -70,19 +70,22 @@ public class AFriendClient{
                                 WriteCommand wc = writeCommands.poll();
                                 try{
                                     if (files.get(wc.file).fos != null){
-                                        if (files.get(wc.file).fos.getChannel().isOpen()){
+                                        //if (files.get(wc.file).fos.getChannel().isOpen()){
                                             files.get(wc.file).fos.getChannel().position(wc.offset);
                                             files.get(wc.file).fos.write(wc.databyte, 0, wc.received_byte);
                                             files.get(wc.file).size -= wc.received_byte;
                                             if (files.get(wc.file).size <= 0){
+                                                files.get(wc.file).fos.flush();
                                                 files.get(wc.file).fos.close();
                                                 files.get(wc.file).fos = null;
                                                 files.remove(wc.file);
+                                                System.out.println("Done");
                                             }
-                                        }
+                                            System.out.println("writing end");
+                                        //}
                                     }
                                     else {
-                                        files.get(wc.file).fos = new FileOutputStream(wc.file);
+                                        files.get(wc.file).fos = new FileOutputStream(files.get(wc.file).name);
                                         files.get(wc.file).fos.getChannel().position(wc.offset);
                                         files.get(wc.file).fos.write(wc.databyte, 0, wc.received_byte);
                                         files.get(wc.file).size -= wc.received_byte;
@@ -112,14 +115,19 @@ public class AFriendClient{
                         }
                         finally{
                             writeFileAdded.set(0);
+                            System.out.println("Write stopped");
                         }
                     }
-                }
-                ).start();
+                });
+                thread.start();
             }
             catch (Exception e){
                 e.printStackTrace();
+                writeFileAdded.set(0);
             }
+        }
+        else{
+            System.out.println("Running");
         }
     }
  
@@ -215,6 +223,7 @@ public class AFriendClient{
                                                             if (total_byte_received == first_byte_expected){
                                                                 queueCommand(Tools.combine(
                                                                         "1904".getBytes(StandardCharsets.UTF_16LE),
+                                                                        (s.id).getBytes(StandardCharsets.UTF_16LE),
                                                                         Tools.data_with_ASCII_byte(String.valueOf(s.num)).getBytes(StandardCharsets.US_ASCII),
                                                                         Tools.data_with_ASCII_byte(String.valueOf(offset)).getBytes(StandardCharsets.US_ASCII),
                                                                         Tools.data_with_ASCII_byte(String.valueOf(received_byte)).getBytes(StandardCharsets.US_ASCII),
@@ -230,7 +239,7 @@ public class AFriendClient{
                                                             }
                                                             catch (Exception ex)
                                                             {
-                                                                ex.printStackTrace();
+                                                                //ex.printStackTrace();
                                                             }
                                                         }
                                                     }
@@ -289,6 +298,7 @@ public class AFriendClient{
                     }
                     catch(Exception e){
                         e.printStackTrace();
+                        workerAdded.set(0);
                     }
                 }).start();
             }
@@ -377,7 +387,10 @@ public class AFriendClient{
  
     public static boolean tryLogin(String username, String password){
         try {
+            commands = new ConcurrentLinkedQueue<byte[]>();
+            System.out.println(username + "\n" + password);
             client = (SSLSocket) ssf.createSocket(SERVER_ADDRESS, SERVER_PORT);
+            System.out.println("HASH: " + client.hashCode());
             dis = new DataInputStream(client.getInputStream());
             dos = new DataOutputStream(client.getOutputStream());
             queueCommand(("0010" + Tools.data_with_unicode_byte(username) + Tools.data_with_unicode_byte(password)).getBytes(StandardCharsets.UTF_16LE));
@@ -411,6 +424,9 @@ public class AFriendClient{
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
+            dos = null;
+            dis = null;
+            client = null;
             return false;
         }
     }
@@ -556,16 +572,55 @@ public class AFriendClient{
                             public void run(){
                                 
                                 String name = "";
+                                for (int i = 2; i < found.length - 2; i++){
+                                    name += found[i] + " ";
+                                }
+                                name = name.trim();
+                                byte state = Byte.parseByte(found[found.length - 2]);
+                                byte type = Byte.parseByte(found[found.length - 1]);
+                                // this method is synchronized, its parameters must be volatile
+                                Program.mainform.changeWarning("New contact added!", new Color(143, 228, 185));
+                                
+                                // this method is synchronized, its parameters must be volatile
+                                Program.mainform.addContactItem(new Account(found[1], name, found[0], state, type));
+                                if (first.containsKey(found[0])){
+                                    for(MessageObject msgobj: first.get(found[0])){
+                                        // this method is synchronized, its parameters must be volatile
+                                        Program.mainform.panelChats.get(found[0]).addMessage(msgobj);
+                                    }
+                                    first.remove(found[0]);
+                                }
+                            }
+                        });
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                    }
+                    queueCommand(("1060" + found[0]).getBytes(StandardCharsets.UTF_16LE));
+                }
+                break;
+
+                case "1610":{
+                    String data_found = Tools.receive_Unicode_Automatically(dis);
+                    String[] found = data_found.split(" ");
+                    System.out.println(String.join(" ", found));
+                    try{
+                        SwingUtilities.invokeLater(new Runnable(){
+                            @Override
+                            public void run(){
+                                
+                                String name = "";
                                 for (int i = 2; i < found.length - 1; i++){
                                     name += found[i] + " ";
                                 }
                                 name = name.trim();
                                 byte state = Byte.parseByte(found[found.length - 1]);
+                                byte type = 0;
                                 // this method is synchronized, its parameters must be volatile
-                                Program.mainform.formAddContact.changeWarningLabel("New contact added!", new Color(143, 228, 185));
+                                Program.mainform.changeWarning("New contact added!", new Color(143, 228, 185));
                                 
                                 // this method is synchronized, its parameters must be volatile
-                                Program.mainform.addContactItem(new Account(found[1], name, found[0], state));
+                                Program.mainform.addContactItem(new Account(found[1], name, found[0], state, type));
                                 if (first.containsKey(found[0])){
                                     for(MessageObject msgobj: first.get(found[0])){
                                         // this method is synchronized, its parameters must be volatile
@@ -798,7 +853,7 @@ public class AFriendClient{
                     SwingUtilities.invokeLater(new Runnable(){
                         @Override
                         public void run(){
-                        Program.mainform.formAddContact.changeWarningLabel("That ID doesn't exist", new Color(255, 0, 0));
+                        Program.mainform.changeWarning("That ID doesn't exist", new Color(255, 0, 0));
                         }
                     });
                 } break;
@@ -863,7 +918,7 @@ public class AFriendClient{
         }
         catch (Exception e){
             e.printStackTrace();
-            if(e.getMessage().contains("Socket")) user.state = 0;
+            if(e.getMessage().contains("Socket")) try {if (user != null) user.state = 0;} catch (Exception ex){}
         }
     }
 
@@ -872,6 +927,7 @@ public class AFriendClient{
             boolean success = false;
 
             client = (SSLSocket) ssf.createSocket(SERVER_ADDRESS, SERVER_PORT);
+            System.out.println("HASH: " + client.hashCode());
             dis = new DataInputStream(client.getInputStream());
             dos = new DataOutputStream(client.getOutputStream());
             queueCommand(("0011"+Tools.data_with_unicode_byte(username) + Tools.data_with_unicode_byte(pw)).getBytes(StandardCharsets.UTF_16LE));
@@ -895,10 +951,25 @@ public class AFriendClient{
                 client.close();
             }
             catch(Exception e){}
+            client = null;
+            dos = null;
+            dis = null;
             return success;
         }
         catch (Exception e){
             e.printStackTrace();
+            try {
+                dis.close();
+            } catch (IOException e1) {}
+            try {
+                dos.close();
+            } catch (IOException e1) {}
+            try {
+                client.close();
+            } catch (IOException e1) {}
+            client = null;
+            dos = null;
+            dis = null;
             return false;
         }
     }

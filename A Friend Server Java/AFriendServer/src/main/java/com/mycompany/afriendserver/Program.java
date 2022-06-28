@@ -145,7 +145,7 @@ public class Program {
 
     static boolean check_existed_username(String username) {
         try (PreparedStatement cmd = sql.prepareStatement("select 1 from account where username= ?");) {
-            cmd.setString(1, username);
+            cmd.setNString(1, username);
             ResultSet rs = cmd.executeQuery();
             if (rs.next()) {
                 return true;
