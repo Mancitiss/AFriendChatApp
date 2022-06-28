@@ -39,6 +39,12 @@ public class Settings extends javax.swing.JFrame {
         addPlaceholderStyle(pFieldConfirmPassword);
         addPlaceholderStyle(textFieldNewUsername);
         changeIncognitoMode(AFriendClient.user.priv);
+        buttonExit.setContentAreaFilled(false);
+        buttonExit.setOpaque(true);
+        buttonSaveName.setContentAreaFilled(false);
+        buttonSaveName.setOpaque(true);
+        buttonSavePassword.setContentAreaFilled(false);
+        buttonSavePassword.setOpaque(true);
     }
 
     public Settings(String id) {
@@ -81,7 +87,7 @@ public class Settings extends javax.swing.JFrame {
         this.labelID.setText(AFriendClient.user.id);
         panelChangeName.setVisible(false);
         panelChangePassword.setVisible(false);
-
+        
     }
 
     public void addPlaceholderStyle(JTextField textField) {
@@ -472,7 +478,7 @@ public class Settings extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_buttonAvatarMouseClicked
 
-    private void buttonSaveNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSaveNameMouseClicked
+    private void buttonSaveNameActionPerformed(java.awt.event.ActionEvent evt) {                                            
         if (IsEmptyTextField())
             labelWarning1.setText("Please enter your new name.");
         else if (textFieldNewUsername.getText().trim().length() >= 64)
@@ -483,7 +489,7 @@ public class Settings extends javax.swing.JFrame {
             labelWarning1.setText("");
             labelUsername.setText(textFieldNewUsername.getText().trim());
         }
-    }//GEN-LAST:event_buttonSaveNameActionPerformed
+    }                                              
 
     private void buttonExitMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonExitMouseClicked
         dispose();
@@ -493,7 +499,7 @@ public class Settings extends javax.swing.JFrame {
         panelChangePassword.setVisible(true);
     }//GEN-LAST:event_labelChangePassword1MouseClicked
 
-    private void buttonSavePasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSavePasswordMouseClicked
+    private void buttonSavePasswordActionPerformed(java.awt.event.ActionEvent evt) {                                                
         if (IsEmptyPasswordField())
             labelWarning2.setText("Please complete your password.");
         else if (!MatchPassword())
@@ -503,7 +509,7 @@ public class Settings extends javax.swing.JFrame {
             panelChangePassword.setVisible(false);
             labelWarning2.setText("");
         }
-    }//GEN-LAST:event_buttonSavePasswordActionPerformed
+    }                                                  
 
     /**
      * @param args the command line arguments

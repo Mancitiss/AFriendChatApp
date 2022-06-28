@@ -203,7 +203,10 @@ public class SignUp extends javax.swing.JFrame {
     }
 
     private void buttonExitMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonExitMouseClicked
-        dispose();
+        //dispose();
+        setVisible(false);
+        SignUp signUp = new SignUp();
+        signUp.setVisible(true);
     }//GEN-LAST:event_buttonExitMouseClicked
 
     /**
