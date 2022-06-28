@@ -34,15 +34,19 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentListener;
+import java.awt.event.AdjustmentEvent;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.mycompany.afriendjava.AFriendClient;
@@ -74,7 +78,7 @@ public class PanelChat extends javax.swing.JPanel{
     private JButton sendImageButton;
     private JButton sendFileButton;
     
-    private java.util.Timer timerChat;
+    private java.util.Timer timerChat = new java.util.Timer();
 
     public Account account;
     public String id;
@@ -102,6 +106,7 @@ public class PanelChat extends javax.swing.JPanel{
     private static final String TEXT_SUBMIT = "text-submit";
 
     protected int timi = 240; // this is the elapsed time (in second) between 2 message needed to show timer
+    public boolean locking = true;
 
     private void initializeComponent(){
         
@@ -181,7 +186,6 @@ public class PanelChat extends javax.swing.JPanel{
                     int n2 = JOptionPane.showConfirmDialog(null, "This action will DELETE ALL YOUR MESSAGES with THIS PERSON! Think twice! Are you serious?", "Delete Conversation", JOptionPane.YES_NO_OPTION);
                     if (n2 == 0){
                         AFriendClient.queueCommand(("5859" + id).getBytes(StandardCharsets.UTF_16LE));
-                        
                     }
                 }
             }
@@ -244,8 +248,32 @@ public class PanelChat extends javax.swing.JPanel{
         panelChatScroll.setBounds(0, 0, 912, 474);
         panelChatScroll.getVerticalScrollBar().setUnitIncrement(30);
         panelChatScroll.getVerticalScrollBar().setBlockIncrement(30);
+        panelChatScroll.getVerticalScrollBar().setComponentOrientation(java.awt.ComponentOrientation.RIGHT_TO_LEFT);
         panelChatScroll.setWheelScrollingEnabled(true);
         panelChatScroll.getViewport().setOpaque(false);
+        panelChatScroll.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                if(e.getValue() == panelChatScroll.getVerticalScrollBar().getMinimum()){
+                    if (isLoadingOldMessages) panelChatScroll.getVerticalScrollBar().setValue(current_vertical_value);
+                    if (panelChatScroll.getVerticalScrollBar().getValue() == panelChatScroll.getVerticalScrollBar().getMinimum() && !locking ){
+                        long num = loadedmessagenumber - 1;
+                        if (num > 1){
+                            String datasend = num + "";
+                            AFriendClient.queueCommand(("6475" + account.id + Tools.data_with_unicode_byte(datasend)).getBytes(StandardCharsets.UTF_16LE));
+                            locking = true;
+                            timerChat.schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    locking = false;
+                                }
+                            }, 3000);
+                        }
+                    }
+                }
+            }
+        });
+        panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
 
         panelChat.add(Box.createVerticalGlue());
 
@@ -612,7 +640,7 @@ public class PanelChat extends javax.swing.JPanel{
         if (currentChatItem == chatItem){
             return;
         }
-        System.out.println("set");
+        //System.out.println("set");
         if (currentChatItem != null){
             currentChatItem.setShowDetail(currentChatItemShowing);
         }
@@ -622,11 +650,11 @@ public class PanelChat extends javax.swing.JPanel{
 
     public Timestamp DateTimeOfLastMessage(){
         if (messages.size() == 0){
-            System.out.println(new Timestamp(System.currentTimeMillis()));
+            //System.out.println(new Timestamp(System.currentTimeMillis()));
             return new Timestamp(System.currentTimeMillis());
         }
         else {
-            System.out.println("MO " + messages.get(currentmax).messageObject.timesent);
+            //System.out.println("MO " + messages.get(currentmax).messageObject.timesent);
             return messages.get(currentmax).messageObject.timesent;
         }
     }
@@ -638,7 +666,8 @@ public class PanelChat extends javax.swing.JPanel{
         Program.mainform.contactItems.get(id).setLastMessage(this.getLastMessage());
         if (messages.size() > 0){
             // scroll to the last message
-            panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
+            scrollToBottom();
+            //panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
         }
 
         // code to remove message
@@ -662,20 +691,20 @@ public class PanelChat extends javax.swing.JPanel{
 
     public String getLastMessage() {
         if (messages.size() == 0){
-            System.out.println("New conversation!");
+            //System.out.println("New conversation!");
             return "New conversation!";
         }
         this.evaluateMaxmin();
         MessageObject messageObject = messages.get(currentmax).messageObject;
         if (messageObject.type == 0){
-            System.out.println(messageObject.message);
+            //System.out.println(messageObject.message);
             return messageObject.message;
         }
         else if (messageObject.type == 1){
-            System.out.println("Image");
+            //System.out.println("Image");
             return "<Photo>";
         }
-        System.out.println("null");
+        //System.out.println("null");
         return "";
     }
 
@@ -683,7 +712,7 @@ public class PanelChat extends javax.swing.JPanel{
         if (messages.size() == 0) return;
         while (!messages.containsKey(currentmax)) currentmax -= 1;
         while (!messages.containsKey(currentmin)) currentmin += 1;
-        System.out.println(currentmax + " " + currentmin);
+        //System.out.println(currentmax + " " + currentmin);
     }
 
     public boolean isLastMessageFromYou() {
@@ -718,14 +747,41 @@ public class PanelChat extends javax.swing.JPanel{
             chatItem.updateDateTime();
             if (isFormShowing == 1 && panelChatScroll.getVerticalScrollBar().getValue() > panelChatScroll.getVerticalScrollBar().getMaximum() - 350 - chatItem.getSize().height)
             {
-                panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
+                scrollToBottom();
+                /*
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
+                    }
+                });
+                */
+                //panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
             }
             else if (isFormShowing == 0 && panelChatScroll.getVerticalScrollBar().getValue() > panelChatScroll.getVerticalScrollBar().getMaximum() - 2 * panelChat.getSize().height - chatItem.getSize().height )
             {
-                panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
+                scrollToBottom();
+                /*
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
+                    }
+                });
+                */
+                //panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
             }
             else if (chatItem.isMine){
-                panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
+                scrollToBottom();
+                /*
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
+                    }
+                });
+                */
+                //panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
             }
             if (!chatItem.isMine && isFormShowing > 0){
                 // flash form
@@ -770,11 +826,11 @@ public class PanelChat extends javax.swing.JPanel{
             chatItem.setShowDetail(false);
             chatItem.updateDateTime();
             
-            if (message.type == 3 || !messages.containsKey(message.messagenumber - 1) || messages.get(message.messagenumber - 1).messageObject.type == 3 || (message.timesent.getTime()/1000 - messages.get(message.messagenumber - 1).messageObject.timesent.getTime()/1000) > timi)
+            if (message.type == 3 || !messages.containsKey(message.messagenumber + 1) || messages.get(message.messagenumber + 1).messageObject.type == 3 || (message.timesent.getTime()/1000 - messages.get(message.messagenumber + 1).messageObject.timesent.getTime()/1000) > timi)
             {
                 chatItem.setShowDetail(true);
                 if (messages.containsKey(message.messagenumber + 1)){
-                    if (messages.get(message.messagenumber + 1).messageObject.type == 3 || (messages.get(message.messagenumber - 1).messageObject.timesent.getTime()/1000 - message.timesent.getTime()/1000 ) > timi){
+                    if (messages.get(message.messagenumber + 1).messageObject.type == 3 || (messages.get(message.messagenumber + 1).messageObject.timesent.getTime()/1000 - message.timesent.getTime()/1000 ) > timi){
                         messages.get(message.messagenumber + 1).setShowDetail(false);
                     }
                 }
@@ -794,7 +850,7 @@ public class PanelChat extends javax.swing.JPanel{
         if (panelChat.getComponentCount() > messageObjects.size()){
             Box currentBox = (Box)messages.get(currentMinChat).getParent();
             // scroll panelChat to the top of the current box
-            panelChatScroll.getVerticalScrollBar().setValue(currentBox.getY());
+            panelChatScroll.getVerticalScrollBar().setValue(currentBox.getY() + 10);
             current_vertical_value = panelChatScroll.getVerticalScrollBar().getValue();
 
         }
@@ -815,9 +871,17 @@ public class PanelChat extends javax.swing.JPanel{
     }
 
     public void scrollToBottom() {
-        if (this.panelChat.getComponentCount() > 1){
-            this.panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
-        }
+        int delay = 200;
+        javax.swing.Timer timer = new javax.swing.Timer( delay, new ActionListener(){
+            @Override
+            public void actionPerformed( ActionEvent e ){
+                if (panelChat.getComponentCount() > 1){
+                    panelChatScroll.getVerticalScrollBar().setValue(panelChatScroll.getVerticalScrollBar().getMaximum());
+                }
+            }
+        });
+        timer.setRepeats( false );
+        timer.start();
     }
     
     public void LoadMessage(){

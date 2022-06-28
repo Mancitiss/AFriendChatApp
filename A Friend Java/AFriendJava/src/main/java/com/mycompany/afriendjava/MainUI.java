@@ -135,26 +135,26 @@ public class MainUI extends javax.swing.JFrame {
     public synchronized void sortContactItems(){
         try{
             int length = contactItems.size();
-            for(int i = 0; i < length; i++){
-                String min = "";
+            for(int i = 0; i < contactItems.size(); i++){
+                String max = "";
                 int j = 0;
                 for(Entry<Integer, String> keyValuePair: orderOfContactItems.entrySet()){
                     if (j == length){
                         break;
                     }
-                    if (min == ""){
-                        min = keyValuePair.getValue();
+                    if (max == ""){
+                        max = keyValuePair.getValue();
                     }
                     else
                     {
-                        if (panelChats.get(min).DateTimeOfLastMessage().getTime() > panelChats.get(keyValuePair.getValue()).DateTimeOfLastMessage().getTime()){
-                            min = keyValuePair.getValue();
+                        if (panelChats.get(max).DateTimeOfLastMessage().getTime() < panelChats.get(keyValuePair.getValue()).DateTimeOfLastMessage().getTime()){
+                            max = keyValuePair.getValue();
                         }
                     }
                     j = j + 1;
                 }
                 length = length - 1;
-                bringContactItemToTop(min);
+                bringContactItemToTop(max);
             }
 
             for(Entry<Integer, String> keyValuePair1: orderOfContactItems.entrySet()){
@@ -215,9 +215,9 @@ public class MainUI extends javax.swing.JFrame {
         if (loaded){
             ui.customcomponents.ContactItem item = contactItems.get(id);
             if (searchText == ""){
-                System.out.println(ContactList_Panel.getComponentZOrder(item.getParent()));
+                //System.out.println(ContactList_Panel.getComponentZOrder(item.getParent()));
                 ContactList_Panel.remove(item.getParent());
-                ContactList_Panel.add(item.getParent(), ContactList_Panel.getComponentCount() -1);
+                ContactList_Panel.add(item.getParent(), 0);
             }
         }
     }
@@ -259,7 +259,7 @@ public class MainUI extends javax.swing.JFrame {
                 panelRight.repaint();
                 panelRight2.revalidate();
                 panelRight2.repaint();
-                System.out.println("panelRight displaying" + id);
+                //System.out.println("panelRight displaying" + id);
             }
         }
         else{
@@ -273,12 +273,13 @@ public class MainUI extends javax.swing.JFrame {
                 panelRight.repaint();
                 panelRight2.revalidate();
                 panelRight2.repaint();
-                System.out.println("panelRight2 displaying" + id);
+                //System.out.println("panelRight2 displaying" + id);
             }
         }
         currentID = id;
         currentPanelChat = item;
         item.scrollToBottom();
+        item.locking = false;
     }
     private String getCurrentPanelChatId(){
         if (panelRight.getComponentCount() > 0){
@@ -347,13 +348,13 @@ public class MainUI extends javax.swing.JFrame {
     public synchronized void addContactItem(Account acc){
         try{
             if (!panelChats.containsKey(acc.id)){
-                System.out.println("add contact item");
+                //System.out.println("add contact item");
                 ContactItem ci = new ContactItem(acc);
                 ci.setUnread(true);
                 if (loaded){
                     ContactList_Panel.add(ContactLayout.createContactItemBox(ci), 0);
                 }
-                System.out.println("added");
+                //System.out.println("added");
                 if (orderOfContactItems.size() == 0){
                     orderOfContactItems.put(0, acc.id);
                 }
@@ -401,7 +402,7 @@ public class MainUI extends javax.swing.JFrame {
                             if (e.getClickCount() == 1){
                                 if (!MainUI.subForms.containsKey(panelChat.id)){
                                     showPanelChat(acc.id, false);
-                                    System.out.println("Clicked");
+                                    //System.out.println("Clicked");
                                 }
                             }
                         }
@@ -644,7 +645,7 @@ public class MainUI extends javax.swing.JFrame {
         Button_Panel.add(LogOut_Button);
         Button_Panel.add(Setting_Button);
         Button_Panel.add(AddFriend_Button);
-        //Button_Panel.add(AddGroup_Button);
+        Button_Panel.add(AddGroup_Button);
 
         panelLeft = new JPanel();
         panelLeft.setLocation(0, 0);

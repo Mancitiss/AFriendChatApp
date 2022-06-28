@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 
 import com.mycompany.afriendjava.Account;
 import com.mycompany.afriendjava.MainUI;
+import com.mycompany.afriendjava.Program;
 
 public class ContactItem extends JComponent{
 
@@ -102,8 +103,48 @@ public class ContactItem extends JComponent{
         this.revalidate();
         this.repaint();
         //TODO double click event
+
+        // double click
+        this.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2){
+                    openChatWindow();
+                }
+            }
+        });
     }
 
+    protected void openChatWindow() {
+        Program.mainform.panelChats.get(id).isFormShowing++;
+        if (1 == Program.mainform.panelChats.get(id).isFormShowing){
+            JFrame frame = new JFrame();
+            frame.addComponentListener(new WindowSnapper());
+            frame.setSize(300, 450 + frame.getInsets().top);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            // add component
+            frame.add(Program.mainform.panelChats.get(id));
+            MainUI.subForms.put(id, frame);
+            // add closing event
+            frame.addWindowListener(new java.awt.event.WindowAdapter() {
+                public void windowClosing(java.awt.event.WindowEvent evt) {
+                    Program.mainform.panelChats.get(id).isFormShowing = 0;
+                    frame.remove(Program.mainform.panelChats.get(id));
+                    MainUI.subForms.remove(id);
+                }
+            });
+            java.awt.Rectangle bounds = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+            Dimension screenSize = bounds.getSize();
+            frame.setLocation((screenSize.width - 7 - frame.getWidth() * (MainUI.subForms.size())) > 0? 
+                (screenSize.width - 7 - frame.getWidth() * (MainUI.subForms.size())) : 0,  
+                (screenSize.height - 3 - frame.getHeight() - frame.getInsets().top) > 0?
+                (screenSize.height - 3 - frame.getHeight() - frame.getInsets().top) : 0);
+                
+            frame.setVisible(true);
+            if (Program.mainform.panelChats.get(id).messages.size() > 0){
+                ((PanelChat) frame.getComponent(0)).scrollToBottom();
+            }
+        }
+    }
     public void setLastMessage(String message){
         labelLastMessage.setText(message);
         labelLastMessage.revalidate();
