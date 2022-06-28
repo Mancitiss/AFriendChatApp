@@ -118,7 +118,7 @@ public class Settings extends javax.swing.JFrame {
     }
 
     private boolean MatchPassword() {
-        if (pFieldNewPassword.getPassword().toString().equals(pFieldConfirmPassword.getPassword().toString())) {
+        if ((new String(pFieldNewPassword.getPassword())).equals(new String(pFieldConfirmPassword.getPassword()))) {
             return true;
         } else {
             return false;
@@ -153,7 +153,7 @@ public class Settings extends javax.swing.JFrame {
         labelChangePassword1 = new javax.swing.JLabel();
         labelWarning2 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setAutoRequestFocus(false);
         setResizable(false);
         setSize(new java.awt.Dimension(418, 662));
@@ -286,11 +286,11 @@ public class Settings extends javax.swing.JFrame {
         jTabbedPane2.addTab("Profile", jPanel1);
 
         pFieldNewPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
-        pFieldNewPassword.setEchoChar('\u0000');
+        pFieldNewPassword.setEchoChar('*');
         TextPrompt tpNewPassword = new TextPrompt("New password", pFieldNewPassword); // NOI18N
 
         pFieldConfirmPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
-        pFieldConfirmPassword.setEchoChar('\u0000');
+        pFieldConfirmPassword.setEchoChar('*');
         TextPrompt tpConfirmPassword = new TextPrompt("Confirm password", pFieldConfirmPassword); // NOI18N
 
         buttonSavePassword.setBackground(new java.awt.Color(90, 198, 140));
@@ -304,7 +304,7 @@ public class Settings extends javax.swing.JFrame {
         });
 
         pFieldCurrentPassword.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 14)); // NOI18N
-        pFieldCurrentPassword.setEchoChar('\u0000');
+        pFieldCurrentPassword.setEchoChar('*');
         TextPrompt tpCurrentPassword = new TextPrompt("Current password", pFieldCurrentPassword); // NOI18N
 
         javax.swing.GroupLayout panelChangePasswordLayout = new javax.swing.GroupLayout(panelChangePassword);
@@ -508,7 +508,7 @@ public class Settings extends javax.swing.JFrame {
         else if (!MatchPassword())
             labelWarning2.setText("Passwords are NOT match.");
         else {
-            AFriendClient.queueCommand(("4269"+Tools.data_with_unicode_byte(pFieldCurrentPassword.getPassword().toString())+Tools.data_with_unicode_byte(pFieldNewPassword.getPassword().toString())).getBytes(StandardCharsets.UTF_16LE));
+            AFriendClient.queueCommand(("4269"+Tools.data_with_unicode_byte(new String(pFieldCurrentPassword.getPassword()))+Tools.data_with_unicode_byte(new String(pFieldNewPassword.getPassword()))).getBytes(StandardCharsets.UTF_16LE));
             panelChangePassword.setVisible(false);
             labelWarning2.setText("");
         }

@@ -289,7 +289,7 @@ public class AFriendClient{
                     try{
                         while(!commands.isEmpty()){
                             byte[] command = commands.poll();
-                            System.out.println("COMMAND: " + new String(command, StandardCharsets.UTF_16LE));
+                            //System.out.println("COMMAND: " + new String(command, StandardCharsets.UTF_16LE));
                             dos.write(command);
                             ping();
                         }

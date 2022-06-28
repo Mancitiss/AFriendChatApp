@@ -188,7 +188,7 @@ public class MainUI extends javax.swing.JFrame {
             else {
                 // clear controls of chat panel
                 panelRight.removeAll();
-                SearchBar.setVisible(false);
+                //SearchBar.setVisible(true);
             }
         }
         catch (Exception e){
