@@ -648,6 +648,7 @@ public class AFriendClient{
                     String json = Tools.receive_Unicode_Automatically(dis);
                     MessageObject msgobj = Program.gson.fromJson(json, MessageObject.class);
                     String sender = msgobj.id1;
+                    if (msgobj.sender) sender = msgobj.id2;
                     if (user.id.equals(msgobj.id2)){ // if me = user2 add user1
                         if (Program.mainform.isThisPersonAdded(msgobj.id1)){
                             SwingUtilities.invokeLater(new Runnable(){

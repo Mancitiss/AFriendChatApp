@@ -188,6 +188,7 @@ public class PanelChat extends javax.swing.JPanel{
                     int n2 = JOptionPane.showConfirmDialog(null, "This action will DELETE ALL YOUR MESSAGES with THIS PERSON! Think twice! Are you serious?", "Delete Conversation", JOptionPane.YES_NO_OPTION);
                     if (n2 == 0){
                         AFriendClient.queueCommand(("5859" + id).getBytes(StandardCharsets.UTF_16LE));
+                        Program.mainform.removeContact(id);
                     }
                 }
             }
