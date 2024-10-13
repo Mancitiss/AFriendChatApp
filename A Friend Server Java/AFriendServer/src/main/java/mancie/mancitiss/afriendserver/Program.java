@@ -31,8 +31,8 @@ public class Program {
     /**
      * @param args the command line arguments
      */
-    public static String avatar_path = "F:\\App\\AFriendServer\\avatar\\";
-    public static String img_path = "F:\\App\\AFriendServer\\message\\";
+    public static String avatar_path = "D:\\App\\AFriendServer\\avatar\\";
+    public static String img_path = "D:\\App\\AFriendServer\\message\\";
     static ExecutorService executor = Executors.newCachedThreadPool();
     static Calendar tzCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
@@ -57,6 +57,7 @@ public class Program {
                     + "password=" + System.getenv("DBpassword") + ";"
                     + "loginTimeout=10;encrypt=true;trustServerCertificate=true";
             cnurl = connectionUrl;
+            out.println(connectionUrl);
             System.setProperty("javax.net.ssl.keyStore", System.getenv("certpath"));
             System.setProperty("javax.net.ssl.keyStorePassword", System.getenv("certpass"));
             try (Connection sqlr = DriverManager.getConnection(connectionUrl)) {
@@ -84,6 +85,11 @@ public class Program {
             }
         } catch (Exception e) {
             out.println("Error: " + e.toString());
+            // print error at which line
+            StackTraceElement[] stackTraceElements = e.getStackTrace();
+            for (StackTraceElement stackTraceElement : stackTraceElements) {
+                out.println(stackTraceElement.toString());
+            }
         }
     }
 
