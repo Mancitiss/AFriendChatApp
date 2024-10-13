@@ -51,15 +51,58 @@ public class Program {
 
     public static void main(String[] args) {
         try {
-            String connectionUrl = "jdbc:sqlserver://" + System.getenv("DBServer") + ";"
-                    + "databaseName=" + System.getenv("DBicatalog") + ";"
-                    + "user=" + System.getenv("DBusername") + ";"
-                    + "password=" + System.getenv("DBpassword") + ";"
-                    + "loginTimeout=10;encrypt=true;trustServerCertificate=true";
+            String DBserver = System.getenv("DBServer");
+            if (DBserver == null) {
+                out.println("DBServer is null, please set it in environment variable under the name DBServer");
+                return;
+            }
+
+            String DBicatalog = System.getenv("DBicatalog");
+            if (DBicatalog == null) {
+                out.println("DBicatalog is null, please set it in environment variable under the name DBicatalog");
+                return;
+            }
+
+            String DBusername = System.getenv("DBusername");
+            if (DBusername == null) {
+                out.println("DBusername is null, please set it in environment variable under the name DBusername");
+                return;
+            }
+
+            String DBpassword = System.getenv("DBpassword");
+            if (DBpassword == null) {
+                out.println("DBpassword is null, please set it in environment variable under the name DBpassword");
+                return;
+            }
+
+            String options = "loginTimeout=10;encrypt=true;trustServerCertificate=true";
+
+            out.println("Connecting to database...");
+            out.println("Database Server (reading from 'DBServer' in environment variables): " + DBserver);
+            out.println("Database (reading from 'DBicatalog' in environment variables): " + DBicatalog);
+            out.println("Username and password are read from 'DBusername' and 'DBpassword' in environment variables respectively");
+            out.println("Options: " + options);
+
+            String connectionUrl = "jdbc:sqlserver://" + DBserver + ";"
+                    + "databaseName=" + DBicatalog + ";"
+                    + "user=" + DBusername + ";"
+                    + "password=" + DBpassword + ";"
+                    + options;
             cnurl = connectionUrl;
-            out.println(connectionUrl);
-            System.setProperty("javax.net.ssl.keyStore", System.getenv("certpath"));
-            System.setProperty("javax.net.ssl.keyStorePassword", System.getenv("certpass"));
+            String certPath = System.getenv("certpath");
+            if (certPath == null) {
+                out.println("certpath is null, please set it in environment variable under the name certpath");
+                return;
+            }
+
+            String certPass = System.getenv("certpass");
+            if (certPass == null) {
+                out.println("certpass is null, please set it in environment variable under the name certpass");
+                return;
+            }
+
+            System.setProperty("javax.net.ssl.keyStore", certPath);
+            System.setProperty("javax.net.ssl.keyStorePassword", certPass);
             try (Connection sqlr = DriverManager.getConnection(connectionUrl)) {
                 sql = sqlr;
                 ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
@@ -95,10 +138,14 @@ public class Program {
 
     private static void ExecuteServer() throws IOException {
         SSLServerSocketFactory ssf = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-        try (SSLServerSocket ss = (SSLServerSocket) ssf.createServerSocket(11111)) {
+        out.println("Tip: You can set the port by setting the environment variable 'chatPort', default is 11111");
+        String portEnv = System.getenv("chatPort");
+        int port = portEnv == null ? 11111 : Integer.parseInt(portEnv);
+        try (SSLServerSocket ss = (SSLServerSocket) ssf.createServerSocket(port)) {
             // translate below line of code from C#
             // Console.WriteLine("Server at: {0}", IPAddress.Any);
             out.println("Server at: " + ss.getInetAddress());
+            out.println("Port: " + ss.getLocalPort());
             try {
                 while (true) {
                     SSLSocket client = (SSLSocket) ss.accept();
